@@ -5,8 +5,8 @@ services:
     pythonVersion: 3.11.0
     buildCommand: |
       pip install -r requirements.txt
-      pip install -e ai_ml/
-      python backend/download_models.py
+      cd ai_ml && pip install -e .
+      cd ../backend && python download_models.py
     startCommand: cd backend && gunicorn backend.wsgi:application --log-file - --workers=1
     plan: free
     envVars:

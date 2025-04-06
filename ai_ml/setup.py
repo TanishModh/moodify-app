@@ -11,5 +11,10 @@ setup(
         'numpy',
         'pandas',
         'scikit-learn',
+        'python-dotenv',
+        'requests',
+        'gunicorn'
     ],
+    package_dir={'': 'src'},
+    python_requires='>=3.6',
 )
