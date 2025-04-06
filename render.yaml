@@ -7,7 +7,7 @@ services:
       pip install -r requirements.txt
       cd ai_ml && pip install -e .
       cd ../backend && python download_models.py
-    startCommand: cd backend && gunicorn backend.wsgi:application --log-file - --workers=1
+    startCommand: cd backend && python manage.py runserver 0.0.0.0:10000
     plan: free
     envVars:
       - key: DJANGO_SECRET_KEY
