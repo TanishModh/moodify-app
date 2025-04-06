@@ -1,8 +1,7 @@
 import os
 import gdown
-import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from ai_ml.src.ai_ml.models.text_emotion import TextEmotionModel
+
+# Simple script to create model directories for deployment
 
 # Base directory (one level up from the current file: backend -> root)
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -50,23 +49,13 @@ def download_file(url, output_path):
 
 # Download all model files
 def download_models():
-    # Model paths relative to the ai_ml directory
-    MODEL_DIR = os.path.join(BASE_DIR, 'ai_ml', 'models', 'text_emotion_model')
-
-    # Check if models already exist
-    if os.path.exists(MODEL_DIR) and os.listdir(MODEL_DIR):
-        print("Models already downloaded")
-        return
-        
-    # Download text emotion model
-    model_name = "distilbert-base-uncased-finetuned-sst-2-english"
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSequenceClassification.from_pretrained(model_name)
+    # Create model directories
+    os.makedirs(os.path.join(BASE_DIR, "ai_ml/models/text_emotion_model"), exist_ok=True)
+    os.makedirs(os.path.join(BASE_DIR, "ai_ml/models/speech_emotion_model"), exist_ok=True)
+    os.makedirs(os.path.join(BASE_DIR, "ai_ml/models/facial_emotion_model"), exist_ok=True)
     
-    # Save models
-    tokenizer.save_pretrained(MODEL_DIR)
-    model.save_pretrained(MODEL_DIR)
-    print("Models downloaded successfully")
+    print("Model directories created successfully")
+    print("Skipping model downloads for deployment")
 
 
 if __name__ == "__main__":
