@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: moodify-backend
+    runtime: python
+    pythonVersion: 3.11.0
+    buildCommand: |
+      pip install -r requirements.txt
+      python backend/download_models.py
+    startCommand: cd backend && gunicorn backend.wsgi:application --log-file -
+    plan: free
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: false
+      - key: ALLOWED_HOSTS
+        value: "*"
+      - key: DATABASE_URL
+        value: sqlite:///db.sqlite3
+    autoDeploy: true
