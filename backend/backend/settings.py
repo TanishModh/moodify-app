@@ -17,11 +17,7 @@ from decouple import config
 
 # Connect to MongoDB Atlas
 connect(
-    db="emotion_based_music_db",
     host=config('MONGO_DB_URI'),  # MongoDB Atlas URI from .env file
-    username=config('MONGO_DB_USERNAME'),
-    password=config('MONGO_DB_PASSWORD'),
-    authentication_source='admin',
     ssl=True
 )
 
