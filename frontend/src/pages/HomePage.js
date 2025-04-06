@@ -18,6 +18,7 @@ import Webcam from "react-webcam";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { DarkModeContext } from "../context/DarkModeContext";
+import { API_URL } from '../config';
 
 const HomePage = () => {
   const [activeTab, setActiveTab] = useState("text");
@@ -40,7 +41,7 @@ const HomePage = () => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get(
-          "https://moodify-emotion-music-app.onrender.com/users/user/profile/",
+          `${API_URL}/users/user/profile/`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -89,7 +90,7 @@ const HomePage = () => {
       // Save mood history
       if (mood) {
         await axios.post(
-          `https://moodify-emotion-music-app.onrender.com/users/mood_history/${userData.id}/`,
+          `${API_URL}/users/mood_history/${userData.id}/`,
           { mood },
           {
             headers: {
@@ -103,7 +104,7 @@ const HomePage = () => {
       // Save recommendations history
       if (recommendations && recommendations.length > 0) {
         await axios.post(
-          `https://moodify-emotion-music-app.onrender.com/users/recommendations/${userData.id}/`,
+          `${API_URL}/users/recommendations/${userData.id}/`,
           {
             recommendations: recommendations.map((rec) => ({
               name: rec.name,
@@ -124,7 +125,7 @@ const HomePage = () => {
 
       // Refresh user data to reflect the updated history
       const updatedUserData = await axios.get(
-        "https://moodify-emotion-music-app.onrender.com/users/user/profile/",
+        `${API_URL}/users/user/profile/`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -164,7 +165,7 @@ const HomePage = () => {
         const textContent = await uploadedFile.text();
         response = await Promise.race([
           axios.post(
-            "https://moodify-emotion-music-app.onrender.com/api/text_emotion/",
+            `${API_URL}/api/text_emotion/`,
             { text: textContent },
             {
               headers: {
@@ -178,7 +179,7 @@ const HomePage = () => {
       } else if (activeTab === "face") {
         response = await Promise.race([
           axios.post(
-            "https://moodify-emotion-music-app.onrender.com/api/facial_emotion/",
+            `${API_URL}/api/facial_emotion/`,
             formData,
             {
               headers: {
@@ -191,7 +192,7 @@ const HomePage = () => {
       } else if (activeTab === "speech") {
         response = await Promise.race([
           axios.post(
-            "https://moodify-emotion-music-app.onrender.com/api/speech_emotion/",
+            `${API_URL}/api/speech_emotion/`,
             formData,
             {
               headers: {
@@ -223,7 +224,7 @@ const HomePage = () => {
       try {
         // Call the API with the randomly selected mood
         const response = await axios.post(
-          "https://moodify-emotion-music-app.onrender.com/api/music_recommendation/",
+          `${API_URL}/api/music_recommendation/`,
           {
             emotion: newMood.toLowerCase(),
           },
@@ -324,7 +325,7 @@ const HomePage = () => {
       try {
         // Call the API with the randomly selected mood
         const response = await axios.post(
-          "https://moodify-emotion-music-app.onrender.com/api/music_recommendation/",
+          `${API_URL}/api/music_recommendation/`,
           {
             emotion: newMood.toLowerCase(),
           },
@@ -392,7 +393,7 @@ const HomePage = () => {
       try {
         // Call the API with the randomly selected mood
         const response = await axios.post(
-          "https://moodify-emotion-music-app.onrender.com/api/music_recommendation/",
+          `${API_URL}/api/music_recommendation/`,
           {
             emotion: newMood.toLowerCase(),
           },
@@ -580,7 +581,7 @@ const HomePage = () => {
       try {
         // Call the API with the randomly selected mood
         const response = await axios.post(
-          "https://moodify-emotion-music-app.onrender.com/api/music_recommendation/",
+          `${API_URL}/api/music_recommendation/`,
           {
             emotion: newMood.toLowerCase(),
           },
