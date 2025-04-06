@@ -17,4 +17,6 @@ services:
         value: "*"
       - key: DATABASE_URL
         value: sqlite:///db.sqlite3
+      - key: MONGO_DB_URI
+        value: "mongodb+srv://moodify:moodify@cluster0.mongodb.net/moodify?retryWrites=true&w=majority"
     autoDeploy: true
