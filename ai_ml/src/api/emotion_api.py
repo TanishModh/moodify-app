@@ -1,10 +1,5 @@
 from flask import Flask, request, jsonify
-from ai_ml.src.models.text_emotion import infer_text_emotion
-from ai_ml.src.models.speech_emotion import infer_speech_emotion
-from ai_ml.src.models.facial_emotion import infer_facial_emotion
 from ai_ml.src.recommendation.music_recommendation import get_music_recommendation
-import os
-import tempfile
 from ai_ml.src.config import CONFIG
 from flask_cors import CORS  # Import CORS
 
@@ -105,14 +100,20 @@ def music_recommendation():
 
     :return: The response object containing the emotion and music recommendations.
     """
-    data = request.json
-    emotion = data.get("emotion", "") if data else ""
+    try:
+        data = request.json
+        emotion = data.get("emotion", "") if data else ""
+        print(f"Received request for emotion: {emotion}")
 
-    if not emotion:
-        return jsonify({"error": "No emotion provided"}), 400
+        if not emotion:
+            return jsonify({"error": "No emotion provided"}), 400
 
-    recommendations = get_music_recommendation(emotion)
-    return jsonify({"emotion": emotion, "recommendations": recommendations})
+        recommendations = get_music_recommendation(emotion)
+        print(f"Got recommendations for emotion {emotion}:", recommendations)
+        return jsonify({"emotion": emotion, "recommendations": recommendations})
+    except Exception as e:
+        print(f"Error in music_recommendation endpoint: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":

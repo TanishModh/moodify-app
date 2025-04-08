@@ -259,13 +259,13 @@ const Navbar = () => {
       >
         <Typography
           variant="h6"
+          className="navbar-title"
           sx={{
             cursor: "pointer",
-            fontFamily: "'Fredoka One', cursive",
-            fontSize: "28px",
+            fontSize: "32px",
             color: isDarkMode ? "white" : "black",
-            letterSpacing: "0.5px",
-            textShadow: isDarkMode ? "0 0 10px rgba(255,255,255,0.3)" : "0 0 10px rgba(0,0,0,0.1)"
+            textTransform: "none",
+            letterSpacing: "1px"
           }}
           onClick={() => navigate("/")}
         >

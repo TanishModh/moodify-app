@@ -15,6 +15,13 @@ CONFIG = {
     "num_epochs": 4,
     "learning_rate": 2e-5,
 
+    # Spotify API credentials (test account)
+    "spotify_client_id": "34a2648b4f074fd68e7aa374c0c7d2fe",
+    "spotify_client_secret": "8c8725a0558046d48737a20f21afad3a",
+
+    # API configuration
+    "api_port": 5000,
+
     # Paths are dynamically constructed relative to the base directory (ai_ml)
     "train_data_path": os.path.join(BASE_DIR, 'data', 'training.csv'),
     "test_data_path": os.path.join(BASE_DIR, 'data', 'test.csv'),

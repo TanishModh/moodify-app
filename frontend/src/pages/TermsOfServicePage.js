@@ -21,8 +21,8 @@ const TermsOfServicePage = () => {
 
         {/* Introduction Section */}
         <Typography variant="body1" style={styles.text}>
-          Welcome to Moodify! These terms and conditions outline the rules and
-          regulations for the use of Moodify’s services. By accessing and using
+          Welcome to MoodifyMe! These terms and conditions outline the rules and
+          regulations for the use of MoodifyMe’s services. By accessing and using
           this application, you accept and agree to be bound by these terms. If
           you do not agree with any part of the terms, please discontinue use of
           our services.
@@ -33,7 +33,7 @@ const TermsOfServicePage = () => {
           1. Agreement to Terms
         </Typography>
         <Typography variant="body1" style={styles.text}>
-          By accessing or using Moodify, you agree to comply with and be bound
+          By accessing or using MoodifyMe, you agree to comply with and be bound
           by these Terms of Service and our Privacy Policy. These terms apply to
           all visitors, users, and others who access or use the service.
         </Typography>
@@ -43,14 +43,14 @@ const TermsOfServicePage = () => {
           2. Prohibited Activities
         </Typography>
         <Typography variant="body1" style={styles.text}>
-          When using Moodify, you agree not to engage in the following
+          When using MoodifyMe, you agree not to engage in the following
           prohibited activities:
         </Typography>
         <ul style={styles.list}>
           <li>
             Attempting to interfere with the proper functioning of the app.
           </li>
-          <li>Engaging in unauthorized access to Moodify’s systems or data.</li>
+          <li>Engaging in unauthorized access to MoodifyMe’s systems or data.</li>
           <li>Submitting false or misleading information.</li>
           <li>
             Violating any applicable laws or regulations while using the
@@ -65,7 +65,7 @@ const TermsOfServicePage = () => {
         </Typography>
         <Typography variant="body1" style={styles.text}>
           All content, features, and functionality (including but not limited to
-          text, graphics, logos, and software) provided by Moodify are owned by
+          text, graphics, logos, and software) provided by MoodifyMe are owned by
           us and protected by intellectual property laws. You may not copy,
           modify, distribute, or create derivative works from our content
           without express permission.
@@ -77,7 +77,7 @@ const TermsOfServicePage = () => {
         </Typography>
         <Typography variant="body1" style={styles.text}>
           You may submit content, such as mood history or song recommendations,
-          as part of your experience on Moodify. By submitting this content, you
+          as part of your experience on MoodifyMe. By submitting this content, you
           grant us the right to use, modify, and distribute your content as part
           of providing our services. You also affirm that your content does not
           violate any third-party rights.
@@ -88,7 +88,7 @@ const TermsOfServicePage = () => {
           5. Termination
         </Typography>
         <Typography variant="body1" style={styles.text}>
-          We may terminate or suspend your access to Moodify at our discretion,
+          We may terminate or suspend your access to MoodifyMe at our discretion,
           without prior notice or liability, for any reason, including your
           violation of these Terms of Service. Upon termination, you are no
           longer authorized to access the app, and all provisions of these terms
@@ -100,7 +100,7 @@ const TermsOfServicePage = () => {
           6. Limitation of Liability
         </Typography>
         <Typography variant="body1" style={styles.text}>
-          In no event shall Moodify, its directors, employees, or agents be
+          In no event shall MoodifyMe, its directors, employees, or agents be
           liable for any indirect, incidental, special, consequential, or
           punitive damages arising from your use of the app or these terms. This
           limitation of liability applies whether the damages arise from breach

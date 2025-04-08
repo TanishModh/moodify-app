@@ -20,19 +20,11 @@ from decouple import config
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 sys.path.append(PROJECT_ROOT)
 
-# Connect to MongoDB Atlas - only if URI is provided
-try:
-    mongo_uri = config('MONGO_DB_URI', default=None)
-    if mongo_uri:
-        connect(
-            host=mongo_uri,  # MongoDB Atlas URI from .env file
-            ssl=True
-        )
-        print('Connected to MongoDB Atlas')
-    else:
-        print('No MongoDB URI provided, skipping connection')
-except Exception as e:
-    print(f'Error connecting to MongoDB: {e}')
+# Connect to MongoDB Atlas
+connect(
+    host=config('MONGO_DB_URI'),  # MongoDB Atlas URI from .env file
+    ssl=True
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

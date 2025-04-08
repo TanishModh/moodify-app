@@ -20,7 +20,7 @@ const PrivacyPolicyPage = () => {
         </Typography>
 
         <Typography variant="body1" style={styles.text}>
-          At Moodify, we value your privacy and are committed to protecting your
+          At MoodifyMe, we value your privacy and are committed to protecting your
           personal information. This Privacy Policy explains how we collect,
           use, and safeguard your information when you use our application.
           Please read this policy carefully to understand our views and

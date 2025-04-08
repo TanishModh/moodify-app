@@ -110,8 +110,8 @@ const LandingPage = () => {
     ],
   };
 
-  // Function to dynamically return styles based on dark mode
-  const getStyles = (isDarkMode) => ({
+  const styles = getStyles(isDarkMode); // Get dynamic styles based on dark mode
+
     pageContainer: {
       minHeight: "100vh",
       backgroundColor: isDarkMode ? "#121212" : "#f9f9f9", // Dark mode support
@@ -129,12 +129,11 @@ const LandingPage = () => {
       animation: "slideUp 0.6s ease-out",
     },
     heroTitle: {
-      fontFamily: "'Cinzel Decorative', cursive",
-      fontWeight: 700,
-      letterSpacing: "1px",
-      textAlign: "center",
+      font: "inherit",
+      fontWeight: "bold",
+      fontSize: "2.5rem",
       marginBottom: "20px",
-      color: isDarkMode ? "#fff" : "#333", // Ensure white text for both modes
+      color: isDarkMode ? "#fff" : "#fff", // Ensure white text for both modes
       animation: "slideUp 0.6s ease-out",
     },
     heroSubtitle: {
@@ -180,11 +179,11 @@ const LandingPage = () => {
       animation: "slideUp 0.6s ease-out",
     },
     sectionTitle: {
-      fontFamily: "'Cinzel Decorative', cursive",
-      fontWeight: 700,
-      letterSpacing: "1px",
+      font: "inherit",
+      fontSize: "2rem",
       textAlign: "center",
       marginBottom: "40px",
+      fontWeight: "bold",
       color: isDarkMode ? "#fff" : "#333", // Adjust title color based on dark mode
       animation: "slideUp 0.6s ease-out",
     },
@@ -226,10 +225,9 @@ const LandingPage = () => {
       animation: "fadeIn 1s ease-out",
     },
     whyChooseTitle: {
-      fontFamily: "'Cinzel Decorative', cursive",
-      fontWeight: 700,
-      letterSpacing: "1px",
-      textAlign: "center",
+      font: "inherit",
+      fontSize: "2.5rem",
+      fontWeight: "bold",
       marginBottom: "40px",
       color: isDarkMode ? "#fff" : "#333",
       animation: "slideInDown 1s ease-out",
@@ -244,7 +242,14 @@ const LandingPage = () => {
       height: "300px",
       backgroundColor: isDarkMode ? "#2e2e2e" : "#fff",
       color: isDarkMode ? "#fff" : "#333",
-      transition: "background-color 0.3s ease",
+      transition: "all 0.3s ease",
+      animation: "float 3s ease-in-out infinite",
+      '&:hover': {
+        transform: 'translateY(-10px)',
+        boxShadow: isDarkMode
+          ? "0px 8px 15px rgba(255, 255, 255, 0.2)"
+          : "0px 8px 15px rgba(0, 0, 0, 0.2)",
+      },
     },
     whyChooseIcon: {
       font: "inherit",
@@ -270,70 +275,13 @@ const LandingPage = () => {
     },
   });
 
-  const styles = getStyles(isDarkMode); // Get dynamic styles based on dark mode
-
-  // Features Data
-  const features = [
-    {
-      title: "Emotion-Based Recommendations",
-      description:
-        "Get personalized music recommendations based on your current mood.",
-    },
-    {
-      title: "Multiple Input Modes",
-      description:
-        "Analyze your emotions through text, speech, or facial expressions.",
-    },
-    {
-      title: "Track Your Mood History",
-      description:
-        "View and manage your mood history and music listening trends over time.",
-    },
-    {
-      title: "AI-Powered Insights",
-      description:
-        "Our AI learns your preferences to provide better recommendations.",
-    },
-    {
-      title: "Cross-Platform Support",
-      description: "Access MoodifyMe from any device, anytime, anywhere.",
-    },
-    {
-      title: "Social Sharing",
-      description: "Share your favorite tracks and moods with friends.",
-    },
-  ];
-
-  // Additional Section Data
-  const whyChooseMoodifyMe = [
-    {
-      title: "Personalized Experience",
-      description:
-        "MoodifyMe tailors music recommendations based on your unique emotional journey.",
-    },
-    {
-      title: "Advanced AI Technology",
-      description:
-        "Our cutting-edge AI models ensure you get accurate emotion detection and recommendations.",
-    },
-    {
-      title: "Seamless Integration",
-      description:
-        "MoodifyMe integrates effortlessly with your favorite music streaming services.",
-    },
-  ];
-
   return (
     <Box sx={styles.pageContainer}>
       {/* Hero Section */}
       <Box sx={styles.heroSection}>
         <Container maxWidth="md">
-          <Typography variant="h3" sx={{
-            ...styles.heroTitle,
-            fontFamily: "'Cooper Black', 'Cooper Std', Impact, serif",
-            fontSize: "2.8rem"
-          }}>
-            Welcome to MoodifyMe
+          <Typography variant="h3" sx={styles.heroTitle}>
+            Welcome to Moodify
           </Typography>
           <Typography variant="h6" sx={styles.heroSubtitle}>
             The AI-powered emotion-based music recommendation app that matches
@@ -344,7 +292,7 @@ const LandingPage = () => {
               variant="contained"
               color="primary"
               sx={styles.heroButton}
-              onClick={() => navigate("/home")}
+              onClick={() => navigate("/register")}
             >
               Get Started
             </Button>
@@ -362,11 +310,7 @@ const LandingPage = () => {
 
       {/* Features Section with Carousel */}
       <Container sx={styles.sectionContainer}>
-        <Typography variant="h4" sx={{
-          ...styles.sectionTitle,
-          fontFamily: "'Cooper Black', 'Cooper Std', Impact, serif",
-          fontSize: "2.5rem"
-        }}>
+        <Typography variant="h4" sx={styles.sectionTitle}>
           Features
         </Typography>
         <Slider {...settings} ref={sliderRef}>
@@ -387,21 +331,14 @@ const LandingPage = () => {
         </Slider>
       </Container>
 
-      {/* Why Choose MoodifyMe Section */}
+      {/* Why Choose Moodify Section */}
       <Box sx={styles.whyChooseSection}>
         <Container>
-          <Typography variant="h3" sx={{
-            ...styles.whyChooseTitle,
-            fontFamily: "'Cooper Black', 'Cooper Std', Impact, serif",
-            fontSize: "2.5rem",
-            width: "100%",
-            textAlign: "center",
-            marginBottom: "2rem"
-          }}>
-            Why Choose MoodifyMe
+          <Typography variant="h3" sx={styles.whyChooseTitle}>
+            Why Choose Moodify
           </Typography>
           <Grid container spacing={4} justifyContent="center">
-            {whyChooseMoodifyMe.map((item, index) => (
+            {whyChooseMoodify.map((item, index) => (
               <Grid item xs={12} md={4} key={index}>
                 <Card sx={styles.whyChooseCard}>
                   <CardContent>
@@ -422,37 +359,56 @@ const LandingPage = () => {
         </Container>
       </Box>
 
-      {/* Combined Hero Banner */}
+      {/* Additional Hero Banner */}
       <Box sx={styles.heroSection}>
         <Container maxWidth="md">
-          <Typography variant="h4" sx={{
-            ...styles.heroTitle,
-            fontFamily: "'Cooper Black', 'Cooper Std', Impact, serif",
-            fontSize: "2.5rem"
-          }}>
+          <Typography variant="h4" sx={styles.heroTitle}>
             Your Emotions. Our Music.
           </Typography>
           <Typography variant="h6" sx={styles.heroSubtitle}>
             Discover songs that perfectly match every mood. Music that resonates
             with your feelings.
           </Typography>
-          
-          <Typography variant="h4" sx={{
-            ...styles.heroTitle,
-            marginTop: '40px',
-            fontFamily: "'Cooper Black', 'Cooper Std', Impact, serif",
-            fontSize: "2.5rem"
-          }}>
+        </Container>
+      </Box>
+
+      {/* Additional Hero Banner */}
+      <Box sx={styles.heroSection}>
+        <Container maxWidth="md">
+          <Typography variant="h4" sx={styles.heroTitle}>
             Your Mood. Your Music.
           </Typography>
           <Typography variant="h6" sx={styles.heroSubtitle}>
             Simply tell us how you feel, and we'll take care of the rest.
-            MoodifyMe - music that understands you.
+            Moodify - music that understands you.
           </Typography>
         </Container>
       </Box>
 
-
+      {/* Additional Informative Section */}
+      <Box sx={styles.informativeSection}>
+        <Container>
+          <Typography variant="h4" sx={styles.sectionTitle}>
+            Why Choose Moodify?
+          </Typography>
+          <Grid container spacing={4}>
+            {whyChooseMoodify.map((item, index) => (
+              <Grid item xs={12} md={4} key={index}>
+                <Card sx={styles.infoCard}>
+                  <CardContent>
+                    <Typography variant="h6" sx={styles.infoTitle}>
+                      {item.title}
+                    </Typography>
+                    <Typography variant="body2" sx={styles.infoDescription}>
+                      {item.description}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
     </Box>
   );
 };

@@ -1,6 +1,17 @@
 @import url("https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.css");
 @import url("https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.css");
-@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bowlby+One+SC&display=swap');
+
+@font-face {
+  font-family: 'Cooper Black';
+  src: local('Cooper Black'),
+       local('CooperBlack-Regular'),
+       url('//db.onlinewebfonts.com/t/05559c1e00e351d9fea4409d51e6f37d.eot'),
+       url('//db.onlinewebfonts.com/t/05559c1e00e351d9fea4409d51e6f37d.woff2') format('woff2'),
+       url('//db.onlinewebfonts.com/t/05559c1e00e351d9fea4409d51e6f37d.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
 
 @keyframes gradientBG {
   0% {
@@ -32,4 +43,14 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+.navbar-title.MuiTypography-root {
+  font-family: 'Bowlby One SC', cursive !important;
+}
+
+.heading-style {
+  font-family: 'Bowlby One SC', cursive;
+  font-weight: 700;
+  letter-spacing: 1px;
 }

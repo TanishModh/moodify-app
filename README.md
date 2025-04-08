@@ -1,14 +1,14 @@
-# **Moodify - Emotion-Based Music Recommendation App**
+# **MoodifyMe - Emotion-Based Music Recommendation App**
 
 With the rise of personalized music streaming services, there is a growing need for systems that can recommend music based on users' emotional states.
-Realizing this need, **Moodify** is being developed by [Son Nguyen](https://github.com/hoangsonww) in 2024 to provide personalized music recommendations based on users' detected emotions.
+Realizing this need, **MoodifyMe** is being developed by [Son Nguyen](https://github.com/hoangsonww) in 2024 to provide personalized music recommendations based on users' detected emotions.
 
-The **Moodify** project is an integrated emotion-based music recommendation system that combines frontend, backend, AI/ML models, and data analytics to provide personalized music recommendations based on user emotions. The application analyzes text, speech, or facial expressions and suggests music that aligns with the detected emotions.
+The **MoodifyMe** project is an integrated emotion-based music recommendation system that combines frontend, backend, AI/ML models, and data analytics to provide personalized music recommendations based on user emotions. The application analyzes text, speech, or facial expressions and suggests music that aligns with the detected emotions.
 
-Supporting both desktop and mobile platforms, **Moodify** offers a seamless user experience with real-time emotion detection and music recommendations. The project leverages **React for the frontend, Django for the backend, and three advanced, self-trained AI/ML models for emotion detection**. Data analytics scripts are used to visualize emotion trends and model performance. Users will be directed to Spotify to listen to the recommended music, and they can save their favorite tracks to their Spotify account.
+Supporting both desktop and mobile platforms, **MoodifyMe** offers a seamless user experience with real-time emotion detection and music recommendations. The project leverages **React for the frontend, Django for the backend, and three advanced, self-trained AI/ML models for emotion detection**. Data analytics scripts are used to visualize emotion trends and model performance. Users will be directed to Spotify to listen to the recommended music, and they can save their favorite tracks to their Spotify account.
 
 <p align="center">
-  <img src="images/moodify-logo.png" alt="Moodify Logo" width="50%" style="border-radius: 12px">
+  <img src="images/moodify-logo.png" alt="MoodifyMe Logo" width="50%" style="border-radius: 12px">
 </p>
 
 ## **Table of Contents**
@@ -59,17 +59,17 @@ Supporting both desktop and mobile platforms, **Moodify** offers a seamless user
 
 <h2 id="-overview">🎵 Overview</h2>
 
-Moodify provides personalized music recommendations based on users' emotional states detected through text, speech, and facial expressions. It interacts with a Django-based backend, AI/ML models for emotion detection, and utilizes data analytics for visual insights into emotion trends and model performance.
+MoodifyMe provides personalized music recommendations based on users' emotional states detected through text, speech, and facial expressions. It interacts with a Django-based backend, AI/ML models for emotion detection, and utilizes data analytics for visual insights into emotion trends and model performance.
 
 <h2 id="-live-frontend-demo">🌐 Live Deployment</h2>
 
-The Moodify app is currently live and deployed on Vercel. You can access the live app using the following link: [Moodify](https://moodify-app.vercel.app).
+The MoodifyMe app is currently live and deployed on Vercel. You can access the live app using the following link: [MoodifyMe](https://moodify-app.vercel.app).
 
-Feel free to also visit the backend at [Moodify Backend API](https://moodify-emotion-music-app.onrender.com/).
+Feel free to also visit the backend at [MoodifyMe Backend API](https://moodify-emotion-music-app.onrender.com/).
 
 For your information, the front-end's production (deployment) branch is `frontend-deployment/production`, and the backend's production (deployment) branch is `main-deployment-branch/production`.
 
-> **Disclaimer:** The backend of Moodify is currently hosted with the **Free Tier** of Render, so it may take a few seconds to load initially. Additionally, it may spin down after a period of inactivity or high traffic, so please be patient if the backend takes a few seconds to respond.
+> **Disclaimer:** The backend of MoodifyMe is currently hosted with the **Free Tier** of Render, so it may take a few seconds to load initially. Additionally, it may spin down after a period of inactivity or high traffic, so please be patient if the backend takes a few seconds to respond.
 
 > **Additional Note**: The amount of memory allocated by Render is only **512MB with 0.1 CPU**, so the backend may run out of memory if there are too many requests at once, which may cause the server to restart. **Also**, the facial and speech emotion detection models may also **cause the server to crash** due to memory constraints and the heavy processing required by AI applications, so please be patient if the server crashes and restarts. I'd also recommend that you clone the repository and replace the URLs with your own local backend server for a more stable experience.
 
@@ -86,7 +86,7 @@ For your information, the front-end's production (deployment) branch is `fronten
 
 <h2 id="-features">🌟 Features</h2>
 
-The Moodify project aims to provide the following features:
+The MoodifyMe project aims to provide the following features:
 
 - User registration and login functionality.
 - Input analysis through text, speech, and facial expressions.
@@ -102,7 +102,7 @@ The Moodify project aims to provide the following features:
 
 <h2 id="-technologies">🛠️ Technologies</h2>
 
-Here is the list of technologies used in the Moodify project:
+Here is the list of technologies used in the MoodifyMe project:
 
 ### **Frontend**:
 ![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=white)
@@ -774,7 +774,7 @@ The `data_analytics` folder provides data analysis and visualization scripts to 
 
 <h2 id="-mobile-app-version">📱 Mobile App Version</h2>
 
-There is also a mobile version of the Moodify app built using React Native and Expo. You can find the mobile app in the `mobile` directory.
+There is also a mobile version of the MoodifyMe app built using React Native and Expo. You can find the mobile app in the `mobile` directory.
 
 1. **Navigate to the mobile directory:**
    ```bash
@@ -880,7 +880,7 @@ Feel free to visit the `kubernetes` directory for more information about the dep
 
 <h2 id="-jenkins">🔗 Jenkins</h2>
 
-We have also included Jenkins pipeline script for automating the build and deployment process. You can use Jenkins to automate the CI/CD process for the Moodify app.
+We have also included Jenkins pipeline script for automating the build and deployment process. You can use Jenkins to automate the CI/CD process for the MoodifyMe app.
 
 1. **Install Jenkins on your server or local machine.**
 
@@ -889,7 +889,7 @@ We have also included Jenkins pipeline script for automating the build and deplo
     - Configure the pipeline to use the `Jenkinsfile` in the `jenkins` directory.
 
 3. **Run the Jenkins pipeline:**
-    - Run the Jenkins pipeline to build and deploy the Moodify app.
+    - Run the Jenkins pipeline to build and deploy the MoodifyMe app.
     - The pipeline will automate the build, test, and deployment process for the app.
 
 Feel free to explore the Jenkins pipeline script in the `Jenkinsfile` and customize it as needed for your deployment process.
@@ -972,4 +972,4 @@ This guide enables you to view, test, and utilize the API.
 
 ---
 
-[🔝 Back to Top](#moodify---emotion-based-music-recommendation-app)
+[🔝 Back to Top](#moodifyme---emotion-based-music-recommendation-app)

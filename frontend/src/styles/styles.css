@@ -1,19 +1,32 @@
 @import url("https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.css");
 @import url("https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.css");
 
+@keyframes gradientLight {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes gradientDark {
+  0% { background-position: 100% 50%; }
+  50% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
 body {
   font-family: "Poppins", sans-serif;
   margin: 0;
   padding: 0;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
+  min-height: 100vh;
+  background-size: 400% 400%;
+  transition: color 0.3s ease;
 }
 
 /* Light mode styles */
 body.light-mode {
-  background-color: white;
-  color: black;
+  background: linear-gradient(-45deg, #e0c3fc, #8ec5fc, #c2e9fb, #d6e4ff);
+  animation: gradientLight 15s ease infinite;
+  color: #1a1a1a;
 }
 
 h2,
@@ -24,7 +37,8 @@ h6 {
 
 /* Dark mode styles */
 body.dark-mode {
-  background-color: #121212;
+  background: linear-gradient(-45deg, #2d1b69, #4a1b8c, #331b6c, #1f1147);
+  animation: gradientDark 15s ease infinite;
   color: white;
 }
 
@@ -35,9 +49,10 @@ body.dark-mode h6 {
 }
 
 button {
-  background-color: #ff4d4d;
+  background-color: rgba(255, 77, 77, 0.9);
   color: white;
   transition: 0.3s ease;
+  backdrop-filter: blur(5px);
 }
 
 button:hover {
@@ -47,8 +62,9 @@ button:hover {
 
 /* Dark mode button style */
 body.dark-mode button {
-  background-color: #222;
+  background-color: rgba(34, 34, 34, 0.8);
   color: white;
+  backdrop-filter: blur(5px);
 }
 
 body.dark-mode button:hover {
@@ -62,11 +78,13 @@ body.dark-mode button:active {
 
 input,
 textarea {
-  border: 1px solid #ccc;
+  border: 1px solid rgba(204, 204, 204, 0.5);
   border-radius: 4px;
   padding: 10px;
+  background-color: rgba(255, 255, 255, 0.9);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: border-color 0.3s ease;
+  backdrop-filter: blur(5px);
 }
 
 input:focus,
@@ -76,9 +94,10 @@ textarea:focus {
 
 body.dark-mode input,
 body.dark-mode textarea {
-  background-color: #333;
+  background-color: rgba(51, 51, 51, 0.8);
   color: white;
-  border-color: #666;
+  border-color: rgba(102, 102, 102, 0.5);
+  backdrop-filter: blur(5px);
 }
 
 body.dark-mode input:focus,

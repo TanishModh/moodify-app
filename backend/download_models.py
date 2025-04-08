@@ -1,8 +1,6 @@
 import os
 import gdown
 
-# Simple script to create model directories for deployment
-
 # Base directory (one level up from the current file: backend -> root)
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -49,13 +47,8 @@ def download_file(url, output_path):
 
 # Download all model files
 def download_models():
-    # Create model directories
-    os.makedirs(os.path.join(BASE_DIR, "ai_ml/models/text_emotion_model"), exist_ok=True)
-    os.makedirs(os.path.join(BASE_DIR, "ai_ml/models/speech_emotion_model"), exist_ok=True)
-    os.makedirs(os.path.join(BASE_DIR, "ai_ml/models/facial_emotion_model"), exist_ok=True)
-    
-    print("Model directories created successfully")
-    print("Skipping model downloads for deployment")
+    for model_name, model_info in model_files.items():
+        download_file(model_info["url"], model_info["output"])
 
 
 if __name__ == "__main__":

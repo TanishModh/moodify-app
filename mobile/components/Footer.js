@@ -45,7 +45,7 @@ const Footer = () => {
 
         {/* Copyright Text */}
         <Typography variant="body2" style={styles.copyright}>
-          &copy; {new Date().getFullYear()} Moodify. All rights reserved.
+          &copy; {new Date().getFullYear()} MoodifyMe. All rights reserved.
         </Typography>
       </Box>
   );

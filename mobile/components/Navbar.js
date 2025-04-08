@@ -84,7 +84,7 @@ const Navbar = () => {
                 }}
                 onClick={() => navigate('/')}
             >
-              Moodify
+              MoodifyMe
             </Typography>
             {isMobile && (
                 <IconButton onClick={toggleMenu} style={{ position: 'absolute', right: '10px', top: '10px', backgroundColor: 'white' }}>

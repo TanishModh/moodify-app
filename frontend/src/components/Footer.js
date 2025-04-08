@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Box, Typography, Link } from "@mui/material";
-import { GitHub, LinkedIn, Mail, Language } from "@mui/icons-material";
+import { Groups, Mail } from "@mui/icons-material";
 
 const Footer = () => {
   const navigate = useNavigate();
@@ -98,37 +98,23 @@ const Footer = () => {
       {/* Icon Links */}
       <Box sx={styles.iconContainer}>
         <Link
-          href="https://github.com/hoangsonww/Moodify-Emotion-Music-App"
-          target="_blank"
-          rel="noopener noreferrer"
+          to="/about"
+          onClick={(e) => {
+            e.preventDefault();
+            navigate('/about');
+          }}
           sx={styles.iconLink}
         >
-          <GitHub sx={styles.icon} />
+          <Groups sx={styles.icon} />
         </Link>
-        <Link
-          href="https://www.linkedin.com/in/hoangsonw"
-          target="_blank"
-          rel="noopener noreferrer"
-          sx={styles.iconLink}
-        >
-          <LinkedIn sx={styles.icon} />
-        </Link>
-        <Link href="mailto:hoangson091104@gmail.com" sx={styles.iconLink}>
+        <Link href="mailto:teammoodifyme@gmail.com?subject=Feedback for MoodifyMe" sx={styles.iconLink}>
           <Mail sx={styles.icon} />
-        </Link>
-        <Link
-          href="https://sonnguyenhoang.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          sx={styles.iconLink}
-        >
-          <Language sx={styles.icon} />
         </Link>
       </Box>
 
       {/* Copyright Text */}
       <Typography variant="body2" sx={styles.copyright}>
-        &copy; {new Date().getFullYear()} Moodify. All rights reserved.
+        &copy; {new Date().getFullYear()} MoodifyMe. All rights reserved.
       </Typography>
     </Box>
   );
@@ -183,6 +169,7 @@ const styles = {
   },
   iconLink: {
     color: "white",
+    cursor: "pointer",
   },
   icon: {
     fontSize: "30px",

@@ -1,6 +1,6 @@
 # NGINX Docker Setup
 
-This directory contains all necessary files to set up an NGINX server using Docker for the **Moodify App**. It includes a `Dockerfile` to build an NGINX image, a `docker-compose.yml` file to orchestrate the Docker container setup, and a configuration file (`nginx.conf`) to define NGINX’s server behavior.
+This directory contains all necessary files to set up an NGINX server using Docker for the **MoodifyMe App**. It includes a `Dockerfile` to build an NGINX image, a `docker-compose.yml` file to orchestrate the Docker container setup, and a configuration file (`nginx.conf`) to define NGINX’s server behavior.
 
 ## Directory Structure
 
