@@ -261,9 +261,10 @@ const Navbar = () => {
           variant="h6"
           sx={{
             cursor: "pointer",
-            fontFamily: "'Pacifico', cursive",
+            fontFamily: "'Fredoka One', cursive",
             fontSize: "28px",
             color: isDarkMode ? "white" : "black",
+            letterSpacing: "0.5px",
             textShadow: isDarkMode ? "0 0 10px rgba(255,255,255,0.3)" : "0 0 10px rgba(0,0,0,0.1)"
           }}
           onClick={() => navigate("/")}
