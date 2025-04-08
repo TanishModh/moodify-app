@@ -1,0 +1,41 @@
+/* Blob Animation */
+#blob {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: linear-gradient(to right, aquamarine, mediumpurple);
+    animation: rotate 20s infinite;
+    opacity: 0.7;
+    height: 40%;
+    width: 40%;
+    display: block;
+    z-index: -2;
+}
+
+@keyframes rotate {
+    from {
+        rotate: 0deg;
+    }
+    
+    50% {
+        scale: 1 1.5;
+    }
+    
+    to {
+        rotate: 360deg;
+    }
+}
+
+/* Blur Effect */
+#blur {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    backdrop-filter: blur(12vmax);
+    z-index: -1;
+    display: block;
+}

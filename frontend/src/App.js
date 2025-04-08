@@ -13,8 +13,10 @@ import LandingPage from "./pages/LandingPage";
 import ForgotPassword from "./pages/ForgotPassword";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
+import AboutPage from "./pages/AboutPage";
 import { DarkModeProvider, DarkModeContext } from "./context/DarkModeContext";
 import "./styles/styles.css";
+import "./styles/blob.css";
 
 function App() {
   const { isDarkMode } = useContext(DarkModeContext);
@@ -27,18 +29,21 @@ function App() {
 
   return (
     <Router>
+      <div id="blob"></div>
+      <div id="blur"></div>
       <Navbar />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/home" element={<HomePage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/recommendations" element={<RecommendationsPage />} />
         <Route path="/results" element={<ResultsPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/recommendations" element={<RecommendationsPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Footer />

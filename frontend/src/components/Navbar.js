@@ -105,10 +105,10 @@ const Navbar = () => {
       <List sx={{ transition: "background-color 0.3s ease" }}>
         <ListItem
           button
-          sx={listItemStyle(isActive("/home"), isDarkMode)}
+          sx={listItemStyle(isActive("/"), isDarkMode)}
           style={{ cursor: "pointer" }}
           onClick={() => {
-            navigate("/home");
+            navigate("/");
             toggleDrawer(false);
           }}
         >
@@ -261,14 +261,14 @@ const Navbar = () => {
           variant="h6"
           sx={{
             cursor: "pointer",
-            fontFamily: "Poppins",
-            fontSize: "24px",
-            fontWeight: "bold",
+            fontFamily: "'Pacifico', cursive",
+            fontSize: "28px",
             color: isDarkMode ? "white" : "black",
+            textShadow: isDarkMode ? "0 0 10px rgba(255,255,255,0.3)" : "0 0 10px rgba(0,0,0,0.1)"
           }}
-          onClick={() => navigate("/home")}
+          onClick={() => navigate("/")}
         >
-          Moodify
+          MoodifyMe
         </Typography>
 
         {/* Mobile Menu Icon */}

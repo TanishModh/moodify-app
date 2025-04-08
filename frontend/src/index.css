@@ -1,5 +1,18 @@
 @import url("https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.css");
 @import url("https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.css");
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
 
 body {
   margin: 0;
@@ -8,6 +21,12 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+  background: linear-gradient(-45deg, #6b46c1, #9f7aea, #805ad5, #553c9a, #6b46c1);
+  background-size: 400% 400%;
+  animation: gradientBG 12s ease infinite;
 }
 
 code {
