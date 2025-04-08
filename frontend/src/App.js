@@ -12,7 +12,6 @@ import NotFoundPage from "./pages/NotFoundPage";
 import LandingPage from "./pages/LandingPage";
 import ForgotPassword from "./pages/ForgotPassword";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
-import TermsOfServicePage from "./pages/TermsOfServicePage";
 import AboutPage from "./pages/AboutPage";
 import { DarkModeProvider, DarkModeContext } from "./context/DarkModeContext";
 import "./styles/styles.css";
@@ -39,9 +38,8 @@ function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-        <Route path="/terms-of-service" element={<TermsOfServicePage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/recommendations" element={<RecommendationsPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="*" element={<NotFoundPage />} />

@@ -143,8 +143,8 @@ const PrivacyPolicyPage = () => {
           7. Contact Us
         </Typography>
         <Typography variant="body1" style={styles.text}>
-          If you have any questions or concerns about this Privacy Policy or our
-          data practices, please contact us at: hoangson091104@gmail.com.
+          If you have any questions or concerns about our privacy policy or
+          data practices, please contact us at: teammoodifyme@gmail.com.
         </Typography>
       </Paper>
     </Box>

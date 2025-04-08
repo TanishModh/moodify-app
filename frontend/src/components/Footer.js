@@ -1,188 +1,182 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Box, Typography, Link } from "@mui/material";
-import { Groups, Mail } from "@mui/icons-material";
+import { Box, Typography, IconButton } from "@mui/material";
+import { Link } from "react-router-dom";
+import { Email, Groups } from "@mui/icons-material";
 
 const Footer = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
+
+  const styles = {
+    footer: {
+      backgroundColor: "#ff4d4d",
+      color: "white",
+      padding: "20px 0",
+      textAlign: "center",
+      fontFamily: "Poppins, sans-serif",
+      marginTop: "20px",
+      width: "100%",
+      "@media (max-width: 600px)": {
+        padding: "15px 0",
+      },
+    },
+    navLinks: {
+      display: "flex",
+      justifyContent: "center",
+      gap: "20px",
+      marginBottom: "10px",
+      flexWrap: "wrap",
+      fontFamily: "Poppins, sans-serif",
+    },
+    link: {
+      color: "white",
+      textDecoration: "none",
+      fontSize: "14px",
+      fontWeight: 500,
+      position: "relative",
+    },
+    activeLink: {
+      borderBottom: "2px solid white",
+      borderRadius: 0,
+    },
+    iconContainer: {
+      display: "flex",
+      justifyContent: "center",
+      gap: "20px",
+      marginTop: "20px",
+      marginBottom: "10px",
+      flexWrap: "wrap",
+      fontFamily: "Poppins, sans-serif",
+    },
+    iconButton: {
+      color: "white",
+      padding: 0,
+    },
+    icon: {
+      fontSize: "30px",
+    },
+  };
 
   return (
     <Box sx={styles.footer}>
-      {/* Navigation Links */}
       <Box sx={styles.navLinks}>
         <Link
-          sx={
-            isActive("/home")
-              ? { ...styles.link, ...styles.activeLink }
-              : styles.link
-          }
-          onClick={() => navigate("/home")}
+          to="/"
+          style={{
+            ...styles.link,
+            ...(isActive("/") && styles.activeLink),
+          }}
+        >
+          Landing
+        </Link>
+        <Link
+          to="/home"
+          style={{
+            ...styles.link,
+            ...(isActive("/home") && styles.activeLink),
+          }}
         >
           Home
         </Link>
         <Link
-          sx={
-            isActive("/results")
-              ? { ...styles.link, ...styles.activeLink }
-              : styles.link
-          }
-          onClick={() => navigate("/results")}
+          to="/results"
+          style={{
+            ...styles.link,
+            ...(isActive("/results") && styles.activeLink),
+          }}
         >
           Results
         </Link>
         <Link
-          sx={
-            isActive("/profile")
-              ? { ...styles.link, ...styles.activeLink }
-              : styles.link
-          }
-          onClick={() => navigate("/profile")}
+          to="/profile"
+          style={{
+            ...styles.link,
+            ...(isActive("/profile") && styles.activeLink),
+          }}
         >
           Profile
         </Link>
         <Link
-          sx={
-            isActive("/login")
-              ? { ...styles.link, ...styles.activeLink }
-              : styles.link
-          }
-          onClick={() => navigate("/login")}
+          to="/login"
+          style={{
+            ...styles.link,
+            ...(isActive("/login") && styles.activeLink),
+          }}
         >
           Login
         </Link>
         <Link
-          sx={
-            isActive("/register")
-              ? { ...styles.link, ...styles.activeLink }
-              : styles.link
-          }
-          onClick={() => navigate("/register")}
+          to="/register"
+          style={{
+            ...styles.link,
+            ...(isActive("/register") && styles.activeLink),
+          }}
         >
           Register
         </Link>
         <Link
-          sx={
-            isActive("/privacy-policy")
-              ? { ...styles.link, ...styles.activeLink }
-              : styles.link
-          }
-          onClick={() => navigate("/privacy-policy")}
+          to="/privacy-policy"
+          style={{
+            ...styles.link,
+            ...(isActive("/privacy-policy") && styles.activeLink),
+          }}
         >
           Privacy Policy
         </Link>
         <Link
-          sx={
-            isActive("/terms-of-service")
-              ? { ...styles.link, ...styles.activeLink }
-              : styles.link
-          }
-          onClick={() => navigate("/terms-of-service")}
-        >
-          Terms of Service
-        </Link>
-        <Link
-          sx={
-            isActive("/")
-              ? { ...styles.link, ...styles.activeLink }
-              : styles.link
-          }
-          onClick={() => navigate("/")}
-        >
-          Landing
-        </Link>
-      </Box>
-
-      {/* Icon Links */}
-      <Box sx={styles.iconContainer}>
-        <Link
           to="/about"
-          onClick={(e) => {
-            e.preventDefault();
-            navigate('/about');
+          style={{
+            ...styles.link,
+            ...(isActive("/about") && styles.activeLink),
           }}
-          sx={styles.iconLink}
         >
-          <Groups sx={styles.icon} />
-        </Link>
-        <Link href="mailto:teammoodifyme@gmail.com?subject=Feedback for MoodifyMe" sx={styles.iconLink}>
-          <Mail sx={styles.icon} />
+          About
         </Link>
       </Box>
 
-      {/* Copyright Text */}
-      <Typography variant="body2" sx={styles.copyright}>
-        &copy; {new Date().getFullYear()} MoodifyMe. All rights reserved.
-      </Typography>
+      <Box sx={styles.iconContainer}>
+        <Box
+          component="span"
+          onClick={() => navigate('/about')}
+          sx={{ 
+            cursor: 'pointer', 
+            color: 'white',
+            transition: 'transform 0.2s ease',
+            '&:hover': {
+              transform: 'scale(1.1)'
+            }
+          }}
+        >
+          <Groups sx={{ fontSize: "30px" }} />
+        </Box>
+        <Box
+          component="span"
+          onClick={() => window.location.href = "mailto:teammoodifyme@gmail.com"}
+          sx={{ 
+            cursor: 'pointer', 
+            color: 'white',
+            transition: 'transform 0.2s ease',
+            '&:hover': {
+              transform: 'scale(1.1)'
+            }
+          }}
+        >
+          <Email sx={{ fontSize: "30px" }} />
+        </Box>
+      </Box>
+
+      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 2 }}>
+        <Typography variant="body2" align="center" sx={{ color: 'white', fontFamily: 'Poppins, sans-serif', fontSize: '14px' }}>
+          &copy; {new Date().getFullYear()} MoodifyMe. All rights reserved.
+        </Typography>
+      </Box>
     </Box>
   );
-};
-
-const styles = {
-  footer: {
-    backgroundColor: "#ff4d4d",
-    color: "white",
-    padding: "20px 0",
-    textAlign: "center",
-    fontFamily: "Poppins, sans-serif", // Use Poppins font
-    marginTop: "20px",
-    width: "100%",
-    "@media (max-width: 600px)": {
-      padding: "15px 0",
-    },
-  },
-  navLinks: {
-    display: "flex",
-    justifyContent: "center",
-    gap: "20px",
-    marginBottom: "10px",
-    flexWrap: "wrap", // Makes it responsive
-    fontFamily: "Poppins, sans-serif", // Use Poppins font
-  },
-  link: {
-    cursor: "pointer",
-    color: "white",
-    textDecoration: "none",
-    fontFamily: "Poppins, sans-serif", // Use Poppins font
-    fontSize: "14px",
-    fontWeight: 500,
-    position: "relative",
-    "&:hover": {
-      transform: "scale(1.05)",
-      transition: "transform 0.2s",
-    },
-  },
-  activeLink: {
-    borderBottom: "2px solid white",
-    borderRadius: 0,
-  },
-  iconContainer: {
-    display: "flex",
-    justifyContent: "center",
-    gap: "20px",
-    marginTop: "20px",
-    marginBottom: "10px",
-    flexWrap: "wrap", // Makes the icons responsive
-    fontFamily: "Poppins, sans-serif", // Use Poppins font
-  },
-  iconLink: {
-    color: "white",
-    cursor: "pointer",
-  },
-  icon: {
-    fontSize: "30px",
-    transition: "transform 0.3s",
-    "&:hover": {
-      transform: "scale(1.2)",
-    },
-  },
-  copyright: {
-    marginTop: "10px",
-    fontSize: "14px",
-    fontFamily: "Poppins, sans-serif", // Use Poppins font
-  },
 };
 
 export default Footer;
