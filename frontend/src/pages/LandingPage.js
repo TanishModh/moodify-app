@@ -1,23 +1,50 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useRef, useState, useEffect } from "react";
 import {
   Box,
   Typography,
-  Button,
   Container,
   Grid,
+  Button,
   Card,
   CardContent,
 } from "@mui/material";
-import { useNavigate, useLocation } from "react-router-dom";
 import Slider from "react-slick";
+import { useNavigate, useLocation } from "react-router-dom";
 import { DarkModeContext } from "../context/DarkModeContext";
 import "../App.css";
+import "../fonts/fonts.css";
 
 const LandingPage = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { isDarkMode: darkMode } = useContext(DarkModeContext);
+
+  // Function to check if fonts are loaded
+  const checkFontsLoaded = () => {
+    const fontTest = document.createElement('div');
+    fontTest.style.fontFamily = "'Cooper Black', 'Cinzel Decorative', Impact, serif";
+    fontTest.style.position = 'absolute';
+    fontTest.style.left = '-9999px';
+    document.body.appendChild(fontTest);
+    
+    const originalWidth = fontTest.offsetWidth;
+    fontTest.style.fontFamily = "Impact";
+    const impactWidth = fontTest.offsetWidth;
+    
+    document.body.removeChild(fontTest);
+    
+    return originalWidth !== impactWidth;
+  };
+
+  useEffect(() => {
+    // Check if fonts are loaded
+    const fontsLoaded = checkFontsLoaded();
+    if (!fontsLoaded) {
+      // Fallback to system fonts
+      document.documentElement.style.fontFamily = "Arial, sans-serif";
+    }
+  }, []);
 
   // Ref to access Slider instance
   const sliderRef = useRef(null);
@@ -133,7 +160,7 @@ const LandingPage = () => {
       overflow: "visible",
     },
     heroTitle: {
-      fontFamily: "'Cinzel Decorative', cursive",
+      fontFamily: "'Poiret One', sans-serif",
       fontWeight: 700,
       letterSpacing: "1px",
       textAlign: "center",
@@ -218,7 +245,7 @@ const LandingPage = () => {
       marginBottom: "60px" // Add margin bottom
     },
     sectionTitle: {
-      fontFamily: "'Cinzel Decorative', cursive",
+      fontFamily: "'Poiret One', sans-serif",
       fontWeight: 700,
       letterSpacing: "1px",
       textAlign: "center",
@@ -265,7 +292,7 @@ const LandingPage = () => {
       marginBottom: "40px" // Reduce margin bottom
     },
     whyChooseTitle: {
-      fontFamily: "'Cinzel Decorative', cursive",
+      fontFamily: "'Poiret One', sans-serif",
       fontWeight: 700,
       letterSpacing: "1px",
       textAlign: "center",
@@ -371,7 +398,7 @@ const LandingPage = () => {
         <Container maxWidth="md">
           <Typography variant="h3" sx={{
             ...styles.heroTitle,
-            fontFamily: "'Cooper Black', 'Cooper Std', Impact, serif",
+            fontFamily: "'Poiret One', sans-serif",
             fontSize: "2.5rem",
             marginBottom: "10px",
             color: darkMode ? "#fff" : "#fff"
@@ -380,8 +407,8 @@ const LandingPage = () => {
           </Typography>
           <Typography variant="h3" sx={{
             ...styles.heroTitle,
-            fontFamily: "'Cooper Black', 'Cooper Std', Impact, serif",
-            fontSize: "5rem",
+            fontFamily: "'Poiret One', sans-serif",
+            fontSize: "4rem",
             marginBottom: "20px",
             color: darkMode ? "#fff" : "#fff",
             zIndex: 2
@@ -395,7 +422,7 @@ const LandingPage = () => {
           <Box sx={styles.buttonContainer}>
             <Button
               variant="contained"
-              onClick={() => handleNavigate("/register")}
+              onClick={() => handleNavigate("/home")}
               sx={{
                 ...styles.heroButton,
                 pointerEvents: "all",
@@ -423,7 +450,7 @@ const LandingPage = () => {
       <Container sx={styles.sectionContainer}>
         <Typography variant="h4" sx={{
           ...styles.sectionTitle,
-          fontFamily: "'Cooper Black', 'Cooper Std', Impact, serif",
+          fontFamily: "'Poiret One', sans-serif",
           fontSize: "2.5rem"
         }}>
           Features
@@ -451,7 +478,7 @@ const LandingPage = () => {
         <Container>
           <Typography variant="h3" sx={{
             ...styles.whyChooseTitle,
-            fontFamily: "'Cooper Black', 'Cooper Std', Impact, serif",
+            fontFamily: "'Poiret One', sans-serif",
             fontSize: "2.5rem",
             width: "100%",
             textAlign: "center",
@@ -490,7 +517,7 @@ const LandingPage = () => {
         <Container maxWidth="md">
           <Typography variant="h4" sx={{
             ...styles.heroTitle,
-            fontFamily: "'Cooper Black', 'Cooper Std', Impact, serif",
+            fontFamily: "'Poiret One', sans-serif",
             fontSize: "2.5rem",
             color: darkMode ? "#fff" : "#fff",
             textAlign: "center"
@@ -517,7 +544,7 @@ const LandingPage = () => {
         <Container maxWidth="md">
           <Typography variant="h4" sx={{
             ...styles.heroTitle,
-            fontFamily: "'Cooper Black', 'Cooper Std', Impact, serif",
+            fontFamily: "'Poiret One', sans-serif",
             fontSize: "2.5rem",
             color: darkMode ? "#fff" : "#fff",
             textAlign: "center"
