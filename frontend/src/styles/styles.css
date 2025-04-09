@@ -68,7 +68,7 @@ body.dark-mode button {
 }
 
 body.dark-mode button:hover {
-  background-color: #ff4d4d;
+  background-color: #6A1B9A;
   box-shadow: 0px 4px 12px rgba(255, 255, 255, 0.2);
 }
 
@@ -89,7 +89,7 @@ textarea {
 
 input:focus,
 textarea:focus {
-  border-color: #ff4d4d;
+  border-color: #6A1B9A;
 }
 
 body.dark-mode input,
@@ -154,5 +154,7 @@ body.dark-mode a {
 }
 
 body.light-mode a {
-  color: #ff4d4d;
+  color: #6A1B9A;
 }
+
+

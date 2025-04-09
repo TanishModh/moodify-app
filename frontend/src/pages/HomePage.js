@@ -201,15 +201,15 @@ const HomePage = () => {
           fearful: 'anxious',
           disgusted: 'frustrated',
           surprised: 'energetic',
-          neutral: 'content'
+          neutral: 'neutral'
         };
 
-        return moodMap[dominantEmotion] || 'content';
+        return moodMap[dominantEmotion] || 'neutral';
       }
-      return 'content'; // default fallback
+      return 'neutral'; // default fallback
     } catch (error) {
       console.error('Error detecting emotion:', error);
-      return 'content';
+      return 'neutral';
     }
   };
 
@@ -244,7 +244,7 @@ const HomePage = () => {
 
       if (!detection) {
         console.error('No face detected');
-        navigate("/results", { state: { emotion: 'content', recommendations: [] } });
+        navigate("/results", { state: { emotion: 'neutral', recommendations: [] } });
         return;
       }
 
@@ -266,16 +266,16 @@ const HomePage = () => {
         fearful: 'anxious',
         disgusted: 'frustrated',
         surprised: 'energetic',
-        neutral: 'content'
+        neutral: 'neutral'
       };
 
-      const detectedMood = moodMap[dominantEmotion] || 'content';
+      const detectedMood = moodMap[dominantEmotion] || 'neutral';
       console.log('Final detected mood:', detectedMood);
 
       navigate("/results", { state: { emotion: detectedMood, recommendations: [] } });
     } catch (error) {
       console.error('Error processing image:', error);
-      navigate("/results", { state: { emotion: 'content', recommendations: [] } });
+      navigate("/results", { state: { emotion: 'neutral', recommendations: [] } });
     } finally {
       setIsProcessing(false);
       setShowModal(false);
@@ -310,25 +310,23 @@ const HomePage = () => {
       >
         <Box>
           <Typography
-            variant="h4"
-            align="center"
-            sx={{
-              mb: 1,
-              fontFamily: "Poppins",
-              fontWeight: "600",
-            }}
-          >
-            Moodify
-          </Typography>
-          <Typography
-            variant="subtitle1"
+            variant="h3"
             align="center"
             sx={{
               mb: 4,
-              color: isDarkMode ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.7)",
+              pt: 4,
+              fontFamily: "Quicksand, sans-serif",
+              fontSize: "3rem",
+              fontWeight: 700,
+              color: isDarkMode ? "#ffffff" : "#1a1a1a",
+              textShadow: "0 2px 4px rgba(0,0,0,0.1)",
+              lineHeight: 1.2,
+              maxWidth: "800px",
+              margin: "0 auto 2rem",
+              letterSpacing: "0.02em"
             }}
           >
-            Select your mood to discover matching music
+            Select Your Mood
           </Typography>
 
           <Tabs
@@ -387,13 +385,28 @@ const HomePage = () => {
               </Box>
               <Box sx={styles.moodGrid}>
                 {[
-                  'sad', 'angry',
-                  'relaxed', 'energetic', 'nostalgic',
-                  'anxious', 'hopeful', 'proud',
-                  'lonely', 'content', 'amused',
-                  'frustrated', 'guilty', 'overwhelmed', 'romantic'
-                ].filter(mood => !isMobile || mood !== 'guilty')
-                  .map((mood) => (
+                  { mood: 'happy', emoji: '😊', color: '#FFD700' },      // Gold
+                  { mood: 'sad', emoji: '😢', color: '#4682B4' },        // Steel Blue
+                  { mood: 'angry', emoji: '😠', color: '#FF4D4D' },      // Red
+                  { mood: 'relaxed', emoji: '😌', color: '#98FB98' },    // Pale Green
+                  { mood: 'energetic', emoji: '⚡', color: '#FF8C00' },   // Dark Orange
+                  { mood: 'nostalgic', emoji: '🥺', color: '#DDA0DD' },  // Plum
+                  { mood: 'anxious', emoji: '😰', color: '#20B2AA' },    // Light Sea Green
+                  { mood: 'hopeful', emoji: '🌟', color: '#87CEEB' },    // Sky Blue
+                  { mood: 'proud', emoji: '🦁', color: '#FFA500' },      // Orange
+                  { mood: 'lonely', emoji: '💔', color: '#778899' },     // Light Slate Gray
+                  { mood: 'neutral', emoji: '😐', color: '#A9A9A9' },    // Dark Gray
+                  { mood: 'amused', emoji: '😄', color: '#FF69B4' },     // Hot Pink
+                  { mood: 'frustrated', emoji: '😤', color: '#8B0000' },  // Dark Red
+                  { mood: 'romantic', emoji: '💝', color: '#FF69B4' },    // Hot Pink
+                  { mood: 'surprised', emoji: '😲', color: '#9370DB' },  // Medium Purple
+                  { mood: 'confused', emoji: '🤔', color: '#6A5ACD' },   // Slate Blue
+                  { mood: 'excited', emoji: '🎉', color: '#FF1493' },    // Deep Pink
+                  { mood: 'shy', emoji: '🫣', color: '#DEB887' },        // Burlywood
+                  { mood: 'bored', emoji: '🥱', color: '#696969' },      // Dim Gray
+                  { mood: 'playful', emoji: '😋', color: '#32CD32' }     // Lime Green
+                ].filter(item => !isMobile || item.mood !== 'guilty')
+                  .map(({ mood, emoji, color }) => (
                     <Button
                       key={mood}
                       onClick={() => handleMoodSelect(mood)}
@@ -401,39 +414,54 @@ const HomePage = () => {
                       disableElevation
                       sx={{
                         ...styles.moodButton,
-                        backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.2)',
-                        backdropFilter: 'blur(10px)',
-                        color: isDarkMode ? '#ffffff' : '#000000',
-                        border: `1px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
-                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                        backgroundColor: color,
                         '&.MuiButton-root': {
-                          backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.2)',
+                          backgroundColor: color,
                         },
                         '&:hover': {
-                          backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.3)',
-                          color: isDarkMode ? '#ffffff' : '#000000',
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)',
+                          backgroundColor: color,
+                          transform: 'scale(1.02)',
+                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
                         },
                         '&:active': {
-                          backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.25)',
+                          transform: 'scale(0.98)',
                         },
                         '@media (max-width: 600px)': {
-                          backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.15)',
-                          '&.MuiButton-root': {
-                            backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.15)',
-                          },
+                          height: '140px',
+                          padding: '12px',
                           '&:hover': {
-                            backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.25)',
-                            transform: 'none',
+                            transform: 'scale(1.01)',
                           },
-                          '&:active': {
-                            backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.3)',
-                          }
                         },
                       }}
                     >
-                      {mood.charAt(0).toUpperCase() + mood.slice(1)}
+                      <div style={{ 
+                        position: 'relative', 
+                        width: '100%', 
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between'
+                      }}>
+                        <span style={{
+                          fontSize: '1.5rem',
+                          fontWeight: 700,
+                          fontFamily: 'Quicksand, sans-serif',
+                          color: '#ffffff',
+                          textShadow: '0 2px 4px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.3)',
+                          letterSpacing: '0.5px'
+                        }}>
+                          {mood.charAt(0).toUpperCase() + mood.slice(1)}
+                        </span>
+                        <span style={{ 
+                          fontSize: '3.5rem',
+                          transform: 'rotate(-15deg)',
+                          marginTop: 'auto',
+                          marginLeft: 'auto',
+                          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))',
+                          opacity: 0.9
+                        }}>{emoji}</span>
+                      </div>
                     </Button>
                   ))}
               </Box>
@@ -446,7 +474,7 @@ const HomePage = () => {
                 variant="contained"
                 onClick={() => setShowModal(true)}
                 sx={{
-                  backgroundColor: '#ff4d4d',
+                  backgroundColor: '#6A1B9A',
                   '&:hover': {
                     backgroundColor: '#ff3333',
                   },
@@ -462,14 +490,24 @@ const HomePage = () => {
                         audio={false}
                         ref={webcamRef}
                         screenshotFormat="image/jpeg"
-                        style={{ width: '100%', borderRadius: '8px' }}
+                        mirrored={false}
+                        videoConstraints={{
+                          facingMode: "user",
+                          width: { ideal: 640 },
+                          height: { ideal: 480 }
+                        }}
+                        style={{ 
+                          width: '100%', 
+                          borderRadius: '8px',
+                          transform: 'scaleX(-1)'
+                        }}
                       />
                       <Button
                         variant="contained"
                         onClick={captureImage}
                         sx={{
                           mt: 2,
-                          backgroundColor: '#ff4d4d',
+                          backgroundColor: '#6A1B9A',
                           '&:hover': {
                             backgroundColor: '#ff3333',
                           },
@@ -485,12 +523,16 @@ const HomePage = () => {
                           ref={imageRef}
                           src={capturedImage}
                           alt="captured"
-                          style={{ width: '100%', borderRadius: '8px' }}
+                          style={{ 
+                            width: '100%', 
+                            borderRadius: '8px',
+                            transform: 'scaleX(-1)'
+                          }}
                           crossOrigin="anonymous"
                         />
                         {isProcessing && (
                           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                            <CircularProgress sx={{ color: '#ff4d4d' }} />
+                            <CircularProgress sx={{ color: '#6A1B9A' }} />
                           </Box>
                         )}
                       </>
@@ -499,8 +541,8 @@ const HomePage = () => {
                           variant="outlined"
                           onClick={retakeImage}
                           sx={{
-                            borderColor: '#ff4d4d',
-                            color: '#ff4d4d',
+                            borderColor: '#6A1B9A',
+                            color: '#6A1B9A',
                             '&:hover': {
                               borderColor: '#ff3333',
                             },
@@ -512,7 +554,7 @@ const HomePage = () => {
                           variant="contained"
                           onClick={confirmImage}
                           sx={{
-                            backgroundColor: '#ff4d4d',
+                            backgroundColor: '#6A1B9A',
                             '&:hover': {
                               backgroundColor: '#ff3333',
                             },
@@ -557,7 +599,7 @@ const HomePage = () => {
                       sx={{
                         ...styles.romanticButton,
                         '&:hover': {
-                          backgroundColor: '#ff4d4d',
+                          backgroundColor: '#6A1B9A',
                           color: '#ffffff',
                           transform: 'translateY(-3px)',
                           boxShadow: '0 6px 20px rgba(255, 77, 77, 0.4)',
@@ -675,71 +717,53 @@ const styles = {
   },
   moodGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(5, 1fr)',
+    gridTemplateColumns: 'repeat(4, 1fr)',
     gap: '20px',
-    padding: '20px',
-    maxWidth: '1000px',
+    padding: '24px',
+    maxWidth: '1200px',
     margin: '0 auto',
     '@media (max-width: 1200px)': {
-      gridTemplateColumns: 'repeat(4, 1fr)',
       gap: '16px',
-      padding: '16px',
+      padding: '20px',
     },
     '@media (max-width: 900px)': {
       gridTemplateColumns: 'repeat(3, 1fr)',
-      gap: '14px',
-      padding: '14px',
+      gap: '16px',
+      padding: '16px',
     },
     '@media (max-width: 600px)': {
       gridTemplateColumns: 'repeat(2, 1fr)',
-      gap: '8px',
-      padding: '10px',
-      width: '100%',
-      maxWidth: '100%',
+      gap: '12px',
+      padding: '12px',
     },
   },
   moodButton: {
-    padding: '24px 16px',
-    borderRadius: '12px',
+    padding: '16px',
+    borderRadius: '8px',
     textTransform: 'none',
-    fontSize: '1.1rem',
-    fontWeight: 500,
-    transition: 'all 0.2s ease-in-out',
-    border: '1px solid rgba(128, 128, 128, 0.2)',
-    height: '120px',
+    fontSize: '1.25rem',
+    fontWeight: 700,
+    transition: 'all 0.3s ease-in-out',
+    border: 'none',
+    height: '140px',
     display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    textAlign: 'center',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    textAlign: 'left',
     lineHeight: '1.2',
     width: '100%',
-    background: 'rgba(255, 255, 255, 0.1)',
-    backdropFilter: 'blur(10px)',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+    position: 'relative',
+    overflow: 'hidden',
     '&:hover': {
-      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
-      transform: 'translateY(-2px)',
-      background: 'rgba(255, 255, 255, 0.15)',
-    },
-    '@media (max-width: 1200px)': {
-      height: '110px',
-      fontSize: '1.05rem',
-      padding: '20px 14px',
-    },
-    '@media (max-width: 900px)': {
-      height: '100px',
-      fontSize: '1rem',
-      padding: '16px 12px',
+      transform: 'scale(1.02)',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
     },
     '@media (max-width: 600px)': {
-      height: '80px',
-      fontSize: '0.9rem',
-      padding: '10px 8px',
-      borderRadius: '8px',
-      margin: '4px',
-      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-      background: 'rgba(255, 255, 255, 0.15)',
-      backdropFilter: 'blur(8px)',
+      height: '140px',
+      padding: '12px',
+      fontSize: '1.1rem',
     },
   },
   loadingOverlay: {

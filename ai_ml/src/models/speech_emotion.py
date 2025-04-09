@@ -47,7 +47,7 @@ emotion_to_genre = {
     "jealous": "pop",
     "ashamed": "blues",
     "disappointed": "pop",
-    "content": "chill",
+    "neutral": "chill",
     "insecure": "pop",
     "embarrassed": "blues",
     "overwhelmed": "chill",

@@ -150,7 +150,7 @@ const Login = () => {
           color="secondary"
           fullWidth
           onClick={handleLogin}
-          sx={{ mb: 2, backgroundColor: "#ff4d4d", font: "inherit" }}
+          sx={{ mb: 2, backgroundColor: "#6A1B9A", font: "inherit" }}
           disabled={loading} // Disable the button while loading
         >
           {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}{" "}
@@ -168,7 +168,7 @@ const Login = () => {
             mb: 2,
             color: isDarkMode ? "#ffffff" : "#000000", // Dynamic color
             "&:hover": {
-              color: "#ff4d4d",
+              color: "#6A1B9A",
               transition: "color 0.2s",
             },
           }}
@@ -186,7 +186,7 @@ const Login = () => {
             fontFamily: "Poppins",
             color: isDarkMode ? "#ffffff" : "#000000", // Dynamic color
             "&:hover": {
-              color: "#ff4d4d",
+              color: "#6A1B9A",
               transition: "color 0.2s",
             },
           }}

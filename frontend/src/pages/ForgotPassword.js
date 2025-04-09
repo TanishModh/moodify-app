@@ -169,7 +169,7 @@ const ForgotPassword = () => {
               color="secondary"
               fullWidth
               onClick={handleVerify}
-              sx={{ mb: 2, backgroundColor: "#ff4d4d", font: "inherit" }}
+              sx={{ mb: 2, backgroundColor: "#6A1B9A", font: "inherit" }}
               disabled={loading}
             >
               {loading ? (
@@ -267,7 +267,7 @@ const ForgotPassword = () => {
               color="secondary"
               fullWidth
               onClick={handleResetPassword}
-              sx={{ mb: 2, backgroundColor: "#ff4d4d", font: "inherit" }}
+              sx={{ mb: 2, backgroundColor: "#6A1B9A", font: "inherit" }}
               disabled={loading}
             >
               {loading ? (
@@ -286,7 +286,7 @@ const ForgotPassword = () => {
             textDecoration: "underline",
             fontFamily: "Poppins",
             "&:hover": {
-              color: "#ff4d4d",
+              color: "#6A1B9A",
               transition: "color 0.2s",
             },
           }}

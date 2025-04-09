@@ -147,7 +147,7 @@ const ProfilePage = () => {
     <Box style={styles.container}>
       {isLoading && (
         <Box sx={styles.loadingOverlay}>
-          <CircularProgress sx={{ color: "#ff4d4d" }} />
+          <CircularProgress sx={{ color: "#6A1B9A" }} />
           <Typography
             variant="h6"
             style={{ marginTop: "10px", color: "white", font: "inherit" }}
@@ -189,7 +189,7 @@ const ProfilePage = () => {
               sx={{
                 width: 100,
                 height: 100,
-                border: "4px solid #ff4d4d",
+                border: "4px solid #6A1B9A",
                 margin: "0 auto",
                 marginBottom: "20px",
               }}

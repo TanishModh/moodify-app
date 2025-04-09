@@ -22,7 +22,7 @@ def music_recommendation():
         "hopeful": "uplifting",
         "proud": "epic",
         "lonely": "sad",
-        "content": "chill",
+        "neutral": "chill",
         "amused": "fun",
         "frustrated": "aggressive",
         "guilty": "melancholic",

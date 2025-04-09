@@ -176,7 +176,7 @@ const ResultsPage = () => {
               }}
             >
               {/* Loading Spinner */}
-              <CircularProgress style={{ color: "#ff4d4d" }} />
+              <CircularProgress style={{ color: "#6A1B9A" }} />
               {/* Loading Message */}
               <Typography
                 variant="body2"
@@ -287,7 +287,7 @@ const emotionToGenre = {
   jealous: "pop",
   ashamed: "blues",
   disappointed: "pop",
-  content: "chill",
+  neutral: "chill",
   insecure: "pop",
   embarassed: "blues",
   overwhelmed: "chill",
@@ -313,7 +313,7 @@ const getStyles = (isDarkMode) => ({
     fontFamily: "Poppins",
   },
   emotion: {
-    color: "#ff4d4d",
+    color: "#6A1B9A",
     fontWeight: "bold",
   },
   resultsContainer: {

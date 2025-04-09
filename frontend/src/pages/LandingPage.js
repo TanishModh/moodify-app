@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from "react";
+import React, { useContext, useRef, useState } from "react";
 import {
   Box,
   Typography,
@@ -8,14 +8,16 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Slider from "react-slick";
 import { DarkModeContext } from "../context/DarkModeContext";
 import "../App.css";
 
 const LandingPage = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const navigate = useNavigate();
-  const { isDarkMode } = useContext(DarkModeContext);
+  const location = useLocation();
+  const { isDarkMode: darkMode } = useContext(DarkModeContext);
 
   // Ref to access Slider instance
   const sliderRef = useRef(null);
@@ -60,7 +62,7 @@ const LandingPage = () => {
                   width: "10px",
                   height: "10px",
                   borderRadius: "50%",
-                  backgroundColor: isDarkMode
+                  backgroundColor: darkMode
                     ? dot.props.className.includes("slick-active")
                       ? "#fff"
                       : "#888"
@@ -88,7 +90,7 @@ const LandingPage = () => {
           height: "10px",
           borderRadius: "50%",
           cursor: "pointer",
-          backgroundColor: isDarkMode ? "#fff" : "#333",
+          backgroundColor: darkMode ? "#fff" : "#333",
           opacity: "0.5",
           transition: "opacity 0.3s ease, transform 0.3s ease",
         }}
@@ -121,12 +123,14 @@ const LandingPage = () => {
       animation: "slideUp 0.6s ease-out",
     },
     heroSection: {
-      backgroundColor: isDarkMode ? "#333" : "#ff4d4d", // Dark mode support for hero
+      backgroundColor: isDarkMode ? "#333" : "#6A1B9A",
       padding: "80px 0",
       color: isDarkMode ? "#fff" : "#fff",
       textAlign: "center",
       transition: "background-color 0.3s ease",
       animation: "slideUp 0.6s ease-out",
+      position: "relative",
+      overflow: "visible",
     },
     heroTitle: {
       fontFamily: "'Cinzel Decorative', cursive",
@@ -134,14 +138,14 @@ const LandingPage = () => {
       letterSpacing: "1px",
       textAlign: "center",
       marginBottom: "20px",
-      color: isDarkMode ? "#fff" : "#333", // Ensure white text for both modes
+      color: darkMode ? "#fff" : "#333", // Ensure white text for both modes
       animation: "slideUp 0.6s ease-out",
     },
     heroSubtitle: {
       font: "inherit",
       fontSize: "1.2rem",
       marginBottom: "30px",
-      color: isDarkMode ? "#ddd" : "#fff", // Lighter color for subtitle in dark mode
+      color: darkMode ? "#ddd" : "#fff", // Lighter color for subtitle in dark mode
       animation: "slideUp 0.6s ease-out",
     },
     buttonContainer: {
@@ -149,35 +153,69 @@ const LandingPage = () => {
       justifyContent: "center",
       gap: "15px",
       animation: "slideUp 0.6s ease-out",
+      position: "relative",
+      zIndex: 10,
+      pointerEvents: "auto",
     },
     heroButton: {
       font: "inherit",
       textTransform: "none",
       fontWeight: "bold",
-      padding: "10px 20px",
-      backgroundColor: "#ff4d4d",
+      padding: "12px 28px",
+      fontSize: "1.1rem",
+      backgroundColor: "#6A1B9A",
+      color: "#fff",
+      borderRadius: "8px",
+      position: "relative",
+      zIndex: 2000, // Very high z-index
+      cursor: "pointer",
+      userSelect: "none",
+      boxShadow: "none",
       "&:hover": {
-        backgroundColor: "#ff3333",
+        backgroundColor: "#8E24AA",
+        boxShadow: "none !important",
+      },
+      "&:active": {
+        backgroundColor: "#8E24AA",
+        boxShadow: "none !important",
       },
     },
     heroButton1: {
       font: "inherit",
       textTransform: "none",
       fontWeight: "bold",
-      padding: "10px 20px",
-      color: "#ff4d4d",
-      borderColor: "#ff4d4d",
-      backgroundColor: "#fff",
+      padding: "12px 28px",
+      fontSize: "1.1rem",
+      color: "#6A1B9A",
+      borderColor: "#6A1B9A",
+      borderWidth: "2px",
+      borderStyle: "solid",
+      backgroundColor: "transparent",
+      borderRadius: "8px",
+      position: "relative",
+      zIndex: 2000, // Very high z-index
+      cursor: "pointer",
+      userSelect: "none",
+      boxShadow: "none",
       "&:hover": {
-        backgroundColor: "#ff4d4d",
+        backgroundColor: "#6A1B9A",
         color: "#fff",
+        boxShadow: "none !important",
       },
-      transition: "background-color 0.3s ease",
+      "&:active": {
+        backgroundColor: "#6A1B9A",
+        color: "#fff",
+        boxShadow: "none !important",
+      },
     },
     sectionContainer: {
       padding: "60px 0",
-      textAlign: "center",
-      animation: "slideUp 0.6s ease-out",
+      backgroundColor: darkMode ? "#121212" : "#fff",
+      transition: "background-color 0.3s ease",
+      animation: "fadeInUp 1s ease-out",
+      color: darkMode ? "#ddd" : "#666",
+      animation: "fadeInUp 1s ease-out",
+      marginBottom: "60px" // Add margin bottom
     },
     sectionTitle: {
       fontFamily: "'Cinzel Decorative', cursive",
@@ -185,17 +223,16 @@ const LandingPage = () => {
       letterSpacing: "1px",
       textAlign: "center",
       marginBottom: "40px",
-      color: isDarkMode ? "#fff" : "#333", // Adjust title color based on dark mode
+      color: darkMode ? "#fff" : "#333", // Adjust title color based on dark mode
       animation: "slideUp 0.6s ease-out",
     },
     featureCard: {
       padding: "20px",
-      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
       borderRadius: "8px",
       margin: "0 10px",
       height: "200px",
-      backgroundColor: isDarkMode ? "#2e2e2e" : "#fff", // Adjust card background for dark mode
-      color: isDarkMode ? "#fff" : "#333", // Adjust text color for dark mode
+      backgroundColor: darkMode ? "#2e2e2e" : "#fff", // Adjust card background for dark mode
+      color: darkMode ? "#fff" : "#333", // Adjust text color for dark mode
       transition: "background-color 0.3s ease",
       animation: "slideUp 0.6s ease-out",
     },
@@ -204,26 +241,28 @@ const LandingPage = () => {
       fontWeight: "bold",
       fontSize: "1.2rem",
       marginBottom: "10px",
-      color: isDarkMode ? "#fff" : "#333", // Adjust title color based on dark mode
+      color: darkMode ? "#fff" : "#333", // Adjust title color based on dark mode
       animation: "slideUp 0.6s ease-out",
     },
     featureDescription: {
       font: "inherit",
-      color: isDarkMode ? "#ddd" : "#666", // Adjust description text for dark mode
+      color: darkMode ? "#ddd" : "#666", // Adjust description text for dark mode
       animation: "slideUp 0.6s ease-out",
     },
     informativeSection: {
       font: "inherit",
       padding: "60px 0",
-      backgroundColor: isDarkMode ? "#121212" : "#fff", // Adjust section background for dark mode
+      backgroundColor: darkMode ? "#121212" : "#fff", // Adjust section background for dark mode
       transition: "background-color 0.3s ease",
       animation: "slideUp 0.6s ease-out",
+      marginBottom: "60px" // Add margin bottom
     },
     whyChooseSection: {
       padding: "80px 0",
-      backgroundColor: isDarkMode ? "#1a1a1a" : "#f5f5f5",
+      backgroundColor: darkMode ? "#1a1a1a" : "#f5f5f5",
       transition: "background-color 0.3s ease",
       animation: "fadeIn 1s ease-out",
+      marginBottom: "40px" // Reduce margin bottom
     },
     whyChooseTitle: {
       fontFamily: "'Cinzel Decorative', cursive",
@@ -231,26 +270,23 @@ const LandingPage = () => {
       letterSpacing: "1px",
       textAlign: "center",
       marginBottom: "40px",
-      color: isDarkMode ? "#fff" : "#333",
+      color: darkMode ? "#fff" : "#333",
       animation: "slideInDown 1s ease-out",
     },
     whyChooseCard: {
       padding: "25px",
-      boxShadow: isDarkMode
-        ? "0px 4px 10px rgba(255, 255, 255, 0.1)"
-        : "0px 4px 10px rgba(0, 0, 0, 0.1)",
       borderRadius: "15px",
       margin: "0 10px",
       height: "300px",
-      backgroundColor: isDarkMode ? "#2e2e2e" : "#fff",
-      color: isDarkMode ? "#fff" : "#333",
+      backgroundColor: darkMode ? "#2e2e2e" : "#fff",
+      color: darkMode ? "#fff" : "#333",
       transition: "background-color 0.3s ease",
     },
     whyChooseIcon: {
       font: "inherit",
       fontSize: "2.5rem",
       marginBottom: "15px",
-      color: "#ff4d4d",
+      color: "#6A1B9A",
       animation: "pulse 2s infinite",
     },
     whyChooseTitle: {
@@ -258,19 +294,19 @@ const LandingPage = () => {
       fontWeight: "bold",
       fontSize: "1.5rem",
       marginBottom: "15px",
-      color: isDarkMode ? "#fff" : "#333",
+      color: darkMode ? "#fff" : "#333",
       animation: "fadeInUp 1s ease-out",
     },
     whyChooseDescription: {
       font: "inherit",
       fontSize: "1rem",
       lineHeight: 1.6,
-      color: isDarkMode ? "#ddd" : "#666",
+      color: darkMode ? "#ddd" : "#666",
       animation: "fadeInUp 1s ease-out",
     },
   });
 
-  const styles = getStyles(isDarkMode); // Get dynamic styles based on dark mode
+  const styles = getStyles(darkMode); // Get dynamic styles based on dark mode
 
   // Features Data
   const features = [
@@ -323,36 +359,59 @@ const LandingPage = () => {
     },
   ];
 
+  const handleNavigate = (path) => {
+    navigate(path);
+  };
+
+  // Force a fresh render by using location as key
   return (
-    <Box sx={styles.pageContainer}>
+    <Box key={location.pathname} sx={styles.pageContainer}>
       {/* Hero Section */}
       <Box sx={styles.heroSection}>
         <Container maxWidth="md">
           <Typography variant="h3" sx={{
             ...styles.heroTitle,
             fontFamily: "'Cooper Black', 'Cooper Std', Impact, serif",
-            fontSize: "2.8rem"
+            fontSize: "2.5rem",
+            marginBottom: "10px",
+            color: darkMode ? "#fff" : "#fff"
           }}>
-            Welcome to MoodifyMe
+            Welcome to
+          </Typography>
+          <Typography variant="h3" sx={{
+            ...styles.heroTitle,
+            fontFamily: "'Cooper Black', 'Cooper Std', Impact, serif",
+            fontSize: "5rem",
+            marginBottom: "20px",
+            color: darkMode ? "#fff" : "#fff",
+            zIndex: 2
+          }}>
+            MoodifyMe
           </Typography>
           <Typography variant="h6" sx={styles.heroSubtitle}>
-            The AI-powered emotion-based music recommendation app that matches
-            your mood with the perfect soundtrack.
+            The AI-powered emotion-based content recommendation platform that matches
+            your emotions with the perfect content.
           </Typography>
           <Box sx={styles.buttonContainer}>
             <Button
               variant="contained"
-              color="primary"
-              sx={styles.heroButton}
-              onClick={() => navigate("/home")}
+              onClick={() => handleNavigate("/register")}
+              sx={{
+                ...styles.heroButton,
+                pointerEvents: "all",
+                userSelect: "none"
+              }}
             >
               Get Started
             </Button>
             <Button
-              variant="outlined"
-              color="primary"
-              sx={styles.heroButton1}
-              onClick={() => navigate("/login")}
+              variant="contained"
+              onClick={() => handleNavigate("/login")}
+              sx={{
+                ...styles.heroButton1,
+                pointerEvents: "all",
+                userSelect: "none"
+              }}
             >
               Log In
             </Button>
@@ -422,37 +481,59 @@ const LandingPage = () => {
         </Container>
       </Box>
 
-      {/* Combined Hero Banner */}
-      <Box sx={styles.heroSection}>
+      {/* Bottom Quote Section */}
+      <Box sx={{
+        ...styles.heroSection,
+        padding: "80px 0",
+        marginTop: "30px"
+      }}>
         <Container maxWidth="md">
           <Typography variant="h4" sx={{
             ...styles.heroTitle,
             fontFamily: "'Cooper Black', 'Cooper Std', Impact, serif",
-            fontSize: "2.5rem"
+            fontSize: "2.5rem",
+            color: darkMode ? "#fff" : "#fff",
+            textAlign: "center"
           }}>
-            Your Emotions. Our Music.
+            Your Mood. Your Content.
           </Typography>
-          <Typography variant="h6" sx={styles.heroSubtitle}>
-            Discover songs that perfectly match every mood. Music that resonates
-            with your feelings.
-          </Typography>
-          
-          <Typography variant="h4" sx={{
-            ...styles.heroTitle,
-            marginTop: '40px',
-            fontFamily: "'Cooper Black', 'Cooper Std', Impact, serif",
-            fontSize: "2.5rem"
+          <Typography variant="h6" sx={{
+            ...styles.heroSubtitle,
+            marginTop: "20px",
+            textAlign: "center"
           }}>
-            Your Mood. Your Music.
-          </Typography>
-          <Typography variant="h6" sx={styles.heroSubtitle}>
-            Simply tell us how you feel, and we'll take care of the rest.
-            MoodifyMe - music that understands you.
+            Simply share your emotions, and we'll curate the perfect content for you.
+            MoodifyMe - content that understands you.
           </Typography>
         </Container>
       </Box>
 
-
+      {/* Second Quote Section */}
+      <Box sx={{
+        ...styles.heroSection,
+        padding: "80px 0",
+        marginTop: "30px"
+      }}>
+        <Container maxWidth="md">
+          <Typography variant="h4" sx={{
+            ...styles.heroTitle,
+            fontFamily: "'Cooper Black', 'Cooper Std', Impact, serif",
+            fontSize: "2.5rem",
+            color: darkMode ? "#fff" : "#fff",
+            textAlign: "center"
+          }}>
+            AI-Powered Emotion Detection
+          </Typography>
+          <Typography variant="h6" sx={{
+            ...styles.heroSubtitle,
+            marginTop: "20px",
+            textAlign: "center"
+          }}>
+            Advanced AI algorithms that understand your emotions and recommend
+            content that truly resonates with you.
+          </Typography>
+        </Container>
+      </Box>
     </Box>
   );
 };

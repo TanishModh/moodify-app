@@ -18,7 +18,7 @@ const NotFoundPage = () => {
           viewBox="0 0 24 24"
           width="150px"
           height="150px"
-          fill="#ff4d4d"
+          fill="#6A1B9A"
         >
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm1-13h-2v6h2V7zm0 8h-2v2h2v-2z" />
         </svg>
@@ -60,7 +60,7 @@ const getStyles = (isDarkMode) => ({
     animation: "pulse 1.5s infinite",
   },
   title: {
-    color: "#ff4d4d",
+    color: "#6A1B9A",
     font: "inherit",
     fontSize: "32px",
     fontWeight: "bold",
@@ -74,7 +74,7 @@ const getStyles = (isDarkMode) => ({
     textAlign: "center",
   },
   button: {
-    backgroundColor: "#ff4d4d",
+    backgroundColor: "#6A1B9A",
     color: "white",
     textTransform: "none",
     font: "inherit",

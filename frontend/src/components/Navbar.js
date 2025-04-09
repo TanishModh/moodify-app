@@ -262,10 +262,13 @@ const Navbar = () => {
           className="navbar-title"
           sx={{
             cursor: "pointer",
-            fontSize: "32px",
+            fontSize: "24px",
             color: isDarkMode ? "white" : "black",
             textTransform: "none",
-            letterSpacing: "1px"
+            letterSpacing: "0.5px",
+            fontFamily: "'Pacifico', cursive",
+            fontWeight: "normal",
+            textShadow: isDarkMode ? "1px 1px 2px rgba(255,255,255,0.1)" : "1px 1px 2px rgba(0,0,0,0.1)"
           }}
           onClick={() => navigate("/")}
         >
@@ -358,44 +361,55 @@ const Navbar = () => {
 // Styles for the ListItems with border radius and active styles
 const listItemStyle = (isActive, isDarkMode) => ({
   fontFamily: "Poppins",
-  borderRadius: "8px",
-  backgroundColor: isActive ? "#ff4d4d" : "transparent",
-  color: isActive && isDarkMode ? "white" : "inherit",
-  transition: "background-color 0.3s ease",
+  borderRadius: "12px",
+  backgroundColor: isActive ? (isDarkMode ? '#2E267F' : '#6C63FF') : 'transparent',
+  color: isActive ? '#ffffff' : 'inherit',
+  transition: 'all 0.3s ease',
+  margin: '4px 8px',
+  '&:hover': {
+    backgroundColor: isDarkMode ? '#2E267F' : '#6C63FF',
+    color: '#ffffff',
+  },
 });
 
 // Styles for the buttons in the desktop navbar
 const buttonStyle = (isActive) => ({
   fontFamily: "Poppins",
-  backgroundColor: isActive ? "#ff4d4d" : "transparent",
-  color: isActive ? "white" : "inherit",
-  "&:hover": {
-    backgroundColor: "#ff4d4d",
-    color: "white",
+  backgroundColor: isActive ? '#4A40D4' : 'transparent',
+  color: isActive ? '#ffffff' : 'inherit',
+  borderRadius: '8px',
+  padding: '6px 16px',
+  '&:hover': {
+    backgroundColor: '#6C63FF',
+    color: '#ffffff',
   },
-  transition: "background-color 0.3s ease",
+  transition: 'all 0.3s ease',
 });
 
 // Styles for the Logout button (red text)
 const logoutButtonStyle = () => ({
   fontFamily: "Poppins",
-  color: "red",
-  "&:hover": {
-    backgroundColor: "#ff4d4d",
-    color: "white",
+  color: '#FF5757',
+  borderRadius: '8px',
+  padding: '6px 16px',
+  '&:hover': {
+    backgroundColor: '#FF5757',
+    color: '#ffffff',
   },
-  transition: "background-color 0.3s ease",
+  transition: 'all 0.3s ease',
 });
 
 // Styles for the Login button (blue text)
 const loginButtonStyle = (isDark) => ({
   fontFamily: "Poppins",
-  color: isDark ? "#fff" : "blue",
-  "&:hover": {
-    backgroundColor: "#ff4d4d",
-    color: "white",
+  color: isDark ? '#64FFDA' : '#00BFA5',
+  borderRadius: '8px',
+  padding: '6px 16px',
+  '&:hover': {
+    backgroundColor: '#00BFA5',
+    color: '#ffffff',
   },
-  transition: "background-color 0.3s ease",
+  transition: 'all 0.3s ease',
 });
 
 export default Navbar;

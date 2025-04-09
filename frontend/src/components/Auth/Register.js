@@ -219,7 +219,7 @@ const Register = () => {
           color="primary"
           fullWidth
           onClick={handleRegister}
-          sx={{ mb: 2, backgroundColor: "#ff4d4d", font: "inherit" }}
+          sx={{ mb: 2, backgroundColor: "#6A1B9A", font: "inherit" }}
           disabled={loading}
         >
           {loading ? (
@@ -237,7 +237,7 @@ const Register = () => {
             fontFamily: "Poppins",
             color: isDarkMode ? "#ffffff" : "#000000", // Dynamic color
             "&:hover": {
-              color: "#ff4d4d",
+              color: "#6A1B9A",
               transition: "color 0.2s",
             },
           }}

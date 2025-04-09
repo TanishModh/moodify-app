@@ -46,7 +46,7 @@ def get_music_recommendation(emotion, market=None):
         "jealous": "dark",
         "ashamed": "melancholic",
         "disappointed": "sad",
-        "content": "chill",
+        "neutral": "chill",
         "insecure": "soulful",
         "embarassed": "blues",
         "overwhelmed": "ambient",

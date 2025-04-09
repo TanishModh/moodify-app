@@ -14,7 +14,7 @@ const Footer = () => {
 
   const styles = {
     footer: {
-      backgroundColor: "#ff4d4d",
+      backgroundColor: "#6A1B9A",
       color: "white",
       padding: "20px 0",
       textAlign: "center",
