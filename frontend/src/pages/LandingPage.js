@@ -173,18 +173,18 @@ const LandingPage = () => {
         fontSize: "4.5rem",
       },
       '@media (max-width: 900px)': {
-        fontSize: "3.5rem",
+        fontSize: "4rem",
       },
       '@media (max-width: 600px)': {
-        fontSize: "2.5rem",
+        fontSize: "calc(2.5rem + 2vw)",
         lineHeight: "1.2",
       },
       '@media (max-width: 400px)': {
-        fontSize: "2rem",
+        fontSize: "calc(2.2rem + 2vw)",
         lineHeight: "1.2",
       },
       '@media (max-height: 600px)': {
-        fontSize: "2.5rem",
+        fontSize: "calc(2.5rem + 2vw)",
         lineHeight: "1.2",
       }
     },
@@ -355,6 +355,26 @@ const LandingPage = () => {
       color: darkMode ? "#ddd" : "#666",
       animation: "fadeInUp 1s ease-out",
     },
+    welcomeText: {
+      fontFamily: "Poiret One",
+      fontSize: "2.5rem",
+      color: "#6A1B9A",
+      marginBottom: "10px",
+      '@media (max-width: 1200px)': {
+        fontSize: "2rem",
+      },
+      '@media (max-width: 900px)': {
+        fontSize: "1.8rem",
+      },
+      '@media (max-width: 600px)': {
+        fontSize: "1.5rem",
+        lineHeight: "1.2",
+      },
+      '@media (max-width: 400px)': {
+        fontSize: "1.3rem",
+        lineHeight: "1.2",
+      }
+    },
   });
 
   const styles = getStyles(darkMode); // Get dynamic styles based on dark mode
@@ -421,7 +441,7 @@ const LandingPage = () => {
       <Box sx={styles.heroSection}>
         <Container maxWidth="md">
           <Typography variant="h3" sx={{
-            ...styles.heroTitle,
+            ...styles.welcomeText,
             fontFamily: "'Poiret One', cursive",
             fontSize: "2.5rem",
             marginBottom: "10px",
