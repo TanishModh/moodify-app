@@ -160,20 +160,44 @@ const LandingPage = () => {
       overflow: "visible",
     },
     heroTitle: {
-      fontFamily: "'Poiret One', sans-serif",
-      fontWeight: 700,
-      letterSpacing: "1px",
+      fontFamily: "Fascinate Inline",
+      fontSize: "5.5rem",
+      color: "#6A1B9A",
+      fontWeight: "bold",
+      textTransform: "uppercase",
+      letterSpacing: "0.1em",
       textAlign: "center",
       marginBottom: "20px",
-      color: darkMode ? "#fff" : "#333", // Ensure white text for both modes
       animation: "slideUp 0.6s ease-out",
+      '@media (max-width: 1200px)': {
+        fontSize: "4.5rem",
+      },
+      '@media (max-width: 900px)': {
+        fontSize: "3.5rem",
+      },
+      '@media (max-width: 600px)': {
+        fontSize: "2.5rem",
+        lineHeight: "1.2",
+      },
+      '@media (max-width: 400px)': {
+        fontSize: "2rem",
+        lineHeight: "1.2",
+      },
+      '@media (max-height: 600px)': {
+        fontSize: "2.5rem",
+        lineHeight: "1.2",
+      }
     },
     heroSubtitle: {
       font: "inherit",
       fontSize: "1.2rem",
       marginBottom: "30px",
-      color: darkMode ? "#ddd" : "#fff", // Lighter color for subtitle in dark mode
+      color: darkMode ? "#ddd" : "#fff",
       animation: "slideUp 0.6s ease-out",
+      '@media (max-width: 600px)': {
+        fontSize: "1rem",
+        maxWidth: "95%",
+      }
     },
     buttonContainer: {
       display: "flex",
@@ -398,48 +422,84 @@ const LandingPage = () => {
         <Container maxWidth="md">
           <Typography variant="h3" sx={{
             ...styles.heroTitle,
-            fontFamily: "'Poiret One', sans-serif",
+            fontFamily: "'Poiret One', cursive",
             fontSize: "2.5rem",
             marginBottom: "10px",
             color: darkMode ? "#fff" : "#fff"
           }}>
-            Welcome to
+            Welcome To
           </Typography>
           <Typography variant="h3" sx={{
             ...styles.heroTitle,
-            fontFamily: "'Poiret One', sans-serif",
-            fontSize: "4rem",
+            fontFamily: "'Fascinate Inline', cursive",
+            fontSize: "5.5rem",  // Increased from 4rem to 5.5rem
+            color: darkMode ? "#fff" : "#000",
+            textTransform: "uppercase",
+            letterSpacing: "0.1em",
             marginBottom: "20px",
-            color: darkMode ? "#fff" : "#fff",
             zIndex: 2
           }}>
             MoodifyMe
           </Typography>
-          <Typography variant="h6" sx={styles.heroSubtitle}>
-            The AI-powered emotion-based content recommendation platform that matches
-            your emotions with the perfect content.
+          <Typography variant="h6" sx={{
+            ...styles.heroSubtitle,
+            marginBottom: "2rem"
+          }}>
+            The AI-powered emotion-based content recommendation platform that matches your mood with the perfect content.
           </Typography>
-          <Box sx={styles.buttonContainer}>
-            <Button
-              variant="contained"
-              onClick={() => handleNavigate("/home")}
-              sx={{
-                ...styles.heroButton,
-                pointerEvents: "all",
-                userSelect: "none"
-              }}
-            >
+          <Box sx={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 2,
+            marginBottom: "2rem"
+          }}>
+            <Button variant="contained" size="large" sx={{
+              backgroundColor: '#6A1B9A',
+              color: 'white',
+              fontFamily: "'Poiret One', cursive",
+              fontWeight: 600,
+              letterSpacing: '0.5px',
+              fontSize: '1.1rem',
+              '&:hover': {
+                backgroundColor: '#6A1B9A',
+                opacity: 0.9,
+                transform: 'scale(1.02)',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)'
+              },
+              '&:active': {
+                transform: 'scale(0.98)',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.2)'
+              },
+              borderRadius: '8px',
+              transition: 'all 0.2s ease',
+              textTransform: 'uppercase'
+            }} onClick={() => navigate('/home')}>
               Get Started
             </Button>
-            <Button
-              variant="contained"
-              onClick={() => handleNavigate("/login")}
-              sx={{
-                ...styles.heroButton1,
-                pointerEvents: "all",
-                userSelect: "none"
-              }}
-            >
+            <Button variant="outlined" size="large" sx={{
+              backgroundColor: 'white',
+              borderColor: '#6A1B9A',
+              color: '#6A1B9A',
+              fontFamily: "'Poiret One', cursive",
+              fontWeight: 600,
+              letterSpacing: '0.5px',
+              fontSize: '1.1rem',
+              '&:hover': {
+                backgroundColor: '#6A1B9A',
+                color: 'white',
+                borderColor: '#6A1B9A',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                transform: 'scale(1.02)',
+                transition: 'all 0.2s ease'
+              },
+              '&:active': {
+                transform: 'scale(0.98)',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)'
+              },
+              borderRadius: '8px',
+              transition: 'all 0.2s ease',
+              textTransform: 'uppercase'
+            }} onClick={() => navigate('/login')}>
               Log In
             </Button>
           </Box>
@@ -478,7 +538,7 @@ const LandingPage = () => {
         <Container>
           <Typography variant="h3" sx={{
             ...styles.whyChooseTitle,
-            fontFamily: "'Poiret One', sans-serif",
+            fontFamily: "'Poiret One', cursive",
             fontSize: "2.5rem",
             width: "100%",
             textAlign: "center",
@@ -489,15 +549,38 @@ const LandingPage = () => {
           <Grid container spacing={4} justifyContent="center">
             {whyChooseMoodifyMe.map((item, index) => (
               <Grid item xs={12} md={4} key={index}>
-                <Card sx={styles.whyChooseCard}>
+                <Card sx={{
+                  ...styles.whyChooseCard,
+                  border: '2px solid',
+                  borderColor: '#6A1B9A',
+                  borderRadius: '16px',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: darkMode ? '0 8px 32px rgba(0, 0, 0, 0.3)' : '0 8px 32px rgba(0, 0, 0, 0.1)',
+                    borderColor: '#6A1B9A'
+                  }
+                }}>
                   <CardContent>
-                    <Typography variant="h2" sx={styles.whyChooseIcon}>
+                    <Typography variant="h2" sx={{
+                      ...styles.whyChooseIcon,
+                      color: 'white',
+                      fontSize: '3rem'
+                    }}>
                       {item.icon}
                     </Typography>
-                    <Typography variant="h5" sx={styles.whyChooseTitle}>
+                    <Typography variant="h5" sx={{
+                      ...styles.whyChooseTitle,
+                      color: 'white',
+                      marginBottom: '1rem'
+                    }}>
                       {item.title}
                     </Typography>
-                    <Typography variant="body1" sx={styles.whyChooseDescription}>
+                    <Typography variant="body1" sx={{
+                      ...styles.whyChooseDescription,
+                      color: 'white',
+                      opacity: 0.9
+                    }}>
                       {item.description}
                     </Typography>
                   </CardContent>

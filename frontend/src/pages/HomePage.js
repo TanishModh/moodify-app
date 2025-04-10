@@ -11,14 +11,231 @@ const HomePage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { isDarkMode } = useContext(DarkModeContext);
   const [activeTab, setActiveTab] = useState("mood");
-  const isMobile = useMediaQuery('(max-width:600px)');
-
   const [showModal, setShowModal] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [modelsLoaded, setModelsLoaded] = useState(false);
+  const [isAnimated, setIsAnimated] = useState(false);
   const webcamRef = useRef(null);
   const imageRef = useRef(null);
+  const isMobile = useMediaQuery('(max-width:600px)');
+
+  useEffect(() => {
+    // Add fade-in animation when component mounts
+    setIsAnimated(true);
+  }, []);
+
+  const containerStyle = {
+    minHeight: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    padding: "20px",
+    position: "relative",
+    '@media (max-width: 600px)': {
+      padding: "10px",
+    },
+    opacity: isAnimated ? 1 : 0,
+    transform: isAnimated ? 'translateY(0)' : 'translateY(20px)',
+    transition: 'all 0.8s ease-in-out',
+    animation: isAnimated ? 'fadeIn 0.8s ease-in-out forwards' : 'none',
+    overflowY: 'auto',
+    WebkitOverflowScrolling: 'touch',
+    msOverflowStyle: 'none',
+    scrollbarWidth: 'none',
+    '&::-webkit-scrollbar': {
+      display: 'none'
+    }
+  };
+
+  const formContainerStyle = {
+    padding: "20px",
+    borderRadius: "12px",
+    width: "90%",
+    maxWidth: "1200px",
+    boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
+    backgroundColor: "white",
+    transition: "background-color 0.3s ease",
+    '@media (max-width: 600px)': {
+      padding: "15px",
+      width: "98%",
+    },
+    willChange: 'transform',
+    backfaceVisibility: 'hidden'
+  };
+
+  const styles = {
+    '@keyframes fadeIn': {
+      '0%': {
+        opacity: 0,
+        transform: 'translateY(20px)'
+      },
+      '100%': {
+        opacity: 1,
+        transform: 'translateY(0)'
+      }
+    },
+    container: containerStyle,
+    formContainer: formContainerStyle,
+    cheerMeUpContainer: {
+      width: '100%',
+      display: 'flex',
+      justifyContent: 'center',
+      marginBottom: '32px',
+    },
+    cheerMeUpButton: {
+      backgroundColor: '#FFD700',
+      color: '#000',
+      fontSize: '1.25rem',
+      padding: '16px 40px',
+      borderRadius: '30px',
+      fontWeight: 600,
+      textTransform: 'none',
+      boxShadow: '0 4px 15px rgba(255, 215, 0, 0.3)',
+      border: '2px solid #FFD700',
+      position: 'relative',
+      overflow: 'hidden',
+      transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+      '&:hover': {
+        backgroundColor: '#FFC800',
+        transform: 'translateY(-3px) scale(1.02)',
+        boxShadow: '0 8px 25px rgba(255, 215, 0, 0.5)',
+        letterSpacing: '1px',
+      },
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        background: 'linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent)',
+        transform: 'translateX(-100%)',
+        transition: 'all 0.7s ease',
+      },
+      '&:hover::before': {
+        transform: 'translateX(100%)',
+      },
+      '&::after': {
+        content: '""',
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        background: 'radial-gradient(circle, transparent 60%, rgba(255, 215, 0, 0.2) 100%)',
+        opacity: 0,
+        borderRadius: '30px',
+        transition: 'opacity 0.5s ease',
+      },
+      '&:hover::after': {
+        opacity: 1,
+      },
+      '& > span': {
+        display: 'inline-block',
+        transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+      '&:hover > span': {
+        transform: 'scale(1.05)',
+      },
+      '@media (max-width: 600px)': {
+        fontSize: '1.1rem',
+        padding: '12px 30px',
+      },
+    },
+
+    faceContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      width: '100%',
+    },
+    modal: {
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: '90%',
+      maxWidth: '600px',
+      backgroundColor: 'white',
+      boxShadow: 24,
+      borderRadius: '12px',
+      padding: '20px',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      '@media (max-width: 600px)': {
+        width: '95%',
+        padding: '15px',
+        maxHeight: '90vh',
+        overflowY: 'auto',
+      },
+    },
+    moodGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(4, 1fr)',
+      gap: '20px',
+      padding: '24px',
+      maxWidth: '1200px',
+      margin: '0 auto',
+      '@media (max-width: 1200px)': {
+        gap: '16px',
+        padding: '20px',
+      },
+      '@media (max-width: 900px)': {
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: '16px',
+        padding: '16px',
+      },
+      '@media (max-width: 600px)': {
+        gridTemplateColumns: 'repeat(2, 1fr)',
+        gap: '12px',
+        padding: '12px',
+      },
+    },
+    moodButton: {
+      padding: '16px',
+      borderRadius: '8px',
+      textTransform: 'none',
+      fontSize: '1.25rem',
+      fontWeight: 700,
+      transition: 'all 0.3s ease-in-out',
+      border: 'none',
+      height: '140px',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      textAlign: 'left',
+      lineHeight: '1.2',
+      width: '100%',
+      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+      position: 'relative',
+      overflow: 'hidden',
+      '&:hover': {
+        transform: 'scale(1.02)',
+        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+      },
+      '@media (max-width: 600px)': {
+        height: '140px',
+        padding: '12px',
+        fontSize: '1.1rem',
+      },
+    },
+    loadingOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "rgba(0, 0, 0, 0.7)",
+      zIndex: 1000,
+    },
+    formContainer: formContainerStyle,
+  };
 
   const handleCheerMeUp = async () => {
     setIsLoading(true);
@@ -295,7 +512,7 @@ const HomePage = () => {
         <Box sx={styles.loadingOverlay}>
           <CircularProgress sx={{ color: "#ff4d4d" }} />
           <Typography variant="h6" sx={{ mt: 2, color: "white" }}>
-            Finding music for your mood...
+            Finding content for your mood...
           </Typography>
         </Box>
       )}
@@ -532,7 +749,7 @@ const HomePage = () => {
                         />
                         {isProcessing && (
                           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                            <CircularProgress sx={{ color: '#6A1B9A' }} />
+                            <CircularProgress sx={{ color: "#6A1B9A" }} />
                           </Box>
                         )}
                       </>
@@ -619,190 +836,6 @@ const HomePage = () => {
       </Paper>
     </div>
   );
-};
-
-const styles = {
-  cheerMeUpContainer: {
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    marginBottom: '32px',
-  },
-  cheerMeUpButton: {
-    backgroundColor: '#FFD700',
-    color: '#000',
-    fontSize: '1.25rem',
-    padding: '16px 40px',
-    borderRadius: '30px',
-    fontWeight: 600,
-    textTransform: 'none',
-    boxShadow: '0 4px 15px rgba(255, 215, 0, 0.3)',
-    border: '2px solid #FFD700',
-    position: 'relative',
-    overflow: 'hidden',
-    transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-    '&:hover': {
-      backgroundColor: '#FFC800',
-      transform: 'translateY(-3px) scale(1.02)',
-      boxShadow: '0 8px 25px rgba(255, 215, 0, 0.5)',
-      letterSpacing: '1px',
-    },
-    '&::before': {
-      content: '""',
-      position: 'absolute',
-      top: '0',
-      left: '0',
-      width: '100%',
-      height: '100%',
-      background: 'linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent)',
-      transform: 'translateX(-100%)',
-      transition: 'all 0.7s ease',
-    },
-    '&:hover::before': {
-      transform: 'translateX(100%)',
-    },
-    '&::after': {
-      content: '""',
-      position: 'absolute',
-      top: '0',
-      left: '0',
-      width: '100%',
-      height: '100%',
-      background: 'radial-gradient(circle, transparent 60%, rgba(255, 215, 0, 0.2) 100%)',
-      opacity: 0,
-      borderRadius: '30px',
-      transition: 'opacity 0.5s ease',
-    },
-    '&:hover::after': {
-      opacity: 1,
-    },
-    '& > span': {
-      display: 'inline-block',
-      transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-    },
-    '&:hover > span': {
-      transform: 'scale(1.05)',
-    },
-    '@media (max-width: 600px)': {
-      fontSize: '1.1rem',
-      padding: '12px 30px',
-    },
-  },
-
-  faceContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    width: '100%',
-  },
-  modal: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '90%',
-    maxWidth: '600px',
-    backgroundColor: 'white',
-    boxShadow: 24,
-    borderRadius: '12px',
-    padding: '20px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    '@media (max-width: 600px)': {
-      width: '95%',
-      padding: '15px',
-      maxHeight: '90vh',
-      overflowY: 'auto',
-    },
-  },
-  moodGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '20px',
-    padding: '24px',
-    maxWidth: '1200px',
-    margin: '0 auto',
-    '@media (max-width: 1200px)': {
-      gap: '16px',
-      padding: '20px',
-    },
-    '@media (max-width: 900px)': {
-      gridTemplateColumns: 'repeat(3, 1fr)',
-      gap: '16px',
-      padding: '16px',
-    },
-    '@media (max-width: 600px)': {
-      gridTemplateColumns: 'repeat(2, 1fr)',
-      gap: '12px',
-      padding: '12px',
-    },
-  },
-  moodButton: {
-    padding: '16px',
-    borderRadius: '8px',
-    textTransform: 'none',
-    fontSize: '1.25rem',
-    fontWeight: 700,
-    transition: 'all 0.3s ease-in-out',
-    border: 'none',
-    height: '140px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    textAlign: 'left',
-    lineHeight: '1.2',
-    width: '100%',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-    position: 'relative',
-    overflow: 'hidden',
-    '&:hover': {
-      transform: 'scale(1.02)',
-      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-    },
-    '@media (max-width: 600px)': {
-      height: '140px',
-      padding: '12px',
-      fontSize: '1.1rem',
-    },
-  },
-  loadingOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-    zIndex: 1000,
-  },
-  container: {
-    minHeight: "100vh",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    padding: "20px",
-    position: "relative",
-    '@media (max-width: 600px)': {
-      padding: "10px",
-    },
-  },
-  formContainer: {
-    padding: "20px",
-    borderRadius: "12px",
-    width: "95%",
-    maxWidth: "1200px",
-    boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
-    backgroundColor: "white",
-    transition: "background-color 0.3s ease",
-    '@media (max-width: 600px)': {
-      padding: "15px",
-      width: "98%",
-    },
-  },
 };
 
 export default HomePage;

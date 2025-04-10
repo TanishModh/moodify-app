@@ -14,6 +14,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import AboutPage from "./pages/AboutPage";
 import { DarkModeProvider, DarkModeContext } from "./context/DarkModeContext";
+import ScrollToTop from './components/ScrollToTop';
 import "./styles/styles.css";
 import "./styles/blob.css";
 
@@ -30,6 +31,7 @@ function App() {
     <Router>
       <div id="blob"></div>
       <div id="blur"></div>
+      <ScrollToTop />
       <Navbar />
       <Routes>
         <Route path="/" element={<LandingPage />} />
