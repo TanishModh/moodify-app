@@ -15,9 +15,9 @@ CONFIG = {
     "num_epochs": 4,
     "learning_rate": 2e-5,
 
-    # Spotify API credentials (test account)
-    "spotify_client_id": "34a2648b4f074fd68e7aa374c0c7d2fe",
-    "spotify_client_secret": "8c8725a0558046d48737a20f21afad3a",
+    # Spotify API credentials (use environment variables if available, otherwise use defaults)
+    "spotify_client_id": os.getenv('SPOTIFY_CLIENT_ID', "34a2648b4f074fd68e7aa374c0c7d2fe"),
+    "spotify_client_secret": os.getenv('SPOTIFY_CLIENT_SECRET', "8c8725a0558046d48737a20f21afad3a"),
 
     # API configuration
     "api_port": 5000,
@@ -30,10 +30,6 @@ CONFIG = {
     # Pre-trained models paths
     "speech_emotion_model_path": os.path.join(BASE_DIR, 'models', 'pre_trained_models', 'speech_emotion_model'),
     "facial_emotion_model_path": os.path.join(BASE_DIR, 'models', 'pre_trained_models', 'facial_emotion_model'),
-
-    # Spotify API credentials (loaded from environment variables)
-    "spotify_client_id": os.getenv('SPOTIFY_CLIENT_ID'),
-    "spotify_client_secret": os.getenv('SPOTIFY_CLIENT_SECRET'),
 
     # API and model settings
     "api_port": 5000,

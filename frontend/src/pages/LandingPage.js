@@ -143,7 +143,7 @@ const LandingPage = () => {
   const getStyles = (isDarkMode) => ({
     pageContainer: {
       minHeight: "100vh",
-      backgroundColor: isDarkMode ? "#121212" : "#f9f9f9", // Dark mode support
+      backgroundColor: isDarkMode ? "#121212" : "#fff", // Unified white background in light mode
       display: "flex",
       flexDirection: "column",
       transition: "background-color 0.3s ease",
@@ -310,9 +310,12 @@ const LandingPage = () => {
     },
     whyChooseSection: {
       padding: "80px 0",
-      backgroundColor: darkMode ? "#1a1a1a" : "#f5f5f5",
+      backgroundColor: darkMode ? "#1a1a1a" : "#fff", // Unified white background in light mode
       transition: "background-color 0.3s ease",
       animation: "fadeIn 1s ease-out",
+      boxShadow: darkMode
+        ? "inset 0 4px 4px -4px rgba(0,0,0,0.7)"
+        : "inset 0 4px 4px -4px rgba(0,0,0,0.1)",
       marginBottom: "40px" // Reduce margin bottom
     },
     whyChooseTitle: {
@@ -329,8 +332,8 @@ const LandingPage = () => {
       borderRadius: "15px",
       margin: "0 10px",
       height: "300px",
-      backgroundColor: darkMode ? "#2e2e2e" : "#fff",
-      color: darkMode ? "#fff" : "#333",
+      backgroundColor: darkMode ? "#2e2e2e" : "#6A1B9A",
+      color: "#fff",
       transition: "background-color 0.3s ease",
     },
     whyChooseIcon: {
@@ -345,14 +348,14 @@ const LandingPage = () => {
       fontWeight: "bold",
       fontSize: "1.5rem",
       marginBottom: "15px",
-      color: darkMode ? "#fff" : "#333",
+      color: "#fff",
       animation: "fadeInUp 1s ease-out",
     },
     whyChooseDescription: {
       font: "inherit",
       fontSize: "1rem",
       lineHeight: 1.6,
-      color: darkMode ? "#ddd" : "#666",
+      color: "#fff",
       animation: "fadeInUp 1s ease-out",
     },
     welcomeText: {
@@ -453,7 +456,7 @@ const LandingPage = () => {
             ...styles.heroTitle,
             fontFamily: "'Fascinate Inline', cursive",
             fontSize: "5.5rem",  // Increased from 4rem to 5.5rem
-            color: darkMode ? "#fff" : "#000",
+            color: "#fff", // Always set the "MoodifyMe" heading color to white
             textTransform: "uppercase",
             letterSpacing: "0.1em",
             marginBottom: "20px",
@@ -538,12 +541,31 @@ const LandingPage = () => {
         <Slider {...settings} ref={sliderRef}>
           {features.map((feature, index) => (
             <Grid item xs={12} md={4} key={index}>
-              <Card sx={styles.featureCard}>
+              <Card sx={{
+                ...styles.featureCard,
+                border: '2px solid',
+                borderColor: '#6A1B9A',
+                borderRadius: '16px',
+                transition: 'all 0.3s ease',
+                backgroundColor: darkMode ? '#2e2e2e' : '#6A1B9A',
+                '&:hover': {
+                  boxShadow: darkMode ? '0 8px 32px rgba(0, 0, 0, 0.3)' : '0 8px 32px rgba(0, 0, 0, 0.1)',
+                  borderColor: '#6A1B9A'
+                }
+              }}>
                 <CardContent>
-                  <Typography variant="h6" sx={styles.featureTitle}>
+                  <Typography variant="h6" sx={{
+                    ...styles.featureTitle,
+                    color: 'white',
+                    marginBottom: '1rem'
+                  }}>
                     {feature.title}
                   </Typography>
-                  <Typography variant="body2" sx={styles.featureDescription}>
+                  <Typography variant="body2" sx={{
+                    ...styles.featureDescription,
+                    color: 'white',
+                    opacity: 0.9
+                  }}>
                     {feature.description}
                   </Typography>
                 </CardContent>
@@ -562,7 +584,8 @@ const LandingPage = () => {
             fontSize: "2.5rem",
             width: "100%",
             textAlign: "center",
-            marginBottom: "2rem"
+            marginBottom: "2rem",
+            color: darkMode ? "#fff" : "#000", // Conditional color
           }}>
             Why Choose MoodifyMe
           </Typography>
@@ -575,8 +598,8 @@ const LandingPage = () => {
                   borderColor: '#6A1B9A',
                   borderRadius: '16px',
                   transition: 'all 0.3s ease',
+                  backgroundColor: darkMode ? '#2e2e2e' : '#6A1B9A',
                   '&:hover': {
-                    transform: 'translateY(-5px)',
                     boxShadow: darkMode ? '0 8px 32px rgba(0, 0, 0, 0.3)' : '0 8px 32px rgba(0, 0, 0, 0.1)',
                     borderColor: '#6A1B9A'
                   }
@@ -622,7 +645,7 @@ const LandingPage = () => {
             ...styles.heroTitle,
             fontFamily: "'Poiret One', sans-serif",
             fontSize: "2.5rem",
-            color: darkMode ? "#fff" : "#fff",
+            color: "#fff", // Always set the "MoodifyMe" heading color to white
             textAlign: "center"
           }}>
             Your Mood. Your Content.
@@ -649,7 +672,7 @@ const LandingPage = () => {
             ...styles.heroTitle,
             fontFamily: "'Poiret One', sans-serif",
             fontSize: "2.5rem",
-            color: darkMode ? "#fff" : "#fff",
+            color: "#fff", // Always set the "MoodifyMe" heading color to white
             textAlign: "center"
           }}>
             AI-Powered Emotion Detection

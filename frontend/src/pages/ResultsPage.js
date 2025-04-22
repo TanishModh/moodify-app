@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import {
   Box,
@@ -12,57 +12,78 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Grid,
 } from "@mui/material";
 import axios from "axios";
 import { DarkModeContext } from "../context/DarkModeContext";
 import { API_URL } from '../config';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 const ResultsPage = () => {
   const location = useLocation();
-  const { emotion, recommendations, isCheerUpMode } = location.state || {
-    emotion: "None",
-    recommendations: [],
-    isCheerUpMode: false
-  };
+  const initialState = location.state || {};
+  const initialEmotion = initialState.emotion || "None";
+  const [selectedMood, setSelectedMood] = useState(initialEmotion);
   const [loading, setLoading] = useState(false);
-  const [selectedMood, setSelectedMood] = useState(emotion || "None");
-  const [displayRecommendations, setDisplayRecommendations] = useState(
-    recommendations || [],
-  );
-
-
-  // Use DarkModeContext for dark mode state
+  const [recommendationData, setRecommendationData] = useState({ music: [], movies: [], webseries: [], stories: [] });
   const { isDarkMode } = useContext(DarkModeContext);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isAnimated, setIsAnimated] = useState(false);
+  const isMobile = useMediaQuery('(max-width:600px)');
 
-
-
-  // Function to handle mood change
-  const handleMoodChange = async (event) => {
-    const newMood = event.target.value;
-    setSelectedMood(newMood);
+  const fetchRecommendations = async (mood) => {
     setLoading(true);
-
     try {
-      const response = await axios.post(
-        `${API_URL}/api/music_recommendation/`,
-        {
-          emotion: newMood.toLowerCase()
-        }
-      );
-
-      const newRecommendations = response.data.recommendations || [];
-      setDisplayRecommendations(newRecommendations);
+      console.log(`Fetching recommendations for mood: ${mood}`);
+      const response = await axios.post(`${API_URL}/api/recommendations/`, { emotion: mood.toLowerCase() });
+      console.log('API Response:', response.data);
+      console.log('Recommendations:', response.data.recommendations);
+      
+      // Check if we have valid recommendations
+      const recommendations = response.data.recommendations;
+      if (recommendations) {
+        console.log('Music items:', recommendations.music?.length || 0);
+        console.log('Movies items:', recommendations.movies?.length || 0);
+        console.log('Web Series items:', recommendations.webseries?.length || 0);
+        console.log('Stories items:', recommendations.stories?.length || 0);
+        setRecommendationData(recommendations);
+      } else {
+        console.error('No recommendations data in response');
+        setRecommendationData({ music: [], movies: [], webseries: [], stories: [] });
+      }
     } catch (error) {
       console.error("Error fetching recommendations:", error);
+      setRecommendationData({ music: [], movies: [], webseries: [], stories: [] });
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchRecommendations(initialEmotion);
+    // Add fade-in animation when component mounts
+    setIsAnimated(true);
+  }, []);
+
+  const handleMoodChange = (event) => {
+    const newMood = event.target.value;
+    setSelectedMood(newMood);
+    fetchRecommendations(newMood);
+  };
+
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+  };
+
   const styles = getStyles(isDarkMode); // Dynamically get styles based on dark mode
 
   return (
-    <div style={styles.container}>
+    <div style={{
+      ...styles.container,
+      opacity: isAnimated ? 1 : 0,
+      transform: isAnimated ? 'translateY(0)' : 'translateY(20px)',
+      transition: 'all 0.8s ease-in-out',
+    }}>
       <Typography variant="h5" style={styles.emotionText}>
         <strong>
           Detected Mood:{" "}
@@ -72,7 +93,7 @@ const ResultsPage = () => {
         </strong>
       </Typography>
 
-      {!isCheerUpMode && (
+      {!initialState.isCheerUpMode && (
         <>
           <Typography
             variant="body2"
@@ -137,120 +158,298 @@ const ResultsPage = () => {
         </>
       )}
 
-      {/* Explanation text for recommendations */}
-      <Typography
-        variant="body2"
-        style={{
-          color: isDarkMode ? "#cccccc" : "#999",
-          textAlign: "center",
-          font: "inherit",
-          fontSize: "12px",
-          marginBottom: "20px"
-        }}
-      >
-        Recommendations are based on the mood you selected. Click on the "Listen on
-        Spotify" button to listen to the song on Spotify.
-      </Typography>
-
-      <Paper elevation={4} style={styles.resultsContainer}>
-        <Typography
-          variant="h6"
-          style={{
-            fontFamily: "Poppins",
-            color: isDarkMode ? "#ffffff" : "#333",
-            marginBottom: "20px"
-          }}
-        >
-          Your Recommendations
-        </Typography>
-
-        <Box sx={styles.recommendationsList}>
-          {loading && (
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                marginTop: "20px"
+      <Paper style={styles.resultsContainer}>
+        {selectedCategory === null ? (
+          // Category selection grid
+          <Box sx={{ padding: '20px' }}>
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                textAlign: 'center', 
+                marginBottom: '24px', 
+                color: isDarkMode ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.8)',
+                fontFamily: 'Poppins',
               }}
             >
-              {/* Loading Spinner */}
-              <CircularProgress style={{ color: "#6A1B9A" }} />
-              {/* Loading Message */}
+              What would you like recommendations for?
+            </Typography>
+            
+            <Grid container spacing={3} justifyContent="center">
+              <Grid item xs={12} sm={6} md={3}>
+                <Button
+                  onClick={() => handleCategorySelect('music')}
+                  sx={{
+                    width: '100%',
+                    height: '160px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: isDarkMode ? '#333' : '#f5f5f5',
+                    color: isDarkMode ? '#fff' : '#333',
+                    borderRadius: '12px',
+                    transition: 'all 0.3s ease',
+                    border: '2px solid transparent',
+                    '&:hover': {
+                      backgroundColor: '#6A1B9A',
+                      color: '#ffffff',
+                      transform: 'translateY(-5px)',
+                      boxShadow: '0 10px 20px rgba(106, 27, 154, 0.2)',
+                    },
+                  }}
+                >
+                  <Box sx={{ fontSize: '3rem', marginBottom: '8px' }}>🎵</Box>
+                  <Typography variant="h6">Music</Typography>
+                </Button>
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={3}>
+                <Button
+                  onClick={() => handleCategorySelect('movies')}
+                  sx={{
+                    width: '100%',
+                    height: '160px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: isDarkMode ? '#333' : '#f5f5f5',
+                    color: isDarkMode ? '#fff' : '#333',
+                    borderRadius: '12px',
+                    transition: 'all 0.3s ease',
+                    border: '2px solid transparent',
+                    '&:hover': {
+                      backgroundColor: '#6A1B9A',
+                      color: '#ffffff',
+                      transform: 'translateY(-5px)',
+                      boxShadow: '0 10px 20px rgba(106, 27, 154, 0.2)',
+                    },
+                  }}
+                >
+                  <Box sx={{ fontSize: '3rem', marginBottom: '8px' }}>🎬</Box>
+                  <Typography variant="h6">Movies</Typography>
+                </Button>
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={3}>
+                <Button
+                  onClick={() => handleCategorySelect('webseries')}
+                  sx={{
+                    width: '100%',
+                    height: '160px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: isDarkMode ? '#333' : '#f5f5f5',
+                    color: isDarkMode ? '#fff' : '#333',
+                    borderRadius: '12px',
+                    transition: 'all 0.3s ease',
+                    border: '2px solid transparent',
+                    '&:hover': {
+                      backgroundColor: '#6A1B9A',
+                      color: '#ffffff',
+                      transform: 'translateY(-5px)',
+                      boxShadow: '0 10px 20px rgba(106, 27, 154, 0.2)',
+                    },
+                  }}
+                >
+                  <Box sx={{ fontSize: '3rem', marginBottom: '8px' }}>📺</Box>
+                  <Typography variant="h6">Web Series</Typography>
+                </Button>
+              </Grid>
+              
+              <Grid item xs={12} sm={6} md={3}>
+                <Button
+                  onClick={() => handleCategorySelect('stories')}
+                  sx={{
+                    width: '100%',
+                    height: '160px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: isDarkMode ? '#333' : '#f5f5f5',
+                    color: isDarkMode ? '#fff' : '#333',
+                    borderRadius: '12px',
+                    transition: 'all 0.3s ease',
+                    border: '2px solid transparent',
+                    '&:hover': {
+                      backgroundColor: '#6A1B9A',
+                      color: '#ffffff',
+                      transform: 'translateY(-5px)',
+                      boxShadow: '0 10px 20px rgba(106, 27, 154, 0.2)',
+                    },
+                  }}
+                >
+                  <Box sx={{ fontSize: '3rem', marginBottom: '8px' }}>📚</Box>
+                  <Typography variant="h6">Short Stories</Typography>
+                </Button>
+              </Grid>
+            </Grid>
+          </Box>
+        ) : (
+          // Show recommendations for the selected category
+          <Box style={styles.recommendationsList}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '20px' }}>
+              <Typography variant="h6" sx={{ color: isDarkMode ? '#fff' : '#333' }}>
+                {selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Recommendations
+              </Typography>
+              <Button 
+                variant="outlined" 
+                onClick={() => setSelectedCategory(null)}
+                sx={{ 
+                  borderColor: '#6A1B9A', 
+                  color: '#6A1B9A',
+                  '&:hover': { borderColor: '#6A1B9A', backgroundColor: 'rgba(106, 27, 154, 0.1)' } 
+                }}
+              >
+                Back to Categories
+              </Button>
+            </Box>
+
+            {/* Loading */}
+            {loading && (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginTop: "20px"
+                }}
+              >
+                {/* Loading Spinner */}
+                <CircularProgress style={{ color: "#6A1B9A" }} />
+                {/* Loading Message */}
+                <Typography
+                  variant="body2"
+                  style={{
+                    color: isDarkMode ? "#cccccc" : "#999",
+                    marginTop: "10px"
+                  }}
+                >
+                  Loading recommendations...
+                </Typography>
+              </div>
+            )}
+
+            {/* Music Recommendations */}
+            {selectedCategory === 'music' && recommendationData.music.length > 0 && !loading && (
+              <>
+                {recommendationData.music.map((track, index) => (
+                  <Card key={index} style={styles.recommendationCard}>
+                    <CardContent style={styles.cardContentContainer}>
+                      <div style={styles.imageContainer}>
+                        {track.image_url ? (
+                          <img
+                            src={track.image_url}
+                            alt={track.name}
+                            style={styles.albumImage}
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              ...styles.albumImage,
+                              backgroundColor: "#e0e0e0",
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center"
+                            }}
+                          >
+                            No Image
+                          </div>
+                        )}
+                      </div>
+                      <div style={styles.cardDetails}>
+                        <Typography style={styles.songTitle}>{track.name}</Typography>
+                        <Typography style={styles.artistName}>
+                          {track.artist}
+                        </Typography>
+                        {track.preview_url && (
+                          <audio
+                            controls
+                            src={track.preview_url}
+                            style={styles.audioPlayer}
+                          ></audio>
+                        )}
+                        <Button
+                          href={track.external_url}
+                          target="_blank"
+                          style={styles.spotifyButton}
+                        >
+                          Listen on Spotify
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </>
+            )}
+
+            {/* Movie Recommendations */}
+            {selectedCategory === 'movies' && recommendationData.movies.length > 0 && !loading && (
+              <>
+                {recommendationData.movies.map((movie, index) => (
+                  <Card key={index} style={styles.recommendationCard}>
+                    <CardContent>
+                      <Typography style={styles.songTitle}>{movie.title}</Typography>
+                      <Typography style={styles.artistName}>{movie.description}</Typography>
+                      <Button href={movie.external_url} target="_blank" variant="contained">View</Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </>
+            )}
+
+            {/* Web Series Recommendations */}
+            {selectedCategory === 'webseries' && recommendationData.webseries.length > 0 && !loading && (
+              <>
+                {recommendationData.webseries.map((series, index) => (
+                  <Card key={index} style={styles.recommendationCard}>
+                    <CardContent>
+                      <Typography style={styles.songTitle}>{series.title}</Typography>
+                      <Typography style={styles.artistName}>{series.description}</Typography>
+                      <Button href={series.external_url} target="_blank" variant="contained">View</Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </>
+            )}
+
+            {/* Story Recommendations */}
+            {selectedCategory === 'stories' && recommendationData.stories.length > 0 && !loading && (
+              <>
+                {recommendationData.stories.map((story, index) => (
+                  <Card key={index} style={styles.recommendationCard}>
+                    <CardContent>
+                      <Typography style={styles.songTitle}>{story.title}</Typography>
+                      <Typography style={styles.artistName}>{story.description}</Typography>
+                      <Button href={story.external_url} target="_blank" variant="contained">View</Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </>
+            )}
+            {/* No Recommendations */}
+            {((selectedCategory === 'music' && recommendationData.music.length === 0) ||
+              (selectedCategory === 'movies' && recommendationData.movies.length === 0) ||
+              (selectedCategory === 'webseries' && recommendationData.webseries.length === 0) ||
+              (selectedCategory === 'stories' && recommendationData.stories.length === 0)) && !loading && (
               <Typography
                 variant="body2"
                 style={{
                   color: isDarkMode ? "#cccccc" : "#999",
-                  marginTop: "10px",
+                  marginTop: "20px",
                   textAlign: "center",
-                  font: "inherit",
                   fontSize: "14px"
                 }}
               >
-                Loading recommendations...
+                No recommendations available. Try again!
               </Typography>
-            </Box>
-          )}
-          {displayRecommendations.length > 0 ? (
-            displayRecommendations.map((rec, index) => (
-              <Card key={index} sx={styles.recommendationCard}>
-                <Box sx={styles.cardContentContainer}>
-                  {/* Left Half: Image */}
-                  <Box sx={styles.imageContainer}>
-                    <img
-                      src={rec.image_url}
-                      alt={`${rec.name} album cover`}
-                      style={styles.albumImage}
-                    />
-                  </Box>
-
-                  {/* Right Half: Song Details */}
-                  <CardContent sx={styles.cardDetails}>
-                    <Typography variant="subtitle1" style={styles.songTitle}>
-                      {rec.name}
-                    </Typography>
-                    <Typography variant="body2" style={styles.artistName}>
-                      {rec.artist}
-                    </Typography>
-                    {rec.preview_url && (
-                      <audio controls style={styles.audioPlayer}>
-                        <source src={rec.preview_url} type="audio/mpeg" />
-                        Your browser does not support the audio element.
-                      </audio>
-                    )}
-                    <Button
-                      href={rec.external_url}
-                      target="_blank"
-                      variant="contained"
-                      color="primary"
-                      style={styles.spotifyButton}
-                    >
-                      Listen on Spotify
-                    </Button>
-                  </CardContent>
-                </Box>
-              </Card>
-            ))
-          ) : (
-            <Typography
-              variant="body2"
-              style={{
-                color: isDarkMode ? "#cccccc" : "#999",
-                marginTop: "20px",
-                textAlign: "center",
-                font: "inherit",
-                fontSize: "14px"
-              }}
-            >
-              No recommendations available. Try inputting a new image, changing
-              the mood, entering some texts, or recording something. If the
-              error persists, it may be that our servers are down and it may
-              take up to 3 minutes to restart, or it may be that Spotify's API
-              is down.
-            </Typography>
-          )}
-        </Box>
+            )}
+          </Box>
+        )}
       </Paper>
     </div>
   );
@@ -297,7 +496,7 @@ const emotionToGenre = {
 // Dynamically get styles based on dark mode
 const getStyles = (isDarkMode) => ({
   container: {
-    height: "100vh",
+    minHeight: "100vh",
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
@@ -305,7 +504,14 @@ const getStyles = (isDarkMode) => ({
     backgroundColor: isDarkMode ? "#121212" : "#f9f9f9",
     fontFamily: "Poppins",
     padding: "20px",
-    transition: "background-color 0.3s ease",
+    transition: "all 0.3s ease",
+    overflowY: 'auto',
+    WebkitOverflowScrolling: 'touch',
+    msOverflowStyle: 'none',
+    scrollbarWidth: 'none',
+    '&::-webkit-scrollbar': {
+      display: 'none'
+    }
   },
   emotionText: {
     marginBottom: "15px",

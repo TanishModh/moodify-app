@@ -11,6 +11,9 @@ from ai_ml.src.models.text_emotion import infer_text_emotion
 
 from ai_ml.src.models.facial_emotion import infer_facial_emotion
 from ai_ml.src.recommendation.music_recommendation import get_music_recommendation
+from ai_ml.src.recommendation.movie_recommendation import get_movie_recommendation
+from ai_ml.src.recommendation.webseries_recommendation import get_webseries_recommendation
+from ai_ml.src.recommendation.story_recommendation import get_story_recommendation
 
 import os
 import tempfile
@@ -157,3 +160,70 @@ def music_recommendation(request):
 
     recommendations = get_music_recommendation(emotion)
     return Response({"emotion": emotion, "recommendations": recommendations})
+
+
+@swagger_auto_schema(
+    method='post',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'emotion': openapi.Schema(type=openapi.TYPE_STRING, description='Emotion for recommendations'),
+        },
+        required=['emotion'],
+    ),
+    responses={
+        200: openapi.Response('Recommendations retrieved successfully.'),
+        400: openapi.Response('No emotion provided.'),
+        401: openapi.Response('Unauthorized.'),
+        404: openapi.Response('URL not found.'),
+        500: openapi.Response('Internal server error.'),
+    },
+)
+@api_view(['POST'])
+def recommendations(request):
+    """
+    This function retrieves music, movies, webseries, and stories recommendations based on the provided emotion.
+
+    :param request: The request object containing the emotion input.
+    :return: The response object containing the recommendations.
+    """
+    data = request.data
+    emotion = data.get("emotion", "") if data else ""
+    print(f"Received recommendation request for emotion: {emotion}")
+    
+    if not emotion:
+        print("Error: No emotion provided in request")
+        return Response({"error": "No emotion provided"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        print(f"Getting music recommendations for emotion: {emotion}")
+        music = get_music_recommendation(emotion)
+        print(f"Music recommendations count: {len(music)}")
+        
+        print(f"Getting movie recommendations for emotion: {emotion}")
+        movies = get_movie_recommendation(emotion)
+        print(f"Movie recommendations count: {len(movies)}")
+        
+        print(f"Getting webseries recommendations for emotion: {emotion}")
+        webseries = get_webseries_recommendation(emotion)
+        print(f"Webseries recommendations count: {len(webseries)}")
+        
+        print(f"Getting story recommendations for emotion: {emotion}")
+        stories = get_story_recommendation(emotion)
+        print(f"Story recommendations count: {len(stories)}")
+        
+        response_data = {
+            "emotion": emotion,
+            "recommendations": {
+                "music": music,
+                "movies": movies,
+                "webseries": webseries,
+                "stories": stories
+            }
+        }
+        
+        print(f"Sending response with recommendation counts: music={len(music)}, movies={len(movies)}, webseries={len(webseries)}, stories={len(stories)}")
+        return Response(response_data)
+    except Exception as e:
+        print(f"Error in recommendations API: {str(e)}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

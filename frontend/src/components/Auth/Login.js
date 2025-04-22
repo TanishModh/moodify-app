@@ -14,7 +14,7 @@ import axios from "axios";
 import { DarkModeContext } from "../../context/DarkModeContext";
 
 const Login = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -24,7 +24,7 @@ const Login = () => {
   const { isDarkMode } = useContext(DarkModeContext);
 
   const handleLogin = async () => {
-    if (!username || !password) {
+    if (!email || !password) {
       alert("Please fill in all fields");
       return;
     }
@@ -34,23 +34,19 @@ const Login = () => {
     try {
       // Make the login request
       const response = await axios.post(
-        "https://moodify-emotion-music-app.onrender.com/users/login/",
-        { username, password },
+        "http://localhost:5001/api/login",
+        { email, password },
       );
-      const { access } = response.data; // Extract the access token from the response
+      
+      // Store user data in localStorage
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("userId", response.data.userId);
+      localStorage.setItem("username", response.data.username);
+      
+      alert("Login successful!");
 
-      if (access) {
-        // Store the access token in localStorage
-        localStorage.setItem("token", access);
-        alert("Login successful!");
-
-        // Redirect to the home page
-        navigate("/home");
-      } else {
-        alert(
-          "Login failed. Please check your credentials, or our servers are having issues. Please try again later.",
-        );
-      }
+      // Redirect to the home page
+      navigate("/home");
     } catch (error) {
       console.error("Login failed:", error);
       alert(
@@ -89,11 +85,11 @@ const Login = () => {
           Login
         </Typography>
         <TextField
-          label="Username"
+          label="Email"
           variant="outlined"
           fullWidth
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           onKeyPress={handleKeyPress} // Add key press handler
           sx={{ mb: 2 }}
           InputProps={{

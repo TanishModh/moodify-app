@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { DarkModeContext } from "../context/DarkModeContext";
 import Webcam from "react-webcam";
 import * as faceapi from 'face-api.js';
+import { saveMood } from "../services/mood";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -277,6 +278,16 @@ const HomePage = () => {
   const handleMoodSelect = async (mood) => {
     setIsLoading(true);
     try {
+      // Save the mood to the database
+      console.log('Attempting to save mood:', {
+        mood,
+        userId: localStorage.getItem('userId'),
+        username: localStorage.getItem('username')
+      });
+      
+      await saveMood(mood);
+      console.log('Mood saved successfully:', mood);
+
       // Fetch recommendations from the backend
       const response = await fetch('http://localhost:5000/music_recommendation', {
         method: 'POST',
@@ -293,7 +304,7 @@ const HomePage = () => {
       const data = await response.json();
       navigate("/results", { state: { emotion: mood, recommendations: data.recommendations } });
     } catch (error) {
-      console.error('Error fetching recommendations:', error);
+      console.error('Error in mood selection:', error);
       // Still navigate but with empty recommendations
       navigate("/results", { state: { emotion: mood, recommendations: [] } });
     } finally {

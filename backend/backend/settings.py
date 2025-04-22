@@ -20,11 +20,12 @@ from decouple import config
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 sys.path.append(PROJECT_ROOT)
 
-# Connect to MongoDB Atlas
-connect(
-    host=config('MONGO_DB_URI'),  # MongoDB Atlas URI from .env file
-    ssl=True
-)
+# Connect to MongoDB Atlas - commented out to prevent errors if MongoDB URI is not set
+# Only uncomment if you have MongoDB set up
+# connect(
+#     host=config('MONGO_DB_URI', default='mongodb://localhost:27017/moodify'),  # MongoDB Atlas URI from .env file
+#     ssl=True
+# )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
