@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { DarkModeContext } from "../context/DarkModeContext";
 import Webcam from "react-webcam";
 import * as faceapi from 'face-api.js';
+import axios from "axios";
+import { API_URL } from "../config";
 import { saveMood } from "../services/mood";
 
 const HomePage = () => {
@@ -241,35 +243,12 @@ const HomePage = () => {
   const handleCheerMeUp = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/music_recommendation', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ emotion: 'happy' })
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      navigate("/results", { 
-        state: { 
-          emotion: 'Cheerful', 
-          recommendations: data.recommendations,
-          isCheerUpMode: true
-        } 
-      });
+      const response = await axios.post(`${API_URL}/api/recommendations/`, { emotion: 'happy' });
+      const { recommendations } = response.data;
+      navigate('/results', { state: { emotion: 'Happy', recommendations, isCheerUpMode: true } });
     } catch (error) {
       console.error('Error fetching recommendations:', error);
-      navigate("/results", { 
-        state: { 
-          emotion: 'Cheerful', 
-          recommendations: [],
-          isCheerUpMode: true
-        } 
-      });
+      navigate('/results', { state: { emotion: 'Happy', recommendations: [], isCheerUpMode: true } });
     } finally {
       setIsLoading(false);
     }
@@ -278,35 +257,13 @@ const HomePage = () => {
   const handleMoodSelect = async (mood) => {
     setIsLoading(true);
     try {
-      // Save the mood to the database
-      console.log('Attempting to save mood:', {
-        mood,
-        userId: localStorage.getItem('userId'),
-        username: localStorage.getItem('username')
-      });
-      
       await saveMood(mood);
-      console.log('Mood saved successfully:', mood);
-
-      // Fetch recommendations from the backend
-      const response = await fetch('http://localhost:5000/music_recommendation', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ emotion: mood })
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      navigate("/results", { state: { emotion: mood, recommendations: data.recommendations } });
+      const response = await axios.post(`${API_URL}/api/recommendations/`, { emotion: mood });
+      const { recommendations } = response.data;
+      navigate('/results', { state: { emotion: mood, recommendations } });
     } catch (error) {
-      console.error('Error in mood selection:', error);
-      // Still navigate but with empty recommendations
-      navigate("/results", { state: { emotion: mood, recommendations: [] } });
+      console.error('Error fetching recommendations:', error);
+      navigate('/results', { state: { emotion: mood, recommendations: [] } });
     } finally {
       setIsLoading(false);
     }

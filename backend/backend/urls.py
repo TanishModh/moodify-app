@@ -5,7 +5,6 @@ from django.views.generic import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('users/', include('users.urls')),
     path('api/', include('api.urls')),
     path('', RedirectView.as_view(url='/swagger/', permanent=False)),  # Redirect base URL to Swagger UI URL
     *swagger_urls,

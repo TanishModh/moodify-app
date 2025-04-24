@@ -44,7 +44,7 @@ const Register = () => {
     try {
       // Sending username, email, and password to the backend
       const response = await axios.post(
-        "http://localhost:5001/api/register",
+        "http://localhost:8000/users/register/",
         {
           username,
           email,

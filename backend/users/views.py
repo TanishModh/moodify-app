@@ -4,10 +4,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from .models import UserProfile
+from .models import UserProfile  # Local Django models only
+import django
 from django.http import JsonResponse
-from mongoengine.errors import DoesNotExist
-
 import json
 
 from django.views.decorators.csrf import csrf_exempt
@@ -39,6 +38,7 @@ def validate_token(request):
     return Response({"message": "Token is valid."}, status=status.HTTP_200_OK)
 
 
+@csrf_exempt
 @swagger_auto_schema(
     method='post',
     request_body=openapi.Schema(
@@ -76,14 +76,46 @@ def register(request):
             return Response({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
+            # Check if user already exists
+            if User.objects.filter(username=username).exists():
+                return Response({"error": "Username already exists."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Check if email already exists
+            if User.objects.filter(email=email).exists():
+                return Response({"error": "Email already exists."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Create Django user
             user = User.objects.create_user(username=username, password=password, email=email)
-            UserProfile(username=username).save()
             user.save()
+            
+            # Create MongoDB user profile
+            try:
+                # Check if profile already exists
+                existing_profile = UserProfile.objects.filter(username=username).first()
+                if existing_profile:
+                    print(f"Profile for {username} already exists, skipping creation")
+                    profile = existing_profile
+                else:
+                    print(f"Creating new profile for {username}")
+                    profile = UserProfile(username=username)
+                    profile.save()
+                    print(f"Profile saved successfully for {username}")
+                
+                # Get the MongoDB profile ID
+                profile_id = str(profile.id)
+            except Exception as mongo_error:
+                print(f"MongoDB error: {str(mongo_error)}")
+                # If MongoDB fails, we still want to return success since the Django user was created
+                # The profile can be created later when needed
+                pass
+            
             return Response({"message": "User created successfully."}, status=status.HTTP_201_CREATED)
         except Exception as e:
+            print(f"Registration error: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@csrf_exempt
 @swagger_auto_schema(
     method='post',
     request_body=openapi.Schema(
@@ -115,11 +147,26 @@ def login(request):
 
     user = authenticate(request, username=username, password=password)
     if user is not None:
+        # Generate JWT token
         refresh = RefreshToken.for_user(user)
-        return Response({
+        tokens = {
             'refresh': str(refresh),
             'access': str(refresh.access_token),
-        })
+        }
+        
+        # Note: MongoDB-related profile handling removed
+        profile_id = None
+        
+        return Response({
+            "message": "Login successful.",
+            "tokens": tokens,
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "profile_id": profile_id  # Include MongoDB profile ID
+            }
+        }, status=status.HTTP_200_OK)
     return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
@@ -243,8 +290,8 @@ def user_profile(request):
             "recommendations": user_profile.recommendations,
         }, status=status.HTTP_200_OK)
 
-    except DoesNotExist:
-        return Response({"error": "User profile not found."}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @swagger_auto_schema(
@@ -471,15 +518,15 @@ def user_recommendations(request, user_id):
             user_profile.recommendations.extend(data.get('recommendations', []))
             user_profile.save()
             return Response({"message": "Recommendations saved successfully."}, status=status.HTTP_201_CREATED)
-        except DoesNotExist:
-            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     elif request.method == 'GET':
         try:
             user_profile = UserProfile.objects.get(id=user_id)
             return Response({"recommendations": user_profile.recommendations}, status=status.HTTP_200_OK)
-        except DoesNotExist:
-            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     elif request.method == 'DELETE':
         try:
@@ -487,8 +534,8 @@ def user_recommendations(request, user_id):
             user_profile.recommendations.clear()  # Clear all recommendations
             user_profile.save()
             return Response({"message": "All recommendations deleted."}, status=status.HTTP_204_NO_CONTENT)
-        except DoesNotExist:
-            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @csrf_exempt
@@ -522,8 +569,8 @@ def user_mood_history(request, user_id):
         try:
             user = UserProfile.objects.get(id=user_id)
             return JsonResponse({"mood_history": user.mood_history}, status=200)
-        except DoesNotExist:
-            return JsonResponse({"error": "User not found."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=404)
 
     elif request.method == 'POST':
         data = json.loads(request.body)
@@ -536,8 +583,8 @@ def user_mood_history(request, user_id):
                 return JsonResponse({"message": "Mood history updated."}, status=201)
             else:
                 return JsonResponse({"error": "Mood is required."}, status=400)
-        except DoesNotExist:
-            return JsonResponse({"error": "User not found."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=404)
 
     elif request.method == 'DELETE':
         data = json.loads(request.body)
@@ -550,8 +597,8 @@ def user_mood_history(request, user_id):
                 return JsonResponse({"message": "Mood deleted."}, status=204)
             else:
                 return JsonResponse({"error": "Mood not found in history."}, status=404)
-        except DoesNotExist:
-            return JsonResponse({"error": "User not found."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=404)
 
 
 @csrf_exempt
@@ -575,8 +622,8 @@ def user_listening_history(request, user_id):
         try:
             user = UserProfile.objects.get(id=user_id)
             return JsonResponse({"listening_history": user.listening_history}, status=200)
-        except DoesNotExist:
-            return JsonResponse({"error": "User not found."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=404)
 
     elif request.method == 'POST':
         data = json.loads(request.body)
@@ -589,8 +636,8 @@ def user_listening_history(request, user_id):
                 return JsonResponse({"message": "Listening history updated."}, status=201)
             else:
                 return JsonResponse({"error": "Track is required."}, status=400)
-        except DoesNotExist:
-            return JsonResponse({"error": "User not found."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=404)
 
     elif request.method == 'DELETE':
         data = json.loads(request.body)
@@ -603,5 +650,5 @@ def user_listening_history(request, user_id):
                 return JsonResponse({"message": "Track deleted."}, status=204)
             else:
                 return JsonResponse({"error": "Track not found in history."}, status=404)
-        except DoesNotExist:
-            return JsonResponse({"error": "User not found."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=404)

@@ -13,9 +13,115 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { DarkModeContext } from "../context/DarkModeContext";
 import "../App.css";
 import "../fonts/fonts.css";
+import { emojiPattern } from '../assets/emoji-bg';
+
+// Dispersed, non-overlapping emoji placement
+function getEmojiConfig() {
+  const width = window.innerWidth;
+  if (width <= 480) {
+    // Mobile
+    return { emojiCount: 24, minDist: 58, minSize: 22, maxSize: 32, minLoopWidth: 900 };
+  } else if (width <= 900) {
+    // Tablet
+    return { emojiCount: 36, minDist: 48, minSize: 28, maxSize: 44, minLoopWidth: 1100 };
+  } else {
+    // Desktop
+    return { emojiCount: 48, minDist: 40, minSize: 32, maxSize: 52, minLoopWidth: 1400 };
+  }
+}
+function getMinDist() {
+  return getEmojiConfig().minDist;
+}
+function getEmojiCount() {
+  return getEmojiConfig().emojiCount;
+}
+function getInitialEmojis() {
+  const { emojiCount, minDist, minSize, maxSize, minLoopWidth } = getEmojiConfig();
+  // Ensure enough emojis to fill at least minLoopWidth
+  let count = emojiCount;
+  if (window.innerWidth < minLoopWidth) {
+    count = Math.ceil((minLoopWidth / window.innerWidth) * emojiCount);
+  }
+  const placed = [];
+  let tries = 0;
+  while (placed.length < count && tries < count * 100) {
+    tries++;
+    const emoji = emojiPattern[Math.floor(Math.random() * emojiPattern.length)];
+    const size = minSize + Math.random() * (maxSize - minSize);
+    const top = 4 + Math.random() * 90;
+    const left = 3 + Math.random() * 94;
+    let ok = true;
+    for (const p of placed) {
+      const pxPerPercentW = window.innerWidth / 100;
+      const pxPerPercentH = window.innerHeight * 0.4 / 100;
+      const dx = (left - p.left) * pxPerPercentW;
+      const dy = (top - p.top) * pxPerPercentH;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < (size/2 + p.size/2 + 6)) {
+        ok = false;
+        break;
+      }
+    }
+    if (ok) {
+      placed.push({ top, left, size, emoji });
+    }
+  }
+  return placed;
+}
+// Responsive emoji regeneration handled in component
+
+
 
 const LandingPage = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  // Animate the whole dispersed emoji group as a single unit
+  const heroRef = useRef(null);
+  const [heroWidth, setHeroWidth] = useState(0);
+  const [emojis, setEmojis] = useState(() => getInitialEmojis());
+  const bgLayerRef = useRef(null);
+
+  // Responsive: Re-generate emojis on window resize
+  useEffect(() => {
+    function handleResize() {
+      setEmojis(getInitialEmojis());
+    }
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Measure hero section width for seamless pixel-based animation
+  useEffect(() => {
+    function handleResize() {
+      if (heroRef.current) {
+        setHeroWidth(heroRef.current.offsetWidth);
+      }
+    }
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Animate background using direct DOM manipulation for smoother performance
+  useEffect(() => {
+    let rafId;
+    let offset = 0;
+    function animateBg() {
+      const pxSpeed = Math.max(2.5, (heroWidth || 1200) / 600);
+      const width = heroWidth || 1200;
+      offset += pxSpeed;
+      if (offset >= width) {
+        offset = 0;
+        setEmojis(getInitialEmojis());
+      }
+      if (bgLayerRef.current) {
+        bgLayerRef.current.style.transform = `translateX(-${offset}px)`;
+      }
+      rafId = requestAnimationFrame(animateBg);
+    }
+    animateBg();
+    return () => cancelAnimationFrame(rafId);
+  }, [heroWidth]);
+
   const navigate = useNavigate();
   const location = useLocation();
   const { isDarkMode: darkMode } = useContext(DarkModeContext);
@@ -63,7 +169,7 @@ const LandingPage = () => {
       <div
         style={{
           position: "absolute",
-          bottom: "-25px",
+          bottom: "-40px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -387,12 +493,12 @@ const LandingPage = () => {
     {
       title: "Emotion-Based Recommendations",
       description:
-        "Get personalized music recommendations based on your current mood.",
+        "Get personalized content recommendations based on your current mood.",
     },
     {
       title: "Multiple Input Modes",
       description:
-        "Analyze your emotions through text, speech, or facial expressions.",
+        "Analyze your emotions through mood tabs or facial expressions.",
     },
     {
       title: "Track Your Mood History",
@@ -419,7 +525,7 @@ const LandingPage = () => {
     {
       title: "Personalized Experience",
       description:
-        "MoodifyMe tailors music recommendations based on your unique emotional journey.",
+        "MoodifyMe tailors recommendations based on your unique emotional journey.",
     },
     {
       title: "Advanced AI Technology",
@@ -429,7 +535,7 @@ const LandingPage = () => {
     {
       title: "Seamless Integration",
       description:
-        "MoodifyMe integrates effortlessly with your favorite music streaming services.",
+        "MoodifyMe integrates effortlessly with your favorite streaming services.",
     },
   ];
 
@@ -441,8 +547,86 @@ const LandingPage = () => {
   return (
     <Box key={location.pathname} sx={styles.pageContainer}>
       {/* Hero Section */}
-      <Box sx={styles.heroSection}>
-        <Container maxWidth="md">
+      <Box sx={{...styles.heroSection, position: 'relative', overflow: 'hidden'}}>
+        {/* Emoji Background Layer */}
+        <Box sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 0,
+          pointerEvents: 'none',
+          opacity: 0.36,
+          filter: 'blur(0.5px)',
+          display: 'flex',
+          flexWrap: 'wrap',
+        }}>
+          {/* Emoji grid: 10 cols x 7 rows, spaced evenly, each cell gets a random emoji and a bit of jitter */}
+          <Box
+            ref={bgLayerRef}
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: (() => {
+                const { minLoopWidth } = getEmojiConfig();
+                const w = heroWidth || window.innerWidth;
+                return `${Math.max(w, minLoopWidth) * 2}px`;
+              })(),
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'row',
+              pointerEvents: 'none',
+              // No transition for ultra-smooth JS-driven animation
+            }}
+          >
+            {/* Each emoji set fills 100% of the container for perfect overlap */}
+            <Box sx={{ position: 'relative', width: heroWidth ? `${heroWidth}px` : '100%', height: '100%' }}>
+              {emojis.map((e, idx) => (
+                <span
+                  key={`emoji-bg-A-${idx}`}
+                  style={{
+                    position: 'absolute',
+                    top: `${e.top}%`,
+                    left: `${e.left}%`,
+                    fontSize: `${e.size}px`,
+                    userSelect: 'none',
+                    opacity: 0.82,
+                    filter: 'blur(0.2px)',
+                    pointerEvents: 'none',
+                    transition: 'none',
+                    willChange: 'transform',
+                  }}
+                >
+                  {e.emoji}
+                </span>
+              ))}
+            </Box>
+            <Box sx={{ position: 'relative', width: heroWidth ? `${heroWidth}px` : '100%', height: '100%' }}>
+              {emojis.map((e, idx) => (
+                <span
+                  key={`emoji-bg-B-${idx}`}
+                  style={{
+                    position: 'absolute',
+                    top: `${e.top}%`,
+                    left: `${e.left}%`,
+                    fontSize: `${e.size}px`,
+                    userSelect: 'none',
+                    opacity: 0.82,
+                    filter: 'blur(0.2px)',
+                    pointerEvents: 'none',
+                    transition: 'none',
+                    willChange: 'transform',
+                  }}
+                >
+                  {e.emoji}
+                </span>
+              ))}
+            </Box>
+          </Box>
+        </Box>
+        <Container maxWidth="md" sx={{ position: 'relative', zIndex: 1 }}>
           <Typography variant="h3" sx={{
             ...styles.welcomeText,
             fontFamily: "'Poiret One', cursive",

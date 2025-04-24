@@ -13,11 +13,11 @@ import {
   Select,
   MenuItem,
   Grid,
+  useMediaQuery
 } from "@mui/material";
 import axios from "axios";
 import { DarkModeContext } from "../context/DarkModeContext";
 import { API_URL } from '../config';
-import useMediaQuery from '@mui/material/useMediaQuery';
 
 const ResultsPage = () => {
   const location = useLocation();
@@ -29,7 +29,54 @@ const ResultsPage = () => {
   const { isDarkMode } = useContext(DarkModeContext);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isAnimated, setIsAnimated] = useState(false);
+  const [musicPage, setMusicPage] = useState(0);
+  const [moviePage, setMoviePage] = useState(0);
+  const [seriesPage, setSeriesPage] = useState(0);
+  const [storyPage, setStoryPage] = useState(0);
+  const [brokenPosters, setBrokenPosters] = useState(new Set());
+  const itemsPerPage = 10;
+  // Filter out movies whose poster_url is not a valid image or has failed to load
+  const moviesList = recommendationData.movies.filter(
+    m =>
+      m.poster_url &&
+      /^https?:\/\/.+\.(jpg|jpeg|png)(\?.*)?$/i.test(m.poster_url) &&
+      !brokenPosters.has(m.external_url)
+  );
+  const seriesList = recommendationData.webseries.filter(
+    s =>
+      s.poster_url &&
+      /^https?:\/\/.+\.(jpg|jpeg|png)(\?.*)?$/i.test(s.poster_url) &&
+      !brokenPosters.has(s.external_url)
+  );
+  const storiesList = recommendationData.stories.filter(
+    s =>
+      s.poster_url &&
+      /^https?:\/\//.test(s.poster_url) &&
+      !brokenPosters.has(s.external_url)
+  );
   const isMobile = useMediaQuery('(max-width:600px)');
+  // Music language state for tabs
+  const [musicLanguage, setMusicLanguage] = useState('english');
+
+  useEffect(() => {
+    setMusicPage(0);
+  }, [recommendationData.music]);
+
+  useEffect(() => {
+    setMoviePage(0);
+  }, [recommendationData.movies]);
+
+  useEffect(() => {
+    setSeriesPage(0);
+  }, [recommendationData.webseries]);
+
+  useEffect(() => {
+    setStoryPage(0);
+  }, [recommendationData.stories]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [musicPage]);
 
   const fetchRecommendations = async (mood) => {
     setLoading(true);
@@ -161,7 +208,7 @@ const ResultsPage = () => {
       <Paper style={styles.resultsContainer}>
         {selectedCategory === null ? (
           // Category selection grid
-          <Box sx={{ padding: '20px' }}>
+          <Box sx={{ padding: '20px', height: '100%' }}>
             <Typography 
               variant="h6" 
               sx={{ 
@@ -174,7 +221,7 @@ const ResultsPage = () => {
               What would you like recommendations for?
             </Typography>
             
-            <Grid container spacing={3} justifyContent="center">
+            <Grid container spacing={3} justifyContent="center" alignItems="center" sx={{ height: '100%' }}>
               <Grid item xs={12} sm={6} md={3}>
                 <Button
                   onClick={() => handleCategorySelect('music')}
@@ -186,7 +233,7 @@ const ResultsPage = () => {
                     justifyContent: 'center',
                     alignItems: 'center',
                     backgroundColor: isDarkMode ? '#333' : '#f5f5f5',
-                    color: isDarkMode ? '#fff' : '#333',
+                    color: '#fff',
                     borderRadius: '12px',
                     transition: 'all 0.3s ease',
                     border: '2px solid transparent',
@@ -198,8 +245,8 @@ const ResultsPage = () => {
                     },
                   }}
                 >
-                  <Box sx={{ fontSize: '3rem', marginBottom: '8px' }}>🎵</Box>
-                  <Typography variant="h6">Music</Typography>
+                  <Box sx={{ fontSize: '3rem', mb: 1, color: isDarkMode ? '#fff' : '#6A1B9A', width: '100%', textAlign: 'center' }}>🎧</Box>
+                  <Typography variant="h6" sx={{ color: isDarkMode ? '#fff' : '#000', fontFamily: 'Poppins', fontWeight: 600 }}>Music</Typography>
                 </Button>
               </Grid>
               
@@ -214,7 +261,7 @@ const ResultsPage = () => {
                     justifyContent: 'center',
                     alignItems: 'center',
                     backgroundColor: isDarkMode ? '#333' : '#f5f5f5',
-                    color: isDarkMode ? '#fff' : '#333',
+                    color: '#fff',
                     borderRadius: '12px',
                     transition: 'all 0.3s ease',
                     border: '2px solid transparent',
@@ -226,8 +273,8 @@ const ResultsPage = () => {
                     },
                   }}
                 >
-                  <Box sx={{ fontSize: '3rem', marginBottom: '8px' }}>🎬</Box>
-                  <Typography variant="h6">Movies</Typography>
+                  <Box sx={{ fontSize: '3rem', marginBottom: '8px', color: isDarkMode ? '#fff' : '#6A1B9A' }}>🎬</Box>
+                  <Typography variant="h6" sx={{ color: isDarkMode ? '#fff' : '#000', fontFamily: 'Poppins', fontWeight: 600 }}>Movies</Typography>
                 </Button>
               </Grid>
               
@@ -242,7 +289,7 @@ const ResultsPage = () => {
                     justifyContent: 'center',
                     alignItems: 'center',
                     backgroundColor: isDarkMode ? '#333' : '#f5f5f5',
-                    color: isDarkMode ? '#fff' : '#333',
+                    color: '#fff',
                     borderRadius: '12px',
                     transition: 'all 0.3s ease',
                     border: '2px solid transparent',
@@ -254,8 +301,8 @@ const ResultsPage = () => {
                     },
                   }}
                 >
-                  <Box sx={{ fontSize: '3rem', marginBottom: '8px' }}>📺</Box>
-                  <Typography variant="h6">Web Series</Typography>
+                  <Box sx={{ fontSize: '3rem', marginBottom: '8px', color: isDarkMode ? '#fff' : '#6A1B9A' }}>📺</Box>
+                  <Typography variant="h6" sx={{ color: isDarkMode ? '#fff' : '#000', fontFamily: 'Poppins', fontWeight: 600 }}>Web Series</Typography>
                 </Button>
               </Grid>
               
@@ -270,7 +317,7 @@ const ResultsPage = () => {
                     justifyContent: 'center',
                     alignItems: 'center',
                     backgroundColor: isDarkMode ? '#333' : '#f5f5f5',
-                    color: isDarkMode ? '#fff' : '#333',
+                    color: '#fff',
                     borderRadius: '12px',
                     transition: 'all 0.3s ease',
                     border: '2px solid transparent',
@@ -282,8 +329,8 @@ const ResultsPage = () => {
                     },
                   }}
                 >
-                  <Box sx={{ fontSize: '3rem', marginBottom: '8px' }}>📚</Box>
-                  <Typography variant="h6">Short Stories</Typography>
+                  <Box sx={{ fontSize: '3rem', marginBottom: '8px', color: isDarkMode ? '#fff' : '#6A1B9A' }}>📚</Box>
+                  <Typography variant="h6" sx={{ color: isDarkMode ? '#fff' : '#000', fontFamily: 'Poppins', fontWeight: 600 }}>Short Stories</Typography>
                 </Button>
               </Grid>
             </Grid>
@@ -337,7 +384,7 @@ const ResultsPage = () => {
             {/* Music Recommendations */}
             {selectedCategory === 'music' && recommendationData.music.length > 0 && !loading && (
               <>
-                {recommendationData.music.map((track, index) => (
+                {recommendationData.music.slice(musicPage * itemsPerPage, (musicPage + 1) * itemsPerPage).map((track, index) => (
                   <Card key={index} style={styles.recommendationCard}>
                     <CardContent style={styles.cardContentContainer}>
                       <div style={styles.imageContainer}>
@@ -374,8 +421,10 @@ const ResultsPage = () => {
                           ></audio>
                         )}
                         <Button
-                          href={track.external_url}
+                          component="a"
+                          href={track.url || track.external_url}
                           target="_blank"
+                          rel="noopener noreferrer"
                           style={styles.spotifyButton}
                         >
                           Listen on Spotify
@@ -384,58 +433,233 @@ const ResultsPage = () => {
                     </CardContent>
                   </Card>
                 ))}
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2 }}>
+                  <Button
+                    variant="text"
+                    disabled={musicPage === 0}
+                    onClick={() => setMusicPage(prev => Math.max(prev - 1, 0))}
+                    sx={{
+                      mr: 1,
+                      color: isDarkMode ? '#fff' : '#000',
+                      '&:hover': { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' },
+                      '&.Mui-disabled': { color: isDarkMode ? '#fff' : '#000' }
+                    }}
+                  >
+                    Previous
+                  </Button>
+                  <Typography 
+                    variant="body2"
+                    sx={{ color: isDarkMode ? '#fff' : '#000' }}
+                  >
+                    {`Page ${musicPage + 1} of ${Math.ceil(recommendationData.music.length / itemsPerPage)}`}
+                  </Typography>
+                  <Button
+                    variant="text"
+                    disabled={musicPage >= Math.ceil(recommendationData.music.length / itemsPerPage) - 1}
+                    onClick={() => setMusicPage(prev => Math.min(prev + 1, Math.ceil(recommendationData.music.length / itemsPerPage) - 1))}
+                    sx={{
+                      ml: 1,
+                      color: isDarkMode ? '#fff' : '#000',
+                      '&:hover': { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' },
+                      '&.Mui-disabled': { color: isDarkMode ? '#fff' : '#000' }
+                    }}
+                  >
+                    Next
+                  </Button>
+                </Box>
               </>
             )}
 
             {/* Movie Recommendations */}
-            {selectedCategory === 'movies' && recommendationData.movies.length > 0 && !loading && (
+            {selectedCategory === 'movies' && moviesList.length > 0 && !loading && (
               <>
-                {recommendationData.movies.map((movie, index) => (
+                {moviesList.slice(moviePage * itemsPerPage, (moviePage + 1) * itemsPerPage).map((movie, index) => (
                   <Card key={index} style={styles.recommendationCard}>
-                    <CardContent>
-                      <Typography style={styles.songTitle}>{movie.title}</Typography>
-                      <Typography style={styles.artistName}>{movie.description}</Typography>
-                      <Button href={movie.external_url} target="_blank" variant="contained">View</Button>
+                    <CardContent style={styles.cardContentContainer}>
+                      <div style={{ flex: '0 0 150px', marginRight: '10px' }}>
+                        <img
+                          src={movie.poster_url}
+                          alt={movie.title}
+                          style={{ width: '100%', borderRadius: '8px' }}
+                          onError={() => setBrokenPosters(prev => new Set(prev).add(movie.external_url))}
+                        />
+                      </div>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <Typography style={styles.songTitle}>{movie.title} ({movie.year})</Typography>
+                        <Typography style={styles.artistName}>{movie.description}</Typography>
+                        <Box sx={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
+                          <Button href={movie.youtube_trailer_url} target="_blank" variant="outlined">Trailer</Button>
+                          <Button href={movie.external_url} target="_blank" variant="contained">Know more</Button>
+                        </Box>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2 }}>
+                  <Button
+                    variant="text"
+                    disabled={moviePage === 0}
+                    onClick={() => setMoviePage(prev => Math.max(prev - 1, 0))}
+                    sx={{
+                      mr: 1,
+                      color: isDarkMode ? '#fff' : '#000',
+                      '&:hover': { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' },
+                      '&.Mui-disabled': { color: isDarkMode ? '#fff' : '#000' }
+                    }}
+                  >
+                    Previous
+                  </Button>
+                  <Typography 
+                    variant="body2"
+                    sx={{ color: isDarkMode ? '#fff' : '#000' }}
+                  >
+                    {`Page ${moviePage + 1} of ${Math.ceil(moviesList.length / itemsPerPage)}`}
+                  </Typography>
+                  <Button
+                    variant="text"
+                    disabled={moviePage >= Math.ceil(moviesList.length / itemsPerPage) - 1}
+                    onClick={() => setMoviePage(prev => Math.min(prev + 1, Math.ceil(moviesList.length / itemsPerPage) - 1))}
+                    sx={{
+                      ml: 1,
+                      color: isDarkMode ? '#fff' : '#000',
+                      '&:hover': { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' },
+                      '&.Mui-disabled': { color: isDarkMode ? '#fff' : '#000' }
+                    }}
+                  >
+                    Next
+                  </Button>
+                </Box>
               </>
             )}
 
             {/* Web Series Recommendations */}
-            {selectedCategory === 'webseries' && recommendationData.webseries.length > 0 && !loading && (
+            {selectedCategory === 'webseries' && seriesList.length > 0 && !loading && (
               <>
-                {recommendationData.webseries.map((series, index) => (
+                {seriesList.slice(seriesPage * itemsPerPage, (seriesPage + 1) * itemsPerPage).map((series, index) => (
                   <Card key={index} style={styles.recommendationCard}>
-                    <CardContent>
-                      <Typography style={styles.songTitle}>{series.title}</Typography>
-                      <Typography style={styles.artistName}>{series.description}</Typography>
-                      <Button href={series.external_url} target="_blank" variant="contained">View</Button>
+                    <CardContent style={styles.cardContentContainer}>
+                      <div style={{ flex: '0 0 150px', marginRight: '10px' }}>
+                        <img
+                          src={series.poster_url}
+                          alt={series.title}
+                          style={{ width: '100%', borderRadius: '8px' }}
+                          onError={() => setBrokenPosters(prev => new Set(prev).add(series.external_url))}
+                        />
+                      </div>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <Typography style={styles.songTitle}>{series.title} ({series.year})</Typography>
+                        <Typography style={styles.artistName}>{series.description}</Typography>
+                        <Box sx={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
+                          <Button href={series.youtube_trailer_url} target="_blank" variant="outlined">Trailer</Button>
+                          <Button href={series.external_url} target="_blank" variant="contained">Know more</Button>
+                        </Box>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2 }}>
+                  <Button
+                    variant="text"
+                    disabled={seriesPage === 0}
+                    onClick={() => setSeriesPage(prev => Math.max(prev - 1, 0))}
+                    sx={{
+                      mr: 1,
+                      color: isDarkMode ? '#fff' : '#000',
+                      '&:hover': { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' },
+                      '&.Mui-disabled': { color: isDarkMode ? '#fff' : '#000' }
+                    }}
+                  >
+                    Previous
+                  </Button>
+                  <Typography 
+                    variant="body2"
+                    sx={{ color: isDarkMode ? '#fff' : '#000' }}
+                  >
+                    {`Page ${seriesPage + 1} of ${Math.ceil(seriesList.length / itemsPerPage)}`}
+                  </Typography>
+                  <Button
+                    variant="text"
+                    disabled={seriesPage >= Math.ceil(seriesList.length / itemsPerPage) - 1}
+                    onClick={() => setSeriesPage(prev => Math.min(prev + 1, Math.ceil(seriesList.length / itemsPerPage) - 1))}
+                    sx={{
+                      ml: 1,
+                      color: isDarkMode ? '#fff' : '#000',
+                      '&:hover': { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' },
+                      '&.Mui-disabled': { color: isDarkMode ? '#fff' : '#000' }
+                    }}
+                  >
+                    Next
+                  </Button>
+                </Box>
               </>
             )}
 
             {/* Story Recommendations */}
-            {selectedCategory === 'stories' && recommendationData.stories.length > 0 && !loading && (
+            {selectedCategory === 'stories' && storiesList.length > 0 && !loading && (
               <>
-                {recommendationData.stories.map((story, index) => (
+                {storiesList.slice(storyPage * itemsPerPage, (storyPage + 1) * itemsPerPage).map((story, index) => (
                   <Card key={index} style={styles.recommendationCard}>
-                    <CardContent>
-                      <Typography style={styles.songTitle}>{story.title}</Typography>
-                      <Typography style={styles.artistName}>{story.description}</Typography>
-                      <Button href={story.external_url} target="_blank" variant="contained">View</Button>
+                    <CardContent style={styles.cardContentContainer}>
+                      <div style={{ flex: '0 0 150px', marginRight: '10px' }}>
+                        <img
+                          src={story.poster_url}
+                          alt={story.title}
+                          style={{ width: '100%', borderRadius: '8px' }}
+                          onError={() => setBrokenPosters(prev => new Set(prev).add(story.external_url))}
+                        />
+                      </div>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <Typography style={styles.songTitle}>{story.title}</Typography>
+                        <Typography style={styles.artistName}>{story.author}</Typography>
+                        <Typography style={styles.artistName}>{story.description}</Typography>
+                        <Box sx={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
+                          <Button href={story.external_url} target="_blank" variant="contained">Read more</Button>
+                        </Box>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2 }}>
+                  <Button
+                    variant="text"
+                    disabled={storyPage === 0}
+                    onClick={() => setStoryPage(prev => Math.max(prev - 1, 0))}
+                    sx={{
+                      mr: 1,
+                      color: isDarkMode ? '#fff' : '#000',
+                      '&:hover': { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' },
+                      '&.Mui-disabled': { color: isDarkMode ? '#fff' : '#000' }
+                    }}
+                  >
+                    Previous
+                  </Button>
+                  <Typography 
+                    variant="body2"
+                    sx={{ color: isDarkMode ? '#fff' : '#000' }}
+                  >
+                    {`Page ${storyPage + 1} of ${Math.ceil(storiesList.length / itemsPerPage)}`}
+                  </Typography>
+                  <Button
+                    variant="text"
+                    disabled={storyPage >= Math.ceil(storiesList.length / itemsPerPage) - 1}
+                    onClick={() => setStoryPage(prev => Math.min(prev + 1, Math.ceil(storiesList.length / itemsPerPage) - 1))}
+                    sx={{
+                      ml: 1,
+                      color: isDarkMode ? '#fff' : '#000',
+                      '&:hover': { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' },
+                      '&.Mui-disabled': { color: isDarkMode ? '#fff' : '#000' }
+                    }}
+                  >
+                    Next
+                  </Button>
+                </Box>
               </>
             )}
             {/* No Recommendations */}
             {((selectedCategory === 'music' && recommendationData.music.length === 0) ||
-              (selectedCategory === 'movies' && recommendationData.movies.length === 0) ||
-              (selectedCategory === 'webseries' && recommendationData.webseries.length === 0) ||
-              (selectedCategory === 'stories' && recommendationData.stories.length === 0)) && !loading && (
+              (selectedCategory === 'movies' && moviesList.length === 0) ||
+              (selectedCategory === 'webseries' && seriesList.length === 0) ||
+              (selectedCategory === 'stories' && storiesList.length === 0)) && !loading && (
               <Typography
                 variant="body2"
                 style={{
@@ -457,40 +681,26 @@ const ResultsPage = () => {
 
 // Define the mood to genre mapping
 const emotionToGenre = {
-  joy: "hip-hop",
   happy: "happy",
   sad: "sad",
   angry: "metal",
-  love: "romance",
-  fear: "sad",
-  neutral: "pop",
-  calm: "chill",
-  disgust: "blues",
-  surprised: "party",
-  surprise: "party",
-  excited: "party",
-  bored: "pop",
-  tired: "chill",
   relaxed: "chill",
-  stressed: "chill",
-  anxious: "chill",
-  depressed: "sad",
-  lonely: "sad",
   energetic: "hip-hop",
   nostalgic: "pop",
-  confused: "pop",
-  frustrated: "metal",
+  anxious: "chill",
   hopeful: "romance",
   proud: "hip-hop",
-  guilty: "blues",
-  jealous: "pop",
-  ashamed: "blues",
-  disappointed: "pop",
+  lonely: "sad",
   neutral: "chill",
-  insecure: "pop",
-  embarassed: "blues",
-  overwhelmed: "chill",
   amused: "party",
+  frustrated: "metal",
+  romantic: "romance",
+  surprised: "party",
+  confused: "pop",
+  excited: "party",
+  shy: "pop",
+  bored: "pop",
+  playful: "party"
 };
 
 // Dynamically get styles based on dark mode
@@ -527,10 +737,10 @@ const getStyles = (isDarkMode) => ({
     borderRadius: "12px",
     width: "90%",
     maxWidth: "1000px",
-    height: "650px",
+    height: "auto",
     boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
     backgroundColor: isDarkMode ? "#1f1f1f" : "white",
-    overflowY: "auto",
+    overflowY: "visible",
     transition: "background-color 0.3s ease",
   },
   recommendationsList: {
@@ -544,7 +754,7 @@ const getStyles = (isDarkMode) => ({
     width: "100%",
     maxWidth: "800px",
     borderRadius: "10px",
-    padding: "15px",
+    padding: "8px",
     boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.15)",
     backgroundColor: isDarkMode ? "#333333" : "#ffffff",
     display: "flex",

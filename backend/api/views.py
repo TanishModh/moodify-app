@@ -7,16 +7,238 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from .models import UserProfile
 from .serializers import UserSerializer, UserProfileSerializer
-from ai_ml.src.models.text_emotion import infer_text_emotion
 
-from ai_ml.src.models.facial_emotion import infer_facial_emotion
-from ai_ml.src.recommendation.music_recommendation import get_music_recommendation
-from ai_ml.src.recommendation.movie_recommendation import get_movie_recommendation
-from ai_ml.src.recommendation.webseries_recommendation import get_webseries_recommendation
-from ai_ml.src.recommendation.story_recommendation import get_story_recommendation
+# Mock implementations for AI/ML functions
+def infer_text_emotion(text):
+    return "happy"
+
+def infer_facial_emotion(image_path):
+    return "happy"
+
+def get_music_recommendation(emotion):
+    # Map user mood to Spotify seed genres
+    emotion_to_genre = {
+        "happy": "happy",
+        "sad": "sad",
+        "angry": "heavy-metal",
+        "relaxed": "ambient",
+        "energetic": "dance",
+        "nostalgic": "classical",
+        "anxious": "ambient",
+        "hopeful": "pop",
+        "proud": "hip-hop",
+        "lonely": "sad",
+        "neutral": "pop",
+        "amused": "party",
+        "frustrated": "metal",
+        "romantic": "romance",
+        "surprised": "electronic",
+        "confused": "alternative",
+        "excited": "party",
+        "shy": "acoustic",
+        "bored": "pop",
+        "playful": "pop"
+    }
+    seed_genres = emotion_to_genre.get(emotion.lower())
+
+    SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
+    SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
+    auth = requests.post(
+        "https://accounts.spotify.com/api/token",
+        data={"grant_type": "client_credentials"},
+        auth=(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET)
+    )
+    token = auth.json().get("access_token")
+    headers = {"Authorization": f"Bearer {token}"}
+    tracks = []
+    # Try genre-based recommendations
+    if seed_genres:
+        rec_params = {"seed_genres": seed_genres, "limit": 50}
+        rec_resp = requests.get("https://api.spotify.com/v1/recommendations", headers=headers, params=rec_params)
+        if rec_resp.status_code == 200:
+            tracks = rec_resp.json().get("tracks", [])
+    # Fallback to search if no genre recommendations
+    if not tracks:
+        search_params = {"q": emotion, "type": "track", "limit": 50}
+        search_resp = requests.get("https://api.spotify.com/v1/search", headers=headers, params=search_params)
+        tracks = search_resp.json().get("tracks", {}).get("items", [])
+    # Sort tracks by Spotify popularity descending
+    tracks = sorted(tracks, key=lambda t: t.get("popularity", 0), reverse=True)
+
+    def detect_language(text):
+        # Simple check for Devanagari script (Hindi)
+        for c in text:
+            if '\u0900' <= c <= '\u097F':
+                return 'hindi'
+        return 'english'
+
+    return [
+        {
+            "name": t["name"],
+            "artist": ", ".join([a["name"] for a in t["artists"]]),
+            "album": t["album"]["name"],
+            "url": t["external_urls"]["spotify"],
+            "image_url": t["album"].get("images", [{}])[0].get("url", "https://via.placeholder.com/300x300?text=No+Image"),
+            "language": (
+                'hindi'
+                if detect_language(t["name"]) == 'hindi' or detect_language(", ".join([a["name"] for a in t["artists"]])) == 'hindi'
+                else 'english'
+            )
+        }
+        for t in tracks
+    ]
+
+def get_movie_recommendation(emotion):
+    """Fetch up to 50 movies with valid posters, sorted by IMDb rating."""
+    from urllib.parse import quote_plus
+    OMDB_API_KEY = os.getenv("OMDB_API_KEY")
+    target = 50
+    collected = []
+    page = 1
+    # Loop pages until enough movies or max pages reached
+    while len(collected) < target and page <= 10:
+        resp = requests.get(
+            "http://www.omdbapi.com/",
+            params={"apikey": OMDB_API_KEY, "s": emotion, "type": "movie", "page": page}
+        )
+        data = resp.json().get("Search", [])
+        if not data:
+            break
+        for item in data:
+            imdb_id = item.get("imdbID")
+            detail = requests.get(
+                "http://www.omdbapi.com/",
+                params={"apikey": OMDB_API_KEY, "i": imdb_id, "plot": "short"}
+            ).json()
+            # Determine poster; skip if missing
+            poster = detail.get("Poster") or item.get("Poster")
+            if not poster or poster == "N/A":
+                continue
+            # Extract basic info
+            title = detail.get("Title")
+            year = detail.get("Year")
+            plot = detail.get("Plot", "")
+            poster_url = poster
+            trailer = f"https://www.youtube.com/results?search_query={quote_plus(f'{title} trailer')}"
+            # Parse rating
+            try:
+                rating = float(detail.get("imdbRating", "0")) if detail.get("imdbRating") not in (None, "N/A") else 0.0
+            except:
+                rating = 0.0
+            collected.append({
+                "title": title,
+                "year": year,
+                "description": plot,
+                "poster_url": poster_url,
+                "external_url": f"https://www.imdb.com/title/{imdb_id}",
+                "youtube_trailer_url": trailer,
+                "rating": rating
+            })
+            if len(collected) >= target:
+                break
+        page += 1
+    # Sort by rating desc and limit to target
+    movies = sorted(collected, key=lambda m: m.get("rating", 0), reverse=True)[:target]
+    # Cleanup
+    for m in movies:
+        m.pop("rating", None)
+    return movies
+
+def get_webseries_recommendation(emotion):
+    """Fetch up to 50 web series with valid posters, sorted by IMDb rating."""
+    from urllib.parse import quote_plus
+    OMDB_API_KEY = os.getenv("OMDB_API_KEY")
+    target = 50
+    collected = []
+    page = 1
+    # Loop pages until enough series or max pages
+    while len(collected) < target and page <= 10:
+        resp = requests.get(
+            "http://www.omdbapi.com/",
+            params={"apikey": OMDB_API_KEY, "s": emotion, "type": "series", "page": page}
+        )
+        data = resp.json().get("Search", [])
+        if not data:
+            break
+        for item in data:
+            imdb_id = item.get("imdbID")
+            detail = requests.get(
+                "http://www.omdbapi.com/",
+                params={"apikey": OMDB_API_KEY, "i": imdb_id, "plot": "short"}
+            ).json()
+            # Validate poster
+            poster = detail.get("Poster") or item.get("Poster")
+            if not poster or poster == "N/A":
+                continue
+            # Extract info
+            title = detail.get("Title")
+            year = detail.get("Year")
+            plot = detail.get("Plot", "")
+            poster_url = poster
+            trailer = f"https://www.youtube.com/results?search_query={quote_plus(f'{title} trailer')}"
+            try:
+                rating = float(detail.get("imdbRating", "0")) if detail.get("imdbRating") not in (None, "N/A") else 0.0
+            except:
+                rating = 0.0
+            collected.append({
+                "title": title,
+                "year": year,
+                "description": plot,
+                "poster_url": poster_url,
+                "external_url": f"https://www.imdb.com/title/{imdb_id}",
+                "youtube_trailer_url": trailer,
+                "rating": rating
+            })
+            if len(collected) >= target:
+                break
+        page += 1
+    # Sort and limit
+    series_list = sorted(collected, key=lambda s: s.get("rating", 0), reverse=True)[:target]
+    # Cleanup temp field
+    for s in series_list:
+        s.pop("rating", None)
+    return series_list
+
+def get_story_recommendation(emotion):
+    """Fetch up to 30 stories with valid cover images, sorted by average rating."""
+    GOOGLE_KEY = os.getenv("GOOGLE_BOOKS_API_KEY")
+    url = "https://www.googleapis.com/books/v1/volumes"
+    target = 30
+    collected = []
+    params = {"q": emotion, "maxResults": 30}
+    if GOOGLE_KEY:
+        params["key"] = GOOGLE_KEY
+    resp = requests.get(url, params=params)
+    items = resp.json().get("items", [])
+    for item in items:
+        info = item.get("volumeInfo", {})
+        thumbnail = info.get("imageLinks", {}).get("thumbnail")
+        if not thumbnail:
+            continue
+        title = info.get("title")
+        authors = ", ".join(info.get("authors", []))
+        description = info.get("description", "")
+        external_url = info.get("previewLink") or info.get("infoLink")
+        rating = info.get("averageRating", 0) or 0
+        collected.append({
+            "title": title,
+            "author": authors,
+            "description": description,
+            "poster_url": thumbnail,
+            "external_url": external_url,
+            "rating": rating
+        })
+        if len(collected) >= target:
+            break
+    # Sort by rating and cleanup
+    stories = sorted(collected, key=lambda s: s.get("rating", 0), reverse=True)
+    for s in stories:
+        s.pop("rating", None)
+    return stories
 
 import os
 import tempfile
+import requests
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -31,6 +253,7 @@ import mimetypes
         type=openapi.TYPE_OBJECT,
         properties={
             'text': openapi.Schema(type=openapi.TYPE_STRING, description='Text input for emotion inference'),
+            'user_id': openapi.Schema(type=openapi.TYPE_STRING, description='MongoDB user profile ID'),
         },
         required=['text'],
     ),
@@ -52,12 +275,24 @@ def text_emotion(request):
     """
     data = request.data
     text = data.get("text", "") if data else ""
+    user_id = data.get("user_id", None) if data else None
 
     if not text:
         return Response({"error": "No text provided"}, status=status.HTTP_400_BAD_REQUEST)
 
     emotion = infer_text_emotion(text)
     recommendations = get_music_recommendation(emotion)
+    
+    # Save emotion to user's mood history if user_id is provided
+    if user_id:
+        try:
+            from users.models import UserProfile
+            user_profile = UserProfile.objects.get(id=user_id)
+            user_profile.mood_history.append(emotion)
+            user_profile.save()
+            print(f"Saved text-inferred emotion '{emotion}' to user {user_profile.username}'s mood history")
+        except Exception as e:
+            print(f"Error saving mood to user history: {str(e)}")
 
     return Response({"emotion": emotion, "recommendations": recommendations})
 
@@ -68,6 +303,7 @@ def text_emotion(request):
         type=openapi.TYPE_OBJECT,
         properties={
             'file': openapi.Schema(type=openapi.TYPE_FILE, description='Image file for emotion inference'),
+            'user_id': openapi.Schema(type=openapi.TYPE_STRING, description='MongoDB user profile ID'),
         },
         required=['file'],
     ),
@@ -117,8 +353,23 @@ def facial_emotion(request):
 
         # Get music recommendations based on the detected emotion
         recommendations = get_music_recommendation(emotion)
-
-        return Response({"emotion": emotion, "recommendations": recommendations})
+        
+        # Save emotion to user's mood history if user_id is provided
+        user_id = request.data.get("user_id", None)
+        if user_id:
+            try:
+                from users.models import UserProfile
+                user_profile = UserProfile.objects.get(id=user_id)
+                user_profile.mood_history.append(emotion)
+                user_profile.save()
+                print(f"Saved facial-inferred emotion '{emotion}' to user {user_profile.username}'s mood history")
+            except Exception as e:
+                print(f"Error saving mood to user history: {str(e)}")
+        
+        return Response({
+            "emotion": emotion,
+            "recommendations": recommendations
+        })
 
     except Exception as e:
         print(f"Exception occurred during image processing: {str(e)}")
@@ -168,6 +419,7 @@ def music_recommendation(request):
         type=openapi.TYPE_OBJECT,
         properties={
             'emotion': openapi.Schema(type=openapi.TYPE_STRING, description='Emotion for recommendations'),
+            'user_id': openapi.Schema(type=openapi.TYPE_STRING, description='MongoDB user profile ID'),
         },
         required=['emotion'],
     ),
@@ -189,11 +441,23 @@ def recommendations(request):
     """
     data = request.data
     emotion = data.get("emotion", "") if data else ""
-    print(f"Received recommendation request for emotion: {emotion}")
+    user_id = data.get("user_id", None) if data else None
+    print(f"Received recommendation request for emotion: {emotion}, user_id: {user_id}")
     
     if not emotion:
         print("Error: No emotion provided in request")
         return Response({"error": "No emotion provided"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Save emotion to user's mood history if user_id is provided
+    if user_id:
+        try:
+            from users.models import UserProfile
+            user_profile = UserProfile.objects.get(id=user_id)
+            user_profile.mood_history.append(emotion)
+            user_profile.save()
+            print(f"Saved emotion '{emotion}' to user {user_profile.username}'s mood history")
+        except Exception as e:
+            print(f"Error saving mood to user history: {str(e)}")
     
     try:
         print(f"Getting music recommendations for emotion: {emotion}")

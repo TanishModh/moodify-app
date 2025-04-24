@@ -1,24 +1,26 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import { Box, Typography, Grid, Avatar, Card, CardContent, CardMedia, useTheme } from '@mui/material';
 import { GitHub, LinkedIn, Mail } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { DarkModeContext } from '../context/DarkModeContext';
 
 const AboutPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { isDarkMode } = useContext(DarkModeContext);
 
   const styles = {
 
     pageContainer: {
       minHeight: '100vh',
-      backgroundColor: theme.palette.background.default,
+      backgroundColor: isDarkMode ? theme.palette.background.dark : theme.palette.background.default,
       padding: '80px 20px',
     },
     title: {
       fontFamily: 'Poppins',
       fontWeight: '600',
-      color: theme.palette.text.primary,
+      color: isDarkMode ? theme.palette.common.white : theme.palette.text.primary,
       marginBottom: '60px',
       textAlign: 'center',
       fontSize: '2.5rem',
@@ -27,7 +29,7 @@ const AboutPage = () => {
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      backgroundColor: theme.palette.background.paper,
+      backgroundColor: isDarkMode ? theme.palette.background.dark : theme.palette.background.paper,
       borderRadius: '12px',
       transition: 'transform 0.2s ease',
       '&:hover': {
@@ -78,21 +80,19 @@ const AboutPage = () => {
   const makers = [
     {
       name: "Tanish Modh",
-      role: "Frontend Developer",
-      description: "Frontend developer and UI/UX designer for MoodifyMe. Expert in React, Material-UI, and responsive design. Passionate about creating intuitive user experiences and modern web applications.",
+      description: "Frontend developer and UI designer for MoodifyMe. Work in CSS, python, and responsive design. Passionate about creating intuitive user experiences and modern web applications.",
       avatar: "https://i.imgur.com/JzGuOc3.jpg",
       github: "https://github.com/TanishModh",
-      linkedin: "https://www.linkedin.com/in/tanish-modh",
-      email: "tanishmodh@gmail.com",
+      linkedin: "https://www.linkedin.com/in/tanish-modh-31069120a?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+      email: "tmodh49449@gmail.com",
     },
     {
       name: "Sifty Kaur Gandhi",
-      role: "Frontend Developer",
-      description: "Creative frontend developer passionate about building intuitive and engaging user experiences. Specializes in React and modern web technologies.",
+      description: "Creative developer passionate about building intuitive and engaging user experiences. Specializes in database and modern web technologies.",
       avatar: "https://i.imgur.com/nX81fnL.jpg",
-      github: "https://github.com/siftykgandhi",
-      linkedin: "https://www.linkedin.com/in/sifty-kaur-gandhi",
-      email: "siftykgandhi@gmail.com",
+      github: "https://github.com/Sifty-Kaur",
+      linkedin: "https://www.linkedin.com/in/sifty-kaur-51542730a",
+      email: "siftykaur12@gmail.com",
     }
   ];
 
@@ -120,7 +120,7 @@ const AboutPage = () => {
                   borderRadius: '8px',
                   margin: '16px',
                   width: 'calc(100% - 32px)',
-                  backgroundColor: theme.palette.background.default,
+                  backgroundColor: isDarkMode ? theme.palette.background.dark : theme.palette.background.default,
                 }}
                 image={maker.avatar}
                 alt={maker.name}
@@ -129,9 +129,11 @@ const AboutPage = () => {
                 <Typography variant="h4" sx={styles.name}>
                   {maker.name}
                 </Typography>
-                <Typography variant="h6" sx={styles.role}>
-                  {maker.role}
-                </Typography>
+                {maker.role && (
+                  <Typography variant="h6" sx={styles.role}>
+                    {maker.role}
+                  </Typography>
+                )}
                 <Typography variant="body1" sx={styles.description}>
                   {maker.description}
                 </Typography>

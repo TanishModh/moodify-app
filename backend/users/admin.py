@@ -15,4 +15,5 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('username', 'created_at')
     search_fields = ('username',)
 
-admin.site.register(UserProfile, UserProfileAdmin)
+# MongoEngine documents cannot be registered with Django admin directly
+# admin.site.register(UserProfile, UserProfileAdmin)

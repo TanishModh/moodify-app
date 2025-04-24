@@ -13,19 +13,21 @@ import os
 import sys
 from datetime import timedelta
 from pathlib import Path
-from mongoengine import connect
-from decouple import config
+from dotenv import load_dotenv
+
+# Load environment variables from example.env with encoding fallback
+# Prefer example.env in the same directory as settings.py, fallback to parent
+env_file = Path(__file__).resolve().parent / 'example.env'
+if not env_file.exists():
+    env_file = Path(__file__).resolve().parent.parent / 'example.env'
+try:
+    load_dotenv(dotenv_path=str(env_file), encoding='utf-8')
+except UnicodeDecodeError:
+    load_dotenv(dotenv_path=str(env_file), encoding='utf-16')
 
 # Add project root to Python path
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 sys.path.append(PROJECT_ROOT)
-
-# Connect to MongoDB Atlas - commented out to prevent errors if MongoDB URI is not set
-# Only uncomment if you have MongoDB set up
-# connect(
-#     host=config('MONGO_DB_URI', default='mongodb://localhost:27017/moodify'),  # MongoDB Atlas URI from .env file
-#     ssl=True
-# )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,11 +35,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-SECRET_KEY = config('DJANGO_SECRET_KEY', default='your-secret-key-here')
+SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key-here')
 
-DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
+DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -49,7 +51,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'rest_framework_mongoengine',
     'corsheaders',
     'drf_yasg',
     'dj_rest_auth',
@@ -60,13 +61,6 @@ INSTALLED_APPS = [
 ]
 
 SITE_ID = 1
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -117,8 +111,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
+# Database
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
 # Cache settings (optional)
-REDIS_URL = config('REDIS_URL', default=None)
+REDIS_URL = os.getenv('REDIS_URL', None)
 if REDIS_URL:
     CACHES = {
         'default': {
@@ -142,7 +144,6 @@ else:
 # REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',  # JWT Authentication
         'rest_framework.authentication.TokenAuthentication', # Token Authentication
     ],
     'DEFAULT_PERMISSION_CLASSES': [

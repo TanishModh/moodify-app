@@ -172,7 +172,7 @@ const Footer = () => {
 
       <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 2 }}>
         <Typography variant="body2" align="center" sx={{ color: 'white', fontFamily: 'Poppins, sans-serif', fontSize: '14px' }}>
-          &copy; {new Date().getFullYear()} MoodifyMe. All rights reserved.
+          &copy; {new Date().getFullYear()} MoodifyMe
         </Typography>
       </Box>
     </Box>
