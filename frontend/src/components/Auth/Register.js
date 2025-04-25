@@ -42,15 +42,24 @@ const Register = () => {
     }
 
     try {
-      // Sending username, email, and password to the backend
+      // Send username, email, and password to the backend (updated endpoint)
       const response = await axios.post(
-        "http://localhost:8000/users/register/",
+        "http://localhost:5000/api/users/register/",
         {
           username,
           email,
           password,
         },
       );
+
+      // Store user info from backend (Django and MongoDB)
+      if (response.data.user) {
+        localStorage.setItem("username", response.data.user.username);
+        localStorage.setItem("userId", response.data.user.id);
+        if (response.data.user.mongo_profile_id) {
+          localStorage.setItem("mongo_profile_id", response.data.user.mongo_profile_id);
+        }
+      }
 
       if (response.status === 201) {
         alert("Registration successful! Please log in.");

@@ -14,7 +14,8 @@ import axios from "axios";
 import { DarkModeContext } from "../../context/DarkModeContext";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  // Use username for login as per backend
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -24,7 +25,7 @@ const Login = () => {
   const { isDarkMode } = useContext(DarkModeContext);
 
   const handleLogin = async () => {
-    if (!email || !password) {
+    if (!username || !password) {
       alert("Please fill in all fields");
       return;
     }
@@ -32,17 +33,23 @@ const Login = () => {
     setLoading(true); // Set loading to true when login starts
 
     try {
-      // Make the login request
+      // Make the login request to the correct backend endpoint
       const response = await axios.post(
-        "http://localhost:5001/api/login",
-        { email, password },
+        "http://localhost:5000/api/users/login/",
+        { username, password },
       );
-      
-      // Store user data in localStorage
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("userId", response.data.userId);
-      localStorage.setItem("username", response.data.username);
-      
+
+      // Store user and token info from backend (Django and MongoDB)
+      if (response.data.user) {
+        localStorage.setItem("username", response.data.user.username);
+        localStorage.setItem("userId", response.data.user.id);
+        if (response.data.user.mongo_profile_id) {
+          localStorage.setItem("mongo_profile_id", response.data.user.mongo_profile_id);
+        }
+      }
+      if (response.data.tokens && response.data.tokens.access) {
+        localStorage.setItem("token", response.data.tokens.access);
+      }
       alert("Login successful!");
 
       // Redirect to the home page
@@ -85,11 +92,11 @@ const Login = () => {
           Login
         </Typography>
         <TextField
-          label="Email"
+          label="Username"
           variant="outlined"
           fullWidth
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           onKeyPress={handleKeyPress} // Add key press handler
           sx={{ mb: 2 }}
           InputProps={{

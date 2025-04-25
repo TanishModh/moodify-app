@@ -1,14 +1,14 @@
-const API_URL = 'http://localhost:5001/api';
+// MongoDB-only backend base URL
+const API_URL = 'http://localhost:5000';
 
 export const saveMood = async (mood) => {
     try {
-        const userId = localStorage.getItem('userId');
         const username = localStorage.getItem('username');
 
-        console.log('saveMood - User data:', { userId, username, mood });
+        console.log('saveMood - User data:', { username, mood });
 
-        if (!userId || !username) {
-            console.error('saveMood - Missing user data:', { userId, username });
+        if (!username) {
+            console.error('saveMood - Missing username');
             throw new Error('User not authenticated');
         }
 
@@ -19,11 +19,7 @@ export const saveMood = async (mood) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ 
-                userId,
-                username,
-                mood 
-            }),
+            body: JSON.stringify({ username, mood }),
         });
         
         const data = await response.json();
@@ -41,9 +37,10 @@ export const saveMood = async (mood) => {
     }
 };
 
-export const getUserMoods = async (userId) => {
+export const getUserMoods = async () => {
     try {
-        const response = await fetch(`${API_URL}/moods/${userId}`);
+        const username = localStorage.getItem('username');
+        const response = await fetch(`${API_URL}/mood/${username}`);
         const data = await response.json();
         if (!response.ok) {
             throw new Error(data.message || 'Failed to fetch moods');

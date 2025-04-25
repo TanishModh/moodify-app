@@ -4,7 +4,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from .models import UserProfile  # Local Django models only
+from .models import UserProfile, Mood  # Local Django models only
 import django
 from django.http import JsonResponse
 import json
@@ -90,26 +90,26 @@ def register(request):
             
             # Create MongoDB user profile
             try:
-                # Check if profile already exists
                 existing_profile = UserProfile.objects.filter(username=username).first()
                 if existing_profile:
-                    print(f"Profile for {username} already exists, skipping creation")
                     profile = existing_profile
                 else:
-                    print(f"Creating new profile for {username}")
                     profile = UserProfile(username=username)
                     profile.save()
-                    print(f"Profile saved successfully for {username}")
-                
-                # Get the MongoDB profile ID
-                profile_id = str(profile.id)
+                mongo_profile_id = str(profile.id)
             except Exception as mongo_error:
                 print(f"MongoDB error: {str(mongo_error)}")
-                # If MongoDB fails, we still want to return success since the Django user was created
-                # The profile can be created later when needed
-                pass
-            
-            return Response({"message": "User created successfully."}, status=status.HTTP_201_CREATED)
+                mongo_profile_id = None
+
+            return Response({
+                "message": "User created successfully.",
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "mongo_profile_id": mongo_profile_id
+                }
+            }, status=status.HTTP_201_CREATED)
         except Exception as e:
             print(f"Registration error: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -154,9 +154,14 @@ def login(request):
             'access': str(refresh.access_token),
         }
         
-        # Note: MongoDB-related profile handling removed
-        profile_id = None
-        
+        # Fetch MongoDB UserProfile
+        try:
+            profile = UserProfile.objects.get(username=user.username)
+            mongo_profile_id = str(profile.id)
+        except Exception as mongo_error:
+            print(f"MongoDB error: {str(mongo_error)}")
+            mongo_profile_id = None
+
         return Response({
             "message": "Login successful.",
             "tokens": tokens,
@@ -164,7 +169,7 @@ def login(request):
                 "id": user.id,
                 "username": user.username,
                 "email": user.email,
-                "profile_id": profile_id  # Include MongoDB profile ID
+                "mongo_profile_id": mongo_profile_id
             }
         }, status=status.HTTP_200_OK)
     return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -183,7 +188,7 @@ def login(request):
     responses={
         200: openapi.Response('Username and email combination verified.'),
         404: openapi.Response('User not found.'),
-        500: openapi.Response('Internal server error.'),
+        500: openapi.Response('Internal server eror.'),
     },
 )
 @api_view(['POST'])

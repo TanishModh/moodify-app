@@ -9,17 +9,27 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
+from dotenv import load_dotenv
 import os
+
+# Load environment variables from example.env or .env
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'example.env')
+if os.path.exists(dotenv_path):
+    load_dotenv(dotenv_path)
+else:
+    dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+    if os.path.exists(dotenv_path):
+        load_dotenv(dotenv_path)
 import sys
 from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 
 # Load environment variables from example.env with encoding fallback
-# Prefer example.env in the same directory as settings.py, fallback to parent
-env_file = Path(__file__).resolve().parent / 'example.env'
+# Prefer .env in the same directory as settings.py, fallback to parent
+env_file = Path(__file__).resolve().parent / '.env'
 if not env_file.exists():
-    env_file = Path(__file__).resolve().parent.parent / 'example.env'
+    env_file = Path(__file__).resolve().parent.parent / '.env'
 try:
     load_dotenv(dotenv_path=str(env_file), encoding='utf-8')
 except UnicodeDecodeError:

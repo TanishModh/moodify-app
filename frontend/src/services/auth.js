@@ -1,5 +1,7 @@
-const API_URL = 'http://localhost:5001/api';
+// Use MongoDB-only backend base URL
+const API_URL = 'http://localhost:5000';
 
+// Register a new user and store relevant user info in localStorage
 export const register = async (username, email, password) => {
     try {
         const response = await fetch(`${API_URL}/register`, {
@@ -9,37 +11,31 @@ export const register = async (username, email, password) => {
             },
             body: JSON.stringify({ username, email, password }),
         });
-        
+
         const data = await response.json();
-        if (!response.ok) {
-            throw new Error(data.message || 'Registration failed');
-        }
-        
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('userId', data.userId);
+        if (!response.ok) throw new Error(data.error || data.message);
+        // Save username in localStorage
+        localStorage.setItem('username', username);
         return data;
     } catch (error) {
         throw error;
     }
 };
 
-export const login = async (email, password) => {
+// Login a user and store relevant user info in localStorage
+export const login = async (username, password) => {
     try {
         const response = await fetch(`${API_URL}/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ username, password }),
         });
-        
+
         const data = await response.json();
-        if (!response.ok) {
-            throw new Error(data.message || 'Login failed');
-        }
-        
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('userId', data.userId);
+        if (!response.ok) throw new Error(data.error || 'Login failed');
+        // Save username in localStorage
         localStorage.setItem('username', data.username);
         return data;
     } catch (error) {
@@ -47,12 +43,11 @@ export const login = async (email, password) => {
     }
 };
 
+// Logout the user and clear all relevant info
 export const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('username'); // Add this line
+    localStorage.removeItem('username');
 };
 
 export const isAuthenticated = () => {
-    return !!localStorage.getItem('token');
+    return !!localStorage.getItem('username');
 };

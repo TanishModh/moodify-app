@@ -89,9 +89,15 @@ def get_music_recommendation(emotion):
     ]
 
 def get_movie_recommendation(emotion):
+    import os
+    OMDB_API_KEY = os.getenv('OMDB_API_KEY')
+    print(f"[DEBUG] OMDB_API_KEY in use for movies: {OMDB_API_KEY}")
     """Fetch up to 50 movies with valid posters, sorted by IMDb rating."""
     from urllib.parse import quote_plus
     OMDB_API_KEY = os.getenv("OMDB_API_KEY")
+    if not OMDB_API_KEY:
+        print("[ERROR] OMDB_API_KEY environment variable is missing!")
+        return []
     target = 50
     collected = []
     page = 1
@@ -101,8 +107,12 @@ def get_movie_recommendation(emotion):
             "http://www.omdbapi.com/",
             params={"apikey": OMDB_API_KEY, "s": emotion, "type": "movie", "page": page}
         )
+        if resp.status_code != 200:
+            print(f"[ERROR] OMDb API request failed: {resp.status_code} {resp.text}")
+            break
         data = resp.json().get("Search", [])
         if not data:
+            print(f"[WARNING] OMDb API returned no movie data for emotion '{emotion}', page {page}. Response: {resp.json()}")
             break
         for item in data:
             imdb_id = item.get("imdbID")
@@ -145,9 +155,15 @@ def get_movie_recommendation(emotion):
     return movies
 
 def get_webseries_recommendation(emotion):
+    import os
+    OMDB_API_KEY = os.getenv('OMDB_API_KEY')
+    print(f"[DEBUG] OMDB_API_KEY in use for webseries: {OMDB_API_KEY}")
     """Fetch up to 50 web series with valid posters, sorted by IMDb rating."""
     from urllib.parse import quote_plus
     OMDB_API_KEY = os.getenv("OMDB_API_KEY")
+    if not OMDB_API_KEY:
+        print("[ERROR] OMDB_API_KEY environment variable is missing!")
+        return []
     target = 50
     collected = []
     page = 1
@@ -157,8 +173,12 @@ def get_webseries_recommendation(emotion):
             "http://www.omdbapi.com/",
             params={"apikey": OMDB_API_KEY, "s": emotion, "type": "series", "page": page}
         )
+        if resp.status_code != 200:
+            print(f"[ERROR] OMDb API request failed: {resp.status_code} {resp.text}")
+            break
         data = resp.json().get("Search", [])
         if not data:
+            print(f"[WARNING] OMDb API returned no webseries data for emotion '{emotion}', page {page}. Response: {resp.json()}")
             break
         for item in data:
             imdb_id = item.get("imdbID")
