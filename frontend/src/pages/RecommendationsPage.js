@@ -27,6 +27,14 @@ const RecommendationsPage = () => {
     }
   };
 
+  // Function to handle emotion selection
+  const handleEmotionSelect = (emotion) => {
+    setSelectedEmotion(emotion);
+    // Save selected emotion to localStorage for fallback mechanism
+    localStorage.setItem('selectedEmotion', emotion);
+    fetchRecommendations(emotion);
+  };
+
   const getFallbackRecommendations = (emotion) => {
     // Default recommendations data for different emotions
     const defaultRecommendations = {
