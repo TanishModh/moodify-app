@@ -130,9 +130,36 @@ const ResultsPage = () => {
           { title: "Brooklyn Nine-Nine", year: "2013", description: "Comedy series following the exploits of Det. Jake Peralta and his colleagues in Brooklyn's 99th Precinct.", rating: 8.4 }
         ],
         stories: [
-          { title: "The Little Prince", author: "Antoine de Saint-Exupéry", genre: "Fantasy", summary: "A young prince visits various planets in space, including Earth, and addresses themes of loneliness, friendship, love, and loss." },
-          { title: "Oh, The Places You'll Go!", author: "Dr. Seuss", genre: "Children's Literature", summary: "The story speaks of the ups and downs of life and encourages readers to find success despite setbacks." },
-          { title: "The Alchemist", author: "Paulo Coelho", genre: "Fantasy", summary: "A shepherd boy dreams of finding a worldly treasure and embarks on a journey to fulfill his personal legend." }
+          { 
+            title: "The Little Prince", 
+            author: "Antoine de Saint-Exupéry", 
+            genre: "Fantasy", 
+            summary: "A young prince visits various planets in space, including Earth, and addresses themes of loneliness, friendship, love, and loss.",
+            poster_url: "https://m.media-amazon.com/images/I/71OZY035QKL._AC_UF1000,1000_QL80_.jpg",
+            external_url: "https://en.wikipedia.org/wiki/The_Little_Prince",
+            year: "1943",
+            description: "A young prince visits various planets in space, including Earth, and addresses themes of loneliness, friendship, love, and loss."
+          },
+          { 
+            title: "Oh, The Places You'll Go!", 
+            author: "Dr. Seuss", 
+            genre: "Children's Literature", 
+            summary: "The story speaks of the ups and downs of life and encourages readers to find success despite setbacks.",
+            poster_url: "https://m.media-amazon.com/images/I/61Qe40WsYsL._AC_UF1000,1000_QL80_.jpg",
+            external_url: "https://en.wikipedia.org/wiki/Oh,_the_Places_You%27ll_Go!",
+            year: "1990",
+            description: "The story speaks of the ups and downs of life and encourages readers to find success despite setbacks."
+          },
+          { 
+            title: "The Alchemist", 
+            author: "Paulo Coelho", 
+            genre: "Fantasy", 
+            summary: "A shepherd boy dreams of finding a worldly treasure and embarks on a journey to fulfill his personal legend.",
+            poster_url: "https://m.media-amazon.com/images/I/51Z0nLAfLmL.jpg",
+            external_url: "https://en.wikipedia.org/wiki/The_Alchemist_(novel)",
+            year: "1988",
+            description: "A shepherd boy dreams of finding a worldly treasure and embarks on a journey to fulfill his personal legend."
+          }
         ]
       },
       sad: {
@@ -152,9 +179,36 @@ const ResultsPage = () => {
           { title: "After Life", year: "2019", description: "After Tony's wife dies unexpectedly, his nice-guy persona is altered into an impulsive, devil-may-care attitude.", rating: 8.4 }
         ],
         stories: [
-          { title: "The Road", author: "Cormac McCarthy", genre: "Post-Apocalyptic", summary: "A father and his young son journey across post-apocalyptic America some years after an extinction event." },
-          { title: "A Little Life", author: "Hanya Yanagihara", genre: "Literary Fiction", summary: "The tragic and transcendent story of four college friends in New York City whose lives are shaped by abuse, addiction, and depression." },
-          { title: "Never Let Me Go", author: "Kazuo Ishiguro", genre: "Dystopian Science Fiction", summary: "The story of three friends growing up in a mysterious boarding school with a dark secret about their future." }
+          { 
+            title: "The Road", 
+            author: "Cormac McCarthy", 
+            genre: "Post-Apocalyptic", 
+            summary: "A father and his young son journey across post-apocalyptic America some years after an extinction event.",
+            poster_url: "https://m.media-amazon.com/images/I/71IJ1HC2a0L._AC_UF1000,1000_QL80_.jpg",
+            external_url: "https://en.wikipedia.org/wiki/The_Road",
+            year: "2006",
+            description: "A father and his young son journey across post-apocalyptic America some years after an extinction event."
+          },
+          { 
+            title: "A Little Life", 
+            author: "Hanya Yanagihara", 
+            genre: "Literary Fiction", 
+            summary: "The tragic and transcendent story of four college friends in New York City whose lives are shaped by abuse, addiction, and depression.",
+            poster_url: "https://m.media-amazon.com/images/I/81t-IstQ+ZL._AC_UF1000,1000_QL80_.jpg",
+            external_url: "https://en.wikipedia.org/wiki/A_Little_Life",
+            year: "2015",
+            description: "The tragic and transcendent story of four college friends in New York City whose lives are shaped by abuse, addiction, and depression."
+          },
+          { 
+            title: "Never Let Me Go", 
+            author: "Kazuo Ishiguro", 
+            genre: "Dystopian Science Fiction", 
+            summary: "The story of three friends growing up in a mysterious boarding school with a dark secret about their future.",
+            poster_url: "https://m.media-amazon.com/images/I/81zgW7+DPFL._AC_UF1000,1000_QL80_.jpg",
+            external_url: "https://en.wikipedia.org/wiki/Never_Let_Me_Go_(novel)",
+            year: "2005",
+            description: "The story of three friends growing up in a mysterious boarding school with a dark secret about their future."
+          }
         ]
       },
       angry: {
@@ -174,9 +228,36 @@ const ResultsPage = () => {
           { title: "Mindhunter", year: "2017", description: "Set in the late 1970s, two FBI agents are tasked with interviewing serial killers to solve open cases.", rating: 8.6 }
         ],
         stories: [
-          { title: "Frankenstein", author: "Mary Shelley", genre: "Gothic Novel", summary: "The story of a scientist who creates a grotesque but sentient creature in an unorthodox scientific experiment." },
-          { title: "American Psycho", author: "Bret Easton Ellis", genre: "Psychological Horror", summary: "A wealthy New York investment banking executive hides his alternate psychopathic ego from his co-workers and friends." },
-          { title: "The Godfather", author: "Mario Puzo", genre: "Crime Novel", summary: "The story of the Corleone family under patriarch Vito Corleone, focusing on his youngest son, Michael Corleone's transformation into a ruthless mafia boss." }
+          { 
+            title: "Frankenstein", 
+            author: "Mary Shelley", 
+            genre: "Gothic Novel", 
+            summary: "The story of a scientist who creates a grotesque but sentient creature in an unorthodox scientific experiment.",
+            poster_url: "https://m.media-amazon.com/images/I/61ePJaIFelL._AC_UF1000,1000_QL80_.jpg",
+            external_url: "https://en.wikipedia.org/wiki/Frankenstein",
+            year: "1818",
+            description: "The story of a scientist who creates a grotesque but sentient creature in an unorthodox scientific experiment."
+          },
+          { 
+            title: "American Psycho", 
+            author: "Bret Easton Ellis", 
+            genre: "Psychological Horror", 
+            summary: "A wealthy New York investment banking executive hides his alternate psychopathic ego from his co-workers and friends.",
+            poster_url: "https://m.media-amazon.com/images/I/71zUVuK19iL._AC_UF1000,1000_QL80_.jpg",
+            external_url: "https://en.wikipedia.org/wiki/American_Psycho",
+            year: "1991",
+            description: "A wealthy New York investment banking executive hides his alternate psychopathic ego from his co-workers and friends."
+          },
+          { 
+            title: "The Godfather", 
+            author: "Mario Puzo", 
+            genre: "Crime Novel", 
+            summary: "The story of the Corleone family under patriarch Vito Corleone, focusing on his youngest son, Michael Corleone's transformation into a ruthless mafia boss.",
+            poster_url: "https://m.media-amazon.com/images/I/71aUyg9YehL._AC_UF1000,1000_QL80_.jpg",
+            external_url: "https://en.wikipedia.org/wiki/The_Godfather_(novel)",
+            year: "1969",
+            description: "The story of the Corleone family under patriarch Vito Corleone, focusing on his youngest son, Michael Corleone's transformation into a ruthless mafia boss."
+          }
         ]
       },
       neutral: {
@@ -196,9 +277,36 @@ const ResultsPage = () => {
           { title: "The Crown", year: "2016", description: "Follows the political rivalries and romance of Queen Elizabeth II's reign and the events that shaped the second half of the 20th century.", rating: 8.7 }
         ],
         stories: [
-          { title: "To Kill a Mockingbird", author: "Harper Lee", genre: "Southern Gothic", summary: "The story of racial inequality and moral growth of a young girl in the American South during the 1930s." },
-          { title: "1984", author: "George Orwell", genre: "Dystopian", summary: "The story of a man's struggle against a totalitarian government that controls thought and memory." },
-          { title: "The Great Gatsby", author: "F. Scott Fitzgerald", genre: "Tragedy", summary: "The story of the fabulously wealthy Jay Gatsby and his love for the beautiful Daisy Buchanan." }
+          { 
+            title: "To Kill a Mockingbird", 
+            author: "Harper Lee", 
+            genre: "Southern Gothic", 
+            summary: "The story of racial inequality and moral growth of a young girl in the American South during the 1930s.",
+            poster_url: "https://m.media-amazon.com/images/I/71FxgtFKcQL._AC_UF1000,1000_QL80_.jpg",
+            external_url: "https://en.wikipedia.org/wiki/To_Kill_a_Mockingbird",
+            year: "1960",
+            description: "The story of racial inequality and moral growth of a young girl in the American South during the 1930s."
+          },
+          { 
+            title: "1984", 
+            author: "George Orwell", 
+            genre: "Dystopian", 
+            summary: "The story of a man's struggle against a totalitarian government that controls thought and memory.",
+            poster_url: "https://m.media-amazon.com/images/I/71kxa1-0mfL._AC_UF1000,1000_QL80_.jpg",
+            external_url: "https://en.wikipedia.org/wiki/Nineteen_Eighty-Four",
+            year: "1949",
+            description: "The story of a man's struggle against a totalitarian government that controls thought and memory."
+          },
+          { 
+            title: "The Great Gatsby", 
+            author: "F. Scott Fitzgerald", 
+            genre: "Tragedy", 
+            summary: "The story of the fabulously wealthy Jay Gatsby and his love for the beautiful Daisy Buchanan.",
+            poster_url: "https://m.media-amazon.com/images/I/71FTb9X6wsL._AC_UF1000,1000_QL80_.jpg",
+            external_url: "https://en.wikipedia.org/wiki/The_Great_Gatsby",
+            year: "1925",
+            description: "The story of the fabulously wealthy Jay Gatsby and his love for the beautiful Daisy Buchanan."
+          }
         ]
       }
     };
