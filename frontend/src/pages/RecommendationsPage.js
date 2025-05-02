@@ -11,6 +11,7 @@ const RecommendationsPage = () => {
     initialState.recommendations || { music: [], movies: [], webseries: [], stories: [] }
   );
   const [loading, setLoading] = useState(false);
+  const [selectedEmotion, setSelectedEmotion] = useState(initialEmotion);
 
   const fetchRecommendations = async (emotion) => {
     setLoading(true);
@@ -25,14 +26,6 @@ const RecommendationsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Function to handle emotion selection
-  const handleEmotionSelect = (emotion) => {
-    setSelectedEmotion(emotion);
-    // Save selected emotion to localStorage for fallback mechanism
-    localStorage.setItem('selectedEmotion', emotion);
-    fetchRecommendations(emotion);
   };
 
   const getFallbackRecommendations = (emotion) => {
