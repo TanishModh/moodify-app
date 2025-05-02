@@ -102,10 +102,122 @@ const ResultsPage = () => {
       }
     } catch (error) {
       console.error("Error fetching recommendations:", error);
-      setRecommendationData({ music: [], movies: [], webseries: [], stories: [] });
+      // Use fallback recommendations when API is unreachable (like on GitHub Pages)
+      const fallbackData = getFallbackRecommendations(mood);
+      setRecommendationData(fallbackData);
     } finally {
       setLoading(false);
     }
+  };
+
+  const getFallbackRecommendations = (emotion) => {
+    // Default recommendations data for different emotions
+    const defaultRecommendations = {
+      happy: {
+        music: [
+          { title: "Happy", artist: "Pharrell Williams", album: "G I R L", year: "2014", duration: "3:53" },
+          { title: "Don't Stop Me Now", artist: "Queen", album: "Jazz", year: "1978", duration: "3:29" },
+          { title: "Walking on Sunshine", artist: "Katrina and the Waves", album: "Walking on Sunshine", year: "1985", duration: "3:54" }
+        ],
+        movies: [
+          { title: "La La Land", year: "2016", description: "A jazz pianist falls for an aspiring actress in Los Angeles.", rating: 8.0 },
+          { title: "The Greatest Showman", year: "2017", description: "The story of P.T. Barnum and his creation of the Barnum & Bailey Circus.", rating: 7.6 },
+          { title: "Toy Story 4", year: "2019", description: "When a new toy called Forky joins Woody and the gang, a road trip reveals how big the world can be.", rating: 7.8 }
+        ],
+        webseries: [
+          { title: "Friends", year: "1994", description: "Follows the personal and professional lives of six twenty to thirty-something-year-old friends living in Manhattan.", rating: 8.4 },
+          { title: "The Good Place", year: "2016", description: "Four people and their otherworldly frienemy struggle in the afterlife to define what it means to be good.", rating: 8.2 },
+          { title: "Brooklyn Nine-Nine", year: "2013", description: "Comedy series following the exploits of Det. Jake Peralta and his colleagues in Brooklyn's 99th Precinct.", rating: 8.4 }
+        ],
+        stories: [
+          { title: "The Little Prince", author: "Antoine de Saint-Exupéry", genre: "Fantasy", summary: "A young prince visits various planets in space, including Earth, and addresses themes of loneliness, friendship, love, and loss." },
+          { title: "Oh, The Places You'll Go!", author: "Dr. Seuss", genre: "Children's Literature", summary: "The story speaks of the ups and downs of life and encourages readers to find success despite setbacks." },
+          { title: "The Alchemist", author: "Paulo Coelho", genre: "Fantasy", summary: "A shepherd boy dreams of finding a worldly treasure and embarks on a journey to fulfill his personal legend." }
+        ]
+      },
+      sad: {
+        music: [
+          { title: "Someone Like You", artist: "Adele", album: "21", year: "2011", duration: "4:45" },
+          { title: "Fix You", artist: "Coldplay", album: "X&Y", year: "2005", duration: "4:55" },
+          { title: "Yesterday", artist: "The Beatles", album: "Help!", year: "1965", duration: "2:05" }
+        ],
+        movies: [
+          { title: "The Fault in Our Stars", year: "2014", description: "Two teenage cancer patients begin a life-affirming journey to visit a reclusive author in Amsterdam.", rating: 7.7 },
+          { title: "Titanic", year: "1997", description: "A seventeen-year-old aristocrat falls in love with a kind but poor artist aboard the luxurious, ill-fated R.M.S. Titanic.", rating: 7.8 },
+          { title: "The Notebook", year: "2004", description: "A poor yet passionate young man falls in love with a rich young woman, giving her a sense of freedom, but they are soon separated because of their social differences.", rating: 7.8 }
+        ],
+        webseries: [
+          { title: "This Is Us", year: "2016", description: "A heartwarming and emotional story about a unique set of triplets, their struggles, and their wonderful parents.", rating: 8.7 },
+          { title: "Grey's Anatomy", year: "2005", description: "A drama centered on the personal and professional lives of five surgical interns and their supervisors.", rating: 7.6 },
+          { title: "After Life", year: "2019", description: "After Tony's wife dies unexpectedly, his nice-guy persona is altered into an impulsive, devil-may-care attitude.", rating: 8.4 }
+        ],
+        stories: [
+          { title: "The Road", author: "Cormac McCarthy", genre: "Post-Apocalyptic", summary: "A father and his young son journey across post-apocalyptic America some years after an extinction event." },
+          { title: "A Little Life", author: "Hanya Yanagihara", genre: "Literary Fiction", summary: "The tragic and transcendent story of four college friends in New York City whose lives are shaped by abuse, addiction, and depression." },
+          { title: "Never Let Me Go", author: "Kazuo Ishiguro", genre: "Dystopian Science Fiction", summary: "The story of three friends growing up in a mysterious boarding school with a dark secret about their future." }
+        ]
+      },
+      angry: {
+        music: [
+          { title: "Rage Against the Machine", artist: "Killing in the Name", album: "Rage Against the Machine", year: "1992", duration: "5:13" },
+          { title: "Break Stuff", artist: "Limp Bizkit", album: "Significant Other", year: "1999", duration: "2:46" },
+          { title: "I Hate Everything About You", artist: "Three Days Grace", album: "Three Days Grace", year: "2003", duration: "3:51" }
+        ],
+        movies: [
+          { title: "The Dark Knight", year: "2008", description: "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.", rating: 9.0 },
+          { title: "Fight Club", year: "1999", description: "An insomniac office worker and a devil-may-care soapmaker form an underground fight club that evolves into something much, much more.", rating: 8.8 },
+          { title: "John Wick", year: "2014", description: "An ex-hit-man comes out of retirement to track down the gangsters that killed his dog and took everything from him.", rating: 7.4 }
+        ],
+        webseries: [
+          { title: "Breaking Bad", year: "2008", description: "A high school chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine in order to secure his family's future.", rating: 9.5 },
+          { title: "Peaky Blinders", year: "2013", description: "A gangster family epic set in 1900s England, centering on a gang who sew razor blades in the peaks of their caps, and their fierce boss Tommy Shelby.", rating: 8.8 },
+          { title: "Mindhunter", year: "2017", description: "Set in the late 1970s, two FBI agents are tasked with interviewing serial killers to solve open cases.", rating: 8.6 }
+        ],
+        stories: [
+          { title: "Frankenstein", author: "Mary Shelley", genre: "Gothic Novel", summary: "The story of a scientist who creates a grotesque but sentient creature in an unorthodox scientific experiment." },
+          { title: "American Psycho", author: "Bret Easton Ellis", genre: "Psychological Horror", summary: "A wealthy New York investment banking executive hides his alternate psychopathic ego from his co-workers and friends." },
+          { title: "The Godfather", author: "Mario Puzo", genre: "Crime Novel", summary: "The story of the Corleone family under patriarch Vito Corleone, focusing on his youngest son, Michael Corleone's transformation into a ruthless mafia boss." }
+        ]
+      },
+      neutral: {
+        music: [
+          { title: "Weightless", artist: "Marconi Union", album: "Weightless", year: "2012", duration: "8:09" },
+          { title: "Clocks", artist: "Coldplay", album: "A Rush of Blood to the Head", year: "2002", duration: "5:09" },
+          { title: "Bohemian Rhapsody", artist: "Queen", album: "A Night at the Opera", year: "1975", duration: "5:55" }
+        ],
+        movies: [
+          { title: "Inception", year: "2010", description: "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.", rating: 8.8 },
+          { title: "The Martian", year: "2015", description: "An astronaut becomes stranded on Mars after his team assume him dead, and must rely on his ingenuity to find a way to signal to Earth that he is alive.", rating: 8.0 },
+          { title: "Interstellar", year: "2014", description: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.", rating: 8.6 }
+        ],
+        webseries: [
+          { title: "Stranger Things", year: "2016", description: "When a young boy disappears, his mother, a police chief, and his friends must confront terrifying supernatural forces in order to get him back.", rating: 8.7 },
+          { title: "Black Mirror", year: "2011", description: "An anthology series exploring a twisted, high-tech multiverse where humanity's greatest innovations and darkest instincts collide.", rating: 8.8 },
+          { title: "The Crown", year: "2016", description: "Follows the political rivalries and romance of Queen Elizabeth II's reign and the events that shaped the second half of the 20th century.", rating: 8.7 }
+        ],
+        stories: [
+          { title: "To Kill a Mockingbird", author: "Harper Lee", genre: "Southern Gothic", summary: "The story of racial inequality and moral growth of a young girl in the American South during the 1930s." },
+          { title: "1984", author: "George Orwell", genre: "Dystopian", summary: "The story of a man's struggle against a totalitarian government that controls thought and memory." },
+          { title: "The Great Gatsby", author: "F. Scott Fitzgerald", genre: "Tragedy", summary: "The story of the fabulously wealthy Jay Gatsby and his love for the beautiful Daisy Buchanan." }
+        ]
+      }
+    };
+    
+    // Convert emotion to lowercase and handle any spaces
+    const normalizedEmotion = emotion.toLowerCase().trim();
+    
+    // Map similar emotions to our main categories
+    let emotionCategory = 'neutral';
+    if (['happy', 'excited', 'joyful', 'content', 'amused', 'playful'].includes(normalizedEmotion)) {
+      emotionCategory = 'happy';
+    } else if (['sad', 'depressed', 'gloomy', 'heartbroken', 'melancholic'].includes(normalizedEmotion)) {
+      emotionCategory = 'sad';
+    } else if (['angry', 'frustrated', 'annoyed', 'irritated', 'enraged'].includes(normalizedEmotion)) {
+      emotionCategory = 'angry';
+    }
+    
+    // Return recommendations for the mapped emotion category
+    return defaultRecommendations[emotionCategory] || defaultRecommendations.neutral;
   };
 
   useEffect(() => {
