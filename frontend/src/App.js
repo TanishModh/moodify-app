@@ -1,5 +1,5 @@
 import React, { useEffect, useContext } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
