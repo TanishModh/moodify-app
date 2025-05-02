@@ -50,12 +50,15 @@ const ResultsPage = () => {
       /^https?:\/\/.+\.(jpg|jpeg|png)(\?.*)?$/i.test(s.poster_url) &&
       !brokenPosters.has(s.external_url)
   );
-  const storiesList = recommendationData.stories.filter(
-    s =>
-      s.poster_url &&
-      /^https?:\/\//.test(s.poster_url) &&
-      !brokenPosters.has(s.external_url)
-  );
+  // Add debugging to see what's happening with stories
+  console.log('Stories data in recommendationData:', recommendationData.stories);
+  
+  // Simplified filtering for stories - less restrictive to ensure they display on GitHub Pages
+  const storiesList = recommendationData.stories ? recommendationData.stories.filter(
+    s => s && s.title && (!s.poster_url || !brokenPosters.has(s.external_url))
+  ) : [];
+  
+  console.log('Filtered storiesList:', storiesList);
   const isMobile = useMediaQuery('(max-width:600px)');
   // Music language state for tabs
   const [musicLanguage, setMusicLanguage] = useState('english');
@@ -849,19 +852,39 @@ const ResultsPage = () => {
                   <Card key={index} style={styles.recommendationCard}>
                     <CardContent style={styles.cardContentContainer}>
                       <div style={{ flex: '0 0 150px', marginRight: '10px' }}>
-                        <img
-                          src={story.poster_url}
-                          alt={story.title}
-                          style={{ width: '100%', borderRadius: '8px' }}
-                          onError={() => setBrokenPosters(prev => new Set(prev).add(story.external_url))}
-                        />
+                        {story.poster_url ? (
+                          <img
+                            src={story.poster_url}
+                            alt={story.title}
+                            style={{ width: '100%', borderRadius: '8px' }}
+                            onError={() => setBrokenPosters(prev => new Set(prev).add(story.external_url))}
+                          />
+                        ) : (
+                          <div style={{ 
+                            width: '100%', 
+                            height: '200px', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center',
+                            backgroundColor: '#f0f0f0',
+                            borderRadius: '8px',
+                            color: '#555',
+                            fontWeight: 'bold'
+                          }}>
+                            {story.title}
+                          </div>
+                        )}
                       </div>
                       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                         <Typography style={styles.songTitle}>{story.title}</Typography>
                         <Typography style={styles.artistName}>{story.author}</Typography>
                         <Typography style={styles.artistName}>{story.description}</Typography>
                         <Box sx={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
-                          <Button href={story.external_url} target="_blank" variant="contained">Read more</Button>
+                          {story.external_url ? (
+                            <Button href={story.external_url} target="_blank" variant="contained">Read more</Button>
+                          ) : (
+                            <Button href={`https://www.google.com/search?q=${encodeURIComponent(story.title + ' ' + story.author + ' book')}`} target="_blank" variant="contained">Search online</Button>
+                          )}
                         </Box>
                       </div>
                     </CardContent>
