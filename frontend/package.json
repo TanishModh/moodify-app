@@ -1,0 +1,75 @@
+{
+  "name": "moodify-app-frontend",
+  "displayName": "Moodify App Frontend",
+  "author": "Son Nguyen",
+  "license": "MIT",
+  "description": "Frontend for Moodify Emotion-Based Music Recommendation App",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hoangsonww/Moodify-Emotion-Music-App.git",
+    "directory": "frontend"
+  },
+  "bugs": {
+    "url": "https://github.com/hoangsonww/Moodify-Emotion-Music-App/issues"
+  },
+  "version": "1.1.0",
+  "private": false,
+  "homepage": "https://TanishModh.github.io/moodify-app/",
+  "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@ffmpeg/core": "^0.12.6",
+    "@ffmpeg/ffmpeg": "^0.12.10",
+    "@mui/icons-material": "^5.14.19",
+    "@mui/material": "^5.14.19",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.6.2",
+    "face-api.js": "^0.22.2",
+    "jwt-decode": "^4.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-material-ui-carousel": "^3.4.2",
+    "react-media-recorder": "^1.7.1",
+    "react-router-dom": "^6.20.0",
+    "react-scripts": "5.0.1",
+    "react-slick": "^0.29.0",
+    "react-webcam": "^7.2.0",
+    "recorder-js": "^1.0.7",
+    "slick-carousel": "^1.8.1",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.16",
+    "babel-loader": "^10.0.0",
+    "gh-pages": "^6.3.0"
+  }
+}
