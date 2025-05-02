@@ -22,7 +22,9 @@ jobs:
 
       - name: Build
         working-directory: ./frontend
-        run: npm run build
+        run: CI=false npm run build
+        env:
+          CI: false
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
