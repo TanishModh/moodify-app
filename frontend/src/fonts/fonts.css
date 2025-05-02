@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Impact&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poiret+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fascinate+Inline&display=swap');
+
+/* Use system Impact font as fallback */
+@font-face {
+  font-family: 'Impact';
+  src: local('Impact');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Use system Cooper Black as fallback */
+@font-face {
+  font-family: 'Cooper Black';
+  src: local('Cooper Black');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Modern, geometric heading font */
+@font-face {
+  font-family: 'Poiret One';
+  src: local('Poiret One');
+  font-weight: normal;
+  font-style: normal;
+}

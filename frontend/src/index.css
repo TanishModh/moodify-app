@@ -1,0 +1,56 @@
+@import url("https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.css");
+@import url("https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.css");
+@import url('https://fonts.googleapis.com/css2?family=Bowlby+One+SC&display=swap');
+
+@font-face {
+  font-family: 'Cooper Black';
+  src: local('Cooper Black'),
+       local('CooperBlack-Regular'),
+       url('//db.onlinewebfonts.com/t/05559c1e00e351d9fea4409d51e6f37d.eot'),
+       url('//db.onlinewebfonts.com/t/05559c1e00e351d9fea4409d51e6f37d.woff2') format('woff2'),
+       url('//db.onlinewebfonts.com/t/05559c1e00e351d9fea4409d51e6f37d.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+  background: linear-gradient(-45deg, #6b46c1, #9f7aea, #805ad5, #553c9a, #6b46c1);
+  background-size: 400% 400%;
+  animation: gradientBG 12s ease infinite;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+.navbar-title.MuiTypography-root {
+  font-family: 'Bowlby One SC', cursive !important;
+}
+
+.heading-style {
+  font-family: 'Bowlby One SC', cursive;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
