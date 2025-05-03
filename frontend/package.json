@@ -46,7 +46,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "set CI=false && npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build",
+    "manual-deploy": "set CI=false && npm run build && npx gh-pages -d build -r https://github.com/TanishModh/moodifyme-entertainment-platform.git"
   },
   "browser": {
     "fs": false,
