@@ -274,17 +274,30 @@ const HomePage = () => {
   useEffect(() => {
     const loadModels = async () => {
       try {
-        const MODEL_URL = '/models';
+        // Use relative or public URL path for GitHub Pages compatibility
+        const MODEL_URL = process.env.PUBLIC_URL + '/models';
+        console.log('Loading models from:', MODEL_URL);
         setIsProcessing(true);
-        await Promise.all([
-          faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-          faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL)
-        ]);
-        console.log('Face detection models loaded successfully');
-        setModelsLoaded(true);
+
+        // Add a timeout to ensure UI updates before heavy model loading starts
+        setTimeout(async () => {
+          try {
+            await Promise.all([
+              faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+              faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL)
+            ]);
+            console.log('Face detection models loaded successfully');
+            setModelsLoaded(true);
+          } catch (modelError) {
+            console.error('Error loading face detection models:', modelError);
+            // Add fallback for error cases
+            alert('Face detection models could not be loaded. Please try the mood selection method instead.');
+          } finally {
+            setIsProcessing(false);
+          }
+        }, 500);
       } catch (error) {
-        console.error('Error loading face detection models:', error);
-      } finally {
+        console.error('Initial error in model loading setup:', error);
         setIsProcessing(false);
       }
     };
@@ -371,8 +384,111 @@ const HomePage = () => {
       }
       return 'neutral'; // default fallback
     } catch (error) {
-      console.error('Error detecting emotion:', error);
-      return 'neutral';
+    }
+  };
+
+  const processImage = async () => {
+    if (!capturedImage || !modelsLoaded) {
+      console.error('No image captured or models not loaded');
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      
+      // Create a timeout to prevent indefinite loading
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Face detection timed out')), 15000);
+      });
+      
+      // Create an image element from the captured image
+      const img = document.createElement('img');
+      img.src = capturedImage;
+      
+      // Wait for the image to load
+      await new Promise((resolve) => {
+        img.onload = resolve;
+      });
+      
+      console.log('Attempting face detection on image...');
+      
+      // Use Promise.race to implement a timeout
+      const detections = await Promise.race([
+        faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions())
+          .withFaceExpressions(),
+        timeoutPromise
+      ]);
+
+      console.log('Detection results:', detections);
+
+      if (!detections || detections.length === 0) {
+        alert("No faces detected. Please try again with a clearer image or better lighting.");
+        return;
+      }
+
+      // Find the dominant emotion
+      const emotions = ['happy', 'sad', 'angry', 'fearful', 'disgusted', 'surprised', 'neutral'];
+      let dominantEmotion = 'neutral';
+      let maxScore = -1;
+
+      for (const emotion of emotions) {
+        const score = detections[0].expressions[emotion];
+        if (score > maxScore) {
+          maxScore = score;
+          dominantEmotion = emotion;
+        }
+      }
+
+      console.log('Detected emotion:', dominantEmotion, 'with score:', maxScore);
+
+      // Map the detected emotions to our simplified categories
+      let mappedEmotion = dominantEmotion;
+      if (dominantEmotion === 'fearful' || dominantEmotion === 'disgusted') {
+        mappedEmotion = 'sad';
+      } else if (dominantEmotion === 'surprised') {
+        mappedEmotion = 'happy';
+      } else if (dominantEmotion === 'neutral') {
+        // For neutral, we'll use the second strongest emotion as a subtle influence
+        let secondEmotion = 'happy';
+        let secondScore = -1;
+        
+        for (const emotion of emotions.filter(e => e !== dominantEmotion)) {
+          const score = detections[0].expressions[emotion];
+          if (score > secondScore) {
+            secondScore = score;
+            secondEmotion = emotion;
+          }
+        }
+        
+        console.log('Secondary emotion:', secondEmotion, 'with score:', secondScore);
+        
+        if (secondEmotion === 'happy' || secondEmotion === 'surprised') {
+          mappedEmotion = 'happy';
+        } else if (secondEmotion === 'sad' || secondEmotion === 'fearful' || secondEmotion === 'disgusted') {
+          mappedEmotion = 'sad';
+        } else if (secondEmotion === 'angry') {
+          mappedEmotion = 'angry';
+        }
+      }
+
+      console.log('Final mapped emotion:', mappedEmotion);
+
+      // Save the detected mood
+      saveMood(mappedEmotion).catch(err => console.error('Error saving mood:', err));
+      
+      // Navigate to results page with the detected emotion
+      navigate('/results', { state: { emotion: mappedEmotion } });
+      return mappedEmotion;
+    } catch (error) {
+      console.error("Error processing image:", error);
+      if (error.message === 'Face detection timed out') {
+        alert("Face detection is taking too long. Please try the manual mood selection instead.");
+      } else {
+        alert("An error occurred while analyzing the image. Please try selecting your mood manually.");
+      }
+      throw error; // Re-throw to be handled by caller
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -384,61 +500,9 @@ const HomePage = () => {
 
     setIsProcessing(true);
     try {
-      // Create a new image element for face-api.js
-      const img = new Image();
-      img.src = capturedImage;
-      await new Promise((resolve) => {
-        img.onload = resolve;
-      });
-
-      // Create a temporary canvas to draw the image
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
-
-      // Simple emotion detection
-      const detection = await faceapi
-        .detectSingleFace(canvas, new faceapi.TinyFaceDetectorOptions())
-        .withFaceExpressions();
-
-      console.log('Face detection result:', detection);
-
-      if (!detection) {
-        console.error('No face detected');
-        navigate("/results", { state: { emotion: 'neutral', recommendations: [] } });
-        return;
-      }
-
-      // Get the dominant emotion
-      const emotions = detection.expressions;
-      console.log('Detected emotions:', emotions);
-      
-      // Find the emotion with highest score
-      const dominantEmotion = Object.entries(emotions)
-        .reduce((a, b) => (a[1] > b[1] ? a : b))[0];
-
-      console.log('Dominant emotion:', dominantEmotion);
-
-      // Map the emotion to a mood
-      const moodMap = {
-        happy: 'happy',
-        sad: 'sad',
-        angry: 'angry',
-        fearful: 'anxious',
-        disgusted: 'frustrated',
-        surprised: 'energetic',
-        neutral: 'neutral'
-      };
-
-      const detectedMood = moodMap[dominantEmotion] || 'neutral';
-      console.log('Final detected mood:', detectedMood);
-
-      navigate("/results", { state: { emotion: detectedMood, recommendations: [] } });
+      await processImage();
     } catch (error) {
       console.error('Error processing image:', error);
-      navigate("/results", { state: { emotion: 'neutral', recommendations: [] } });
     } finally {
       setIsProcessing(false);
       setShowModal(false);
