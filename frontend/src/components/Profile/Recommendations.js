@@ -24,7 +24,7 @@ const Recommendations = ({ recommendations }) => {
                 {/* Left Half: Image */}
                 <Box sx={styles.imageContainer}>
                   <img
-                    src={rec.image_url}
+                    src={rec.image_url || 'https://via.placeholder.com/300'}
                     alt={`${rec.name} album cover`}
                     style={styles.albumImage}
                   />
@@ -38,14 +38,11 @@ const Recommendations = ({ recommendations }) => {
                   <Typography variant="body2" style={styles.artistName}>
                     {rec.artist}
                   </Typography>
-                  {rec.preview_url && (
-                    <audio controls style={styles.audioPlayer}>
-                      <source src={rec.preview_url} type="audio/mpeg" />
-                      Your browser does not support the audio element.
-                    </audio>
-                  )}
+                  <Typography variant="body2" color="textSecondary">
+                    {rec.album}
+                  </Typography>
                   <Button
-                    href={rec.external_url}
+                    href={rec.url}
                     target="_blank"
                     variant="contained"
                     color="primary"

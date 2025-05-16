@@ -1,0 +1,531 @@
+/**
+ * Direct API Service 
+ * Directly connects to entertainment APIs to fetch recommendations and poster images
+ */
+
+import axios from 'axios';
+import { generateFallbackMusicData, generateFallbackMovieData, generateFallbackSeriesData } from '../utils/fallbackGenerators';
+
+// Helper function for formatting time
+const formatDuration = (ms) => {
+  const minutes = Math.floor(ms / 60000);
+  const seconds = ((ms % 60000) / 1000).toFixed(0);
+  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+};
+
+// Your actual API keys
+const API_KEYS = {
+  TMDB_API_KEY: '054935ce5e1c7c2a42d232bd52d3f480',
+  SPOTIFY_CLIENT_ID: 'aef9bb0329724587871eb55cd45185fb',
+  SPOTIFY_CLIENT_SECRET: 'ab24b7ea94504b8399c2c1993c975acd',
+  GOOGLE_BOOKS_API_KEY: 'AIzaSyB8sDH5C0U-g3EAf8is93eyRFOrGiXYWl0',
+  OMDB_API_KEY: 'ee63ace'
+};
+
+// Service to directly fetch from entertainment APIs
+const DirectApiService = {
+  // Store Spotify token
+  spotifyToken: null,
+  spotifyTokenExpiry: 0,
+  
+  // Create a fallback trailer URL when none is available from TMDB
+  createFallbackTrailerUrl: (title, year, contentType = 'movie') => {
+    // Encode the search terms for a URL
+    const searchQuery = encodeURIComponent(`${title} ${year} ${contentType} trailer official`);
+    return `https://www.youtube.com/results?search_query=${searchQuery}`;
+  },
+  
+  // Get Spotify access token
+  getSpotifyToken: async () => {
+    try {
+      // Check if existing token is valid
+      if (DirectApiService.spotifyToken && DirectApiService.spotifyTokenExpiry > Date.now()) {
+        console.log('Using cached Spotify token');
+        return DirectApiService.spotifyToken;
+      }
+      
+      console.log('Requesting new Spotify token...');
+      
+      // Request new token with correct credentials encoding
+      const credentials = btoa(`${API_KEYS.SPOTIFY_CLIENT_ID}:${API_KEYS.SPOTIFY_CLIENT_SECRET}`);
+      
+      const response = await axios({
+        method: 'post',
+        url: 'https://accounts.spotify.com/api/token',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${credentials}`
+        },
+        data: 'grant_type=client_credentials'
+      });
+      
+      console.log('Successfully obtained Spotify token');
+      
+      // Store token
+      DirectApiService.spotifyToken = response.data.access_token;
+      DirectApiService.spotifyTokenExpiry = Date.now() + (response.data.expires_in * 1000);
+      
+      return response.data.access_token;
+    } catch (error) {
+      console.error('Failed to get Spotify token:', error.response?.data || error.message);
+      return null;
+    }
+  },
+  
+  // Get music recommendations from Spotify
+  getMusicRecommendations: async (mood) => {
+    try {
+      const token = await DirectApiService.getSpotifyToken();
+      if (!token) {
+        throw new Error('Failed to get Spotify token');
+      }
+      
+      console.log('Spotify token acquired, fetching recommendations');
+      
+      // Map mood to Spotify genres
+      const moodToGenres = {
+        'happy': ['pop', 'happy', 'dance'],
+        'sad': ['sad', 'indie', 'singer-songwriter'],
+        'angry': ['rock', 'metal', 'punk'], 
+        'fearful': ['ambient', 'chill', 'classical'],
+        'surprised': ['electronic', 'edm', 'techno'],
+        'disgusted': ['grunge', 'punk', 'industrial'],
+        'neutral': ['pop', 'rock', 'alternative'],
+        'energetic': ['dance', 'edm', 'workout'],
+        'calm': ['chill', 'ambient', 'sleep']
+      };
+      
+      // Get genres for this mood or use defaults
+      const genres = moodToGenres[mood.toLowerCase()] || ['pop', 'rock', 'indie'];
+      
+      // Just use one main genre seed (Spotify requires 1-5 seeds total)
+      const primaryGenre = genres[0];
+      
+      // Try to get real recommendations from Spotify
+      console.log(`Requesting Spotify recommendations with seed genre: ${primaryGenre}`);
+      
+      const response = await axios({
+        method: 'get',
+        url: `https://api.spotify.com/v1/recommendations?limit=50&seed_genres=${primaryGenre}`,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log('Spotify API response received');
+      
+      if (response.data && response.data.tracks && response.data.tracks.length > 0) {
+        // Format the tracks for our app
+        const tracks = response.data.tracks.map(track => ({
+          title: track.name,
+          artist: track.artists[0].name,
+          album: track.album.name,
+          year: track.album.release_date ? track.album.release_date.substring(0, 4) : '',
+          duration: formatDuration(track.duration_ms),
+          poster_url: track.album.images[0]?.url || '',
+          external_url: track.external_urls.spotify
+        }));
+        
+        console.log(`Successfully fetched ${tracks.length} tracks from Spotify`);
+        return tracks;
+      } else {
+        console.warn('Spotify returned empty tracks array');
+        throw new Error('No tracks found in Spotify response');
+      }
+    } catch (error) {
+      console.error('Error fetching music recommendations:', error.response?.data || error.message);
+      // Return fallback data for testing
+      console.warn('Using fallback music data');
+      return generateFallbackMusicData(mood, 50);
+    }
+  },
+  
+  // Helper to get video trailers for a movie
+  getMovieTrailer: async (movieId, title, year) => {
+    try {
+      const response = await axios({
+        method: 'get',
+        url: `https://api.themoviedb.org/3/movie/${movieId}/videos?api_key=${API_KEYS.TMDB_API_KEY}&language=en-US`,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.data && response.data.results && response.data.results.length > 0) {
+        // Find a trailer or teaser
+        const trailers = response.data.results.filter(video => 
+          video.site === 'YouTube' && 
+          (video.type === 'Trailer' || video.type === 'Teaser')
+        );
+        
+        if (trailers.length > 0) {
+          // Return the YouTube URL
+          return `https://www.youtube.com/watch?v=${trailers[0].key}`;
+        }
+      }
+      
+      // If no trailer is found through TMDB, create a fallback YouTube search URL
+      return DirectApiService.createFallbackTrailerUrl(title, year, 'movie');
+    } catch (error) {
+      console.warn(`Error fetching trailer for movie ID ${movieId}:`, error.message);
+      // Return a fallback YouTube search URL
+      return DirectApiService.createFallbackTrailerUrl(title, year, 'movie');
+    }
+  },
+  
+  // Get movie recommendations from TMDB
+  getMovieRecommendations: async (mood) => {
+    try {
+      console.log(`Fetching TMDB movie recommendations for mood: ${mood}`);
+
+      // Map moods to TMDB genres
+      const moodGenreMap = {
+        'happy': 35,    // Comedy
+        'sad': 18,      // Drama
+        'angry': 28,    // Action
+        'fearful': 27,  // Horror
+        'surprised': 878, // Science Fiction
+        'disgusted': 80, // Crime
+        'neutral': 14,  // Fantasy
+        'energetic': 28, // Action
+        'calm': 99      // Documentary
+      };
+      
+      // Select genre based on mood
+      const genreId = moodGenreMap[mood.toLowerCase()] || 18; // Default to Drama if mood not found
+      
+      // Make a single, reliable API call to TMDB
+      console.log(`Requesting movies with genre ID: ${genreId}`);
+      
+      const response = await axios({
+        method: 'get',
+        url: `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEYS.TMDB_API_KEY}&with_genres=${genreId}&sort_by=popularity.desc&page=1&language=en-US&include_adult=false`,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.data && response.data.results && response.data.results.length > 0) {
+        console.log(`TMDB returned ${response.data.results.length} movies`);
+        
+        // Format movies and fetch trailers
+        const moviePromises = response.data.results.map(async (movie) => {
+          // Get trailer for this movie
+          const trailerUrl = await DirectApiService.getMovieTrailer(
+            movie.id, 
+            movie.title, 
+            movie.release_date ? movie.release_date.substring(0, 4) : ''
+          );
+          
+          return {
+            id: movie.id,
+            title: movie.title,
+            year: movie.release_date ? movie.release_date.substring(0, 4) : '',
+            description: movie.overview || `A ${mood} film exploring human emotions and experiences.`,
+            rating: (movie.vote_average / 2).toFixed(1),
+            poster_url: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : '',
+            external_url: `https://www.themoviedb.org/movie/${movie.id}`,
+            trailer_url: trailerUrl
+          };
+        });
+        
+        let movies = await Promise.all(moviePromises);
+        
+        // Get additional page for more variety
+        try {
+          const page2Response = await axios({
+            method: 'get',
+            url: `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEYS.TMDB_API_KEY}&with_genres=${genreId}&sort_by=popularity.desc&page=2&language=en-US&include_adult=false`
+          });
+          
+          if (page2Response.data && page2Response.data.results) {
+            const page2MoviePromises = page2Response.data.results.map(async (movie) => {
+              // Get trailer for this movie
+              const trailerUrl = await DirectApiService.getMovieTrailer(
+                movie.id, 
+                movie.title, 
+                movie.release_date ? movie.release_date.substring(0, 4) : ''
+              );
+              
+              return {
+                id: movie.id,
+                title: movie.title,
+                year: movie.release_date ? movie.release_date.substring(0, 4) : '',
+                description: movie.overview || `A ${mood} film exploring human emotions and experiences.`,
+                rating: (movie.vote_average / 2).toFixed(1),
+                poster_url: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : '',
+                external_url: `https://www.themoviedb.org/movie/${movie.id}`,
+                trailer_url: trailerUrl
+              };
+            });
+            
+            const page2Movies = await Promise.all(page2MoviePromises);
+            movies = [...movies, ...page2Movies];
+          }
+        } catch (page2Error) {
+          console.warn('Error fetching page 2 of movies:', page2Error.message);
+          // Continue with just the first page of results
+        }
+        
+        console.log(`Successfully processed ${movies.length} movies from TMDB`);
+        return movies;
+      } else {
+        console.warn('TMDB returned empty results');
+        throw new Error('No results found in TMDB response');
+      }
+    } catch (error) {
+      console.error('Error fetching movie recommendations:', error.response?.data || error.message);
+      // Return fallback data only when API fails
+      console.warn('Using fallback movie data');
+      return generateFallbackMovieData(mood, 50);
+    }
+  },
+  
+  // Helper to get video trailers for a TV show
+  getSeriesTrailer: async (showId, title, year) => {
+    try {
+      const response = await axios({
+        method: 'get',
+        url: `https://api.themoviedb.org/3/tv/${showId}/videos?api_key=${API_KEYS.TMDB_API_KEY}&language=en-US`,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.data && response.data.results && response.data.results.length > 0) {
+        // Find a trailer or teaser
+        const trailers = response.data.results.filter(video => 
+          video.site === 'YouTube' && 
+          (video.type === 'Trailer' || video.type === 'Teaser')
+        );
+        
+        if (trailers.length > 0) {
+          // Return the YouTube URL
+          return `https://www.youtube.com/watch?v=${trailers[0].key}`;
+        }
+      }
+      
+      // If no trailer is found through TMDB, create a fallback YouTube search URL
+      return DirectApiService.createFallbackTrailerUrl(title, year, 'tv series');
+    } catch (error) {
+      console.warn(`Error fetching trailer for show ID ${showId}:`, error.message);
+      // Return a fallback YouTube search URL
+      return DirectApiService.createFallbackTrailerUrl(title, year, 'tv series');
+    }
+  },
+  
+  // Get TV series recommendations from TMDB
+  getSeriesRecommendations: async (mood) => {
+    try {
+      console.log(`Fetching TMDB TV series recommendations for mood: ${mood}`);
+      
+      // Map moods to TMDB TV genres
+      const moodGenreMap = {
+        'happy': 35,        // Comedy
+        'sad': 18,         // Drama
+        'angry': 10759,    // Action & Adventure
+        'fearful': 9648,   // Mystery
+        'surprised': 10765, // Sci-Fi & Fantasy
+        'disgusted': 80,   // Crime
+        'neutral': 10765,  // Sci-Fi & Fantasy
+        'energetic': 10759, // Action & Adventure
+        'calm': 99         // Documentary
+      };
+      
+      // Select genre based on mood
+      const genreId = moodGenreMap[mood.toLowerCase()] || 18; // Default to Drama if mood not found
+      
+      // Make a single, reliable API call to TMDB
+      console.log(`Requesting TV series with genre ID: ${genreId}`);
+      
+      const response = await axios({
+        method: 'get',
+        url: `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEYS.TMDB_API_KEY}&with_genres=${genreId}&sort_by=popularity.desc&page=1&language=en-US&include_adult=false`,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.data && response.data.results && response.data.results.length > 0) {
+        console.log(`TMDB returned ${response.data.results.length} TV series`);
+        
+        // Format series and fetch trailers
+        const seriesPromises = response.data.results.map(async (show) => {
+          // Get trailer for this show
+          const trailerUrl = await DirectApiService.getSeriesTrailer(
+            show.id, 
+            show.name, 
+            show.first_air_date ? show.first_air_date.substring(0, 4) : ''
+          );
+          
+          return {
+            id: show.id,
+            title: show.name,
+            year: show.first_air_date ? show.first_air_date.substring(0, 4) : '',
+            description: show.overview || `A ${mood} series with compelling characters and plotlines.`,
+            rating: (show.vote_average / 2).toFixed(1),
+            seasons: Math.floor(Math.random() * 6) + 1, // Random number of seasons since the API doesn't return this
+            poster_url: show.poster_path ? `https://image.tmdb.org/t/p/w500${show.poster_path}` : '',
+            external_url: `https://www.themoviedb.org/tv/${show.id}`,
+            trailer_url: trailerUrl
+          };
+        });
+        
+        let series = await Promise.all(seriesPromises);
+        
+        // Get additional page for more variety
+        try {
+          const page2Response = await axios({
+            method: 'get',
+            url: `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEYS.TMDB_API_KEY}&with_genres=${genreId}&sort_by=popularity.desc&page=2&language=en-US&include_adult=false`
+          });
+          
+          if (page2Response.data && page2Response.data.results) {
+            const page2SeriesPromises = page2Response.data.results.map(async (show) => {
+              // Get trailer for this show
+              const trailerUrl = await DirectApiService.getSeriesTrailer(
+                show.id, 
+                show.name, 
+                show.first_air_date ? show.first_air_date.substring(0, 4) : ''
+              );
+              
+              return {
+                id: show.id,
+                title: show.name,
+                year: show.first_air_date ? show.first_air_date.substring(0, 4) : '',
+                description: show.overview || `A ${mood} series with compelling characters and plotlines.`,
+                rating: (show.vote_average / 2).toFixed(1),
+                seasons: Math.floor(Math.random() * 6) + 1,
+                poster_url: show.poster_path ? `https://image.tmdb.org/t/p/w500${show.poster_path}` : '',
+                external_url: `https://www.themoviedb.org/tv/${show.id}`,
+                trailer_url: trailerUrl
+              };
+            });
+            
+            const page2Series = await Promise.all(page2SeriesPromises);
+            series = [...series, ...page2Series];
+          }
+        } catch (page2Error) {
+          console.warn('Error fetching page 2 of TV series:', page2Error.message);
+          // Continue with just the first page of results
+        }
+        
+        console.log(`Successfully processed ${series.length} TV series from TMDB`);
+        return series;
+      } else {
+        console.warn('TMDB returned empty TV series results');
+        throw new Error('No TV series found in TMDB response');
+      }
+    } catch (error) {
+      console.error('Error fetching TV series recommendations:', error.response?.data || error.message);
+      // Return fallback data only when API fails
+      console.warn('Using fallback TV series data');
+      return generateFallbackSeriesData(mood, 50);
+    }
+  },
+  
+  // Get book recommendations from Google Books API
+  getBookRecommendations: async (mood) => {
+    try {
+      // Map moods to search terms
+      const moodSearchMap = {
+        'happy': 'uplifting books',
+        'sad': 'emotional drama books',
+        'angry': 'intense thriller books',
+        'fearful': 'horror mystery books',
+        'surprised': 'plot twist books',
+        'disgusted': 'controversial books',
+        'neutral': 'bestselling books',
+        'energetic': 'adventure books',
+        'calm': 'relaxing books'
+      };
+      
+      const searchTerm = moodSearchMap[mood.toLowerCase()] || 'popular books';
+      
+      // Get books from Google Books API
+      const response = await axios.get(
+        `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchTerm)}&maxResults=40&key=${API_KEYS.GOOGLE_BOOKS_API_KEY}`
+      );
+      
+      if (response.data && response.data.items) {
+        return response.data.items.map(book => {
+          const info = book.volumeInfo || {};
+          return {
+            title: info.title || 'Unknown Title',
+            author: info.authors ? info.authors[0] : 'Unknown Author',
+            year: info.publishedDate ? info.publishedDate.substring(0, 4) : '',
+            genre: info.categories ? info.categories[0] : 'Fiction',
+            summary: info.description ?
+              (info.description.length > 150 ? info.description.substring(0, 150) + '...' : info.description) :
+              `A ${mood} book that explores human emotions and experiences.`,
+            pages: info.pageCount || Math.floor(Math.random() * 300) + 100,
+            poster_url: info.imageLinks?.thumbnail || '',
+            external_url: info.infoLink || ''
+          };
+        });
+      }
+      
+      throw new Error('No books found in Google Books response');
+    } catch (error) {
+      console.error('Error fetching book recommendations:', error);
+      // Return empty array so frontend can handle it properly
+      return [];
+    }
+  },
+  
+  // Get all recommendations based on mood
+  getAllRecommendations: async (mood) => {
+    try {
+      // Create a placeholder result object
+      const result = {
+        music: [],
+        movies: [],
+        webseries: [],
+        stories: []
+      };
+      
+      // Try each API independently to prevent one failure from stopping all recommendations
+      try {
+        result.music = await DirectApiService.getMusicRecommendations(mood);
+        console.log(`Successfully fetched ${result.music.length} music recommendations`);
+      } catch (error) {
+        console.error('Error fetching music recommendations:', error);
+      }
+      
+      try {
+        result.movies = await DirectApiService.getMovieRecommendations(mood);
+        console.log(`Successfully fetched ${result.movies.length} movie recommendations`);
+      } catch (error) {
+        console.error('Error fetching movie recommendations:', error);
+      }
+      
+      try {
+        result.webseries = await DirectApiService.getSeriesRecommendations(mood);
+        console.log(`Successfully fetched ${result.webseries.length} web series recommendations`);
+      } catch (error) {
+        console.error('Error fetching web series recommendations:', error);
+      }
+      
+      try {
+        result.stories = await DirectApiService.getBookRecommendations(mood);
+        console.log(`Successfully fetched ${result.stories.length} book recommendations`);
+      } catch (error) {
+        console.error('Error fetching book recommendations:', error);
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('Error in recommendation processing:', error);
+      // Return empty arrays rather than throwing to ensure UI always has something to work with
+      return {
+        music: [],
+        movies: [],
+        webseries: [],
+        stories: []
+      };
+    }
+  }
+};
+
+export default DirectApiService;

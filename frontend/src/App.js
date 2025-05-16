@@ -1,12 +1,13 @@
-import React, { useEffect, useContext } from "react";
-import { HashRouter as Router, Route, Routes } from "react-router-dom";
+import React, { useEffect, useContext, useState } from "react";
+import { HashRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
 import ResultsPage from "./pages/ResultsPage";
-import RecommendationsPage from "./pages/RecommendationsPage";
+import EnhancedRecommendationsPage from "./pages/EnhancedRecommendationsPage";
+import MobileRecommendations from "./pages/MobileRecommendations";
 import Footer from "./components/Footer";
 import NotFoundPage from "./pages/NotFoundPage";
 import LandingPage from "./pages/LandingPage";
@@ -21,6 +22,22 @@ import "./styles/blob.css";
 
 function App() {
   const { isDarkMode } = useContext(DarkModeContext);
+  const [isMobileOrGitHubPages, setIsMobileOrGitHubPages] = useState(false);
+
+  useEffect(() => {
+    // Detect GitHub Pages or mobile device
+    const isGitHubPages = window.location.hostname.includes('github.io');
+    const isMobileDevice = window.innerWidth <= 768 || /Mobi|Android/i.test(navigator.userAgent);
+    setIsMobileOrGitHubPages(isGitHubPages || isMobileDevice);
+    
+    console.log("Environment detection:", {
+      isGitHubPages,
+      isMobileDevice,
+      hostname: window.location.hostname,
+      userAgent: navigator.userAgent,
+      windowWidth: window.innerWidth
+    });
+  }, []);
 
   // Change the background color of the root div based on dark mode
   useEffect(() => {
@@ -43,7 +60,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-        <Route path="/recommendations" element={<RecommendationsPage />} />
+        <Route path="/recommendations" element={isMobileOrGitHubPages ? <MobileRecommendations /> : <EnhancedRecommendationsPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/logout" element={<LogoutPage />} />
         <Route path="*" element={<NotFoundPage />} />

@@ -20,6 +20,11 @@ else:
     dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
     if os.path.exists(dotenv_path):
         load_dotenv(dotenv_path)
+
+# Set Spotify credentials
+os.environ['SPOTIFY_CLIENT_ID'] = '0e34d84db9f044e785ebede1769d8693'
+os.environ['SPOTIFY_CLIENT_SECRET'] = 'b75f396bad4e499599db99cc18d2af9b'
+
 import sys
 from datetime import timedelta
 from pathlib import Path
@@ -53,6 +58,7 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 # Application definition
 INSTALLED_APPS = [
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -60,17 +66,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework.authtoken',
-    'corsheaders',
     'drf_yasg',
-    'dj_rest_auth',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'django.contrib.sites',
+    'api',
 ]
-
-SITE_ID = 1
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -81,26 +79,24 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
 
 # CORS settings
-CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins to access the API
-
-CORS_ALLOW_CREDENTIALS = True  # Allow sending credentials like cookies and auth headers
-
-# Allow specific HTTP methods
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
-
-# Allow specific headers in requests
 CORS_ALLOW_HEADERS = [
-    'Authorization',
-    'Content-Type',
-    'X-CSRFToken',
-    'Access-Control-Allow-Origin',
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
 ]
 
 TEMPLATES = [
@@ -130,32 +126,14 @@ DATABASES = {
 }
 
 # Cache settings (optional)
-REDIS_URL = os.getenv('REDIS_URL', None)
-if REDIS_URL:
-    CACHES = {
-        'default': {
-            'BACKEND': 'django_redis.cache.RedisCache',
-            'LOCATION': REDIS_URL,
-            'OPTIONS': {
-                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            }
-        }
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
-    SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-    SESSION_CACHE_ALIAS = "default"
-else:
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        }
-    }
-    SESSION_ENGINE = "django.contrib.sessions.backends.db"
+}
 
 # REST Framework settings
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication', # Token Authentication
-    ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],

@@ -5,7 +5,7 @@ import axios from 'axios';
 const API_BASE_URL = 'http://localhost/moodify/backend/api';
 
 // MongoDB backend URL (Flask app)
-const MONGO_API_BASE_URL = 'http://localhost:5000';
+const MONGO_API_BASE_URL = 'http://localhost:8000';
 
 // Enable this for debugging
 const DEBUG = true;

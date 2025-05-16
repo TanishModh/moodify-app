@@ -2,6 +2,69 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../config";
+import "../assets/styles/pagination.css";
+import generateExtendedRecommendations from "../utils/recommendationsGenerator";
+
+// Pagination component for recommendations
+const Pagination = ({ totalItems, itemsPerPage, currentPage, setCurrentPage }) => {
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const pageNumbers = [];
+  
+  // Calculate which page numbers to show
+  let startPage = Math.max(1, currentPage - 2);
+  let endPage = Math.min(totalPages, startPage + 4);
+  
+  if (endPage - startPage < 4) {
+    startPage = Math.max(1, endPage - 4);
+  }
+  
+  for (let i = startPage; i <= endPage; i++) {
+    pageNumbers.push(i);
+  }
+  
+  return (
+    <div className="pagination-controls">
+      <ul className="pagination">
+        <li className={currentPage === 1 ? 'disabled' : ''}>
+          <a onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}>
+            &laquo;
+          </a>
+        </li>
+        
+        {startPage > 1 && (
+          <>
+            <li><a onClick={() => setCurrentPage(1)}>1</a></li>
+            {startPage > 2 && <li><span>...</span></li>}
+          </>
+        )}
+        
+        {pageNumbers.map(number => (
+          <li key={number}>
+            <a 
+              className={currentPage === number ? 'active' : ''} 
+              onClick={() => setCurrentPage(number)}
+            >
+              {number}
+            </a>
+          </li>
+        ))}
+        
+        {endPage < totalPages && (
+          <>
+            {endPage < totalPages - 1 && <li><span>...</span></li>}
+            <li><a onClick={() => setCurrentPage(totalPages)}>{totalPages}</a></li>
+          </>
+        )}
+        
+        <li className={currentPage === totalPages ? 'disabled' : ''}>
+          <a onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}>
+            &raquo;
+          </a>
+        </li>
+      </ul>
+    </div>
+  );
+};
 
 const RecommendationsPage = () => {
   const location = useLocation();
@@ -12,16 +75,70 @@ const RecommendationsPage = () => {
   );
   const [loading, setLoading] = useState(false);
   const [selectedEmotion, setSelectedEmotion] = useState(initialEmotion);
+  
+  // Pagination state - one current page for each category
+  const [currentMusicPage, setCurrentMusicPage] = useState(1);
+  const [currentMoviesPage, setCurrentMoviesPage] = useState(1);
+  const [currentWebSeriesPage, setCurrentWebSeriesPage] = useState(1);
+  const [currentStoriesPage, setCurrentStoriesPage] = useState(1);
+  
+  // Items per page configuration
+  const itemsPerPage = 10;
 
   const fetchRecommendations = async (emotion) => {
     setLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/api/recommendations/`, { emotion });
-      setRecommendations(response.data.recommendations);
+      // For GitHub.io and mobile, use a simpler, guaranteed approach
+      const isGitHubPages = window.location.hostname.includes('github.io');
+      const isMobileDevice = window.innerWidth <= 768 || /Mobi|Android/i.test(navigator.userAgent);
+      
+      // Generate extensive recommendations (50+ per category) regardless of platform
+      const extendedData = generateExtendedRecommendations(emotion, 50);
+      
+      if (isGitHubPages || isMobileDevice) {
+        console.log("Mobile or GitHub Pages detected - using generated recommendations");
+        
+        // Log what we're loading
+        console.log("GENERATED RECOMMENDATIONS:", {
+          music: extendedData.music ? `${extendedData.music.length} items` : "missing",
+          movies: extendedData.movies ? `${extendedData.movies.length} items` : "missing",
+          webseries: extendedData.webseries ? `${extendedData.webseries.length} items` : "missing",
+          stories: extendedData.stories ? `${extendedData.stories.length} items` : "missing"
+        });
+        
+        setRecommendations(extendedData);
+        setLoading(false);
+        return; // Exit early to avoid the API call
+      }
+      
+      // Try API call first for desktop
+      try {
+        const response = await axios.post(`${API_URL}/api/recommendations/`, { emotion });
+        if (response.data && response.data.recommendations) {
+          // If API returns limited recommendations, supplement with our extended ones
+          const apiData = response.data.recommendations;
+          
+          // Check if API returned fewer than 50 recommendations for any category
+          const mergedData = {
+            music: apiData.music?.length >= 50 ? apiData.music : extendedData.music,
+            movies: apiData.movies?.length >= 50 ? apiData.movies : extendedData.movies,
+            webseries: apiData.webseries?.length >= 50 ? apiData.webseries : extendedData.webseries,
+            stories: apiData.stories?.length >= 50 ? apiData.stories : extendedData.stories
+          };
+          
+          setRecommendations(mergedData);
+        } else {
+          throw new Error('Invalid API response format');
+        }
+      } catch (apiErr) {
+        console.error("Error fetching API recommendations:", apiErr);
+        // Fall back to generated recommendations
+        setRecommendations(extendedData);
+      }
     } catch (err) {
-      console.error("Error fetching recommendations:", err);
-      // Fallback data when API is unreachable (like on GitHub Pages)
-      const fallbackData = getFallbackRecommendations(emotion);
+      console.error("Error in recommendation process:", err);
+      // Last resort fallback
+      const fallbackData = generateExtendedRecommendations(emotion, 50);
       setRecommendations(fallbackData);
     } finally {
       setLoading(false);
@@ -104,95 +221,188 @@ const RecommendationsPage = () => {
 
   if (loading) return <p>Loading recommendations...</p>;
 
+  // Get paginated items for each category
+  const getPaginatedItems = (items, currentPage) => {
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return items?.slice(indexOfFirstItem, indexOfLastItem) || [];
+  };
+
+  // Get current items for each category
+  const currentMusicItems = getPaginatedItems(recommendations.music, currentMusicPage);
+  const currentMovieItems = getPaginatedItems(recommendations.movies, currentMoviesPage);
+  const currentWebSeriesItems = getPaginatedItems(recommendations.webseries, currentWebSeriesPage);
+  const currentStoryItems = getPaginatedItems(recommendations.stories, currentStoriesPage);
+
   return (
     <div style={{ padding: "20px", fontFamily: "Poppins" }}>
       <h1>
         {initialEmotion.charAt(0).toUpperCase() + initialEmotion.slice(1)} Recommendations
       </h1>
 
-      <h2>Music</h2>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
-        {recommendations.music.map((track, idx) => (
-          <div key={idx} style={{ width: "300px", padding: "20px", border: "1px solid #ccc", borderRadius: "5px" }}>
-            <h3>{track.name}</h3>
-            <p>Artist: {track.artist}</p>
-            <audio controls style={{ width: "100%" }}>
-              <source src={track.url} type="audio/mpeg" />
-            </audio>
-            <a href={track.url} target="_blank" rel="noreferrer">Listen on Spotify</a>
-          </div>
-        ))}
-      </div>
-
-      <h2>Movies</h2>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
-        {recommendations.movies && recommendations.movies.length > 0 ? (
-          recommendations.movies.map((movie, idx) => (
-            <div key={idx} style={{ width: "200px", padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }}>
-              {movie.poster_url && (
-                <img 
-                  src={movie.poster_url} 
-                  alt={movie.title} 
-                  style={{ width: "100%", height: "auto", borderRadius: "5px" }} 
-                />
-              )}
-              <h3>{movie.title}</h3>
-              <p>{movie.year}</p>
-              <p style={{ fontSize: "0.8rem", height: "80px", overflow: "auto" }}>{movie.description}</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "5px", marginTop: "10px" }}>
-                <a href={movie.external_url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "#0077cc" }}>
-                  View Details
-                </a>
-                <a href={movie.youtube_trailer_url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "#cc0000" }}>
-                  Watch Trailer
-                </a>
+      {/* MUSIC SECTION */}
+      <div className="category-container">
+        <h2>Music ({recommendations.music?.length || 0} tracks)</h2>
+        <div className="content-grid">
+          {currentMusicItems.length > 0 ? (
+            currentMusicItems.map((track, idx) => (
+              <div key={idx} className="recommendation-card music-card">
+                <h3>{track.name}</h3>
+                <p>Artist: {track.artist}</p>
+                <p>Duration: {track.duration}</p>
+                <audio controls style={{ width: "100%", marginTop: "10px" }}>
+                  <source src={track.url} type="audio/mpeg" />
+                  Your browser does not support the audio element.
+                </audio>
+                <div style={{ marginTop: "10px" }}>
+                  <a href={track.url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "#1DB954" }}>
+                    Listen on Spotify
+                  </a>
+                </div>
               </div>
-            </div>
-          ))
-        ) : (
-          <p>No movie recommendations available. Try again!</p>
+            ))
+          ) : (
+            <p>No music recommendations available. Try again!</p>
+          )}
+        </div>
+        
+        {recommendations.music?.length > itemsPerPage && (
+          <Pagination 
+            totalItems={recommendations.music.length}
+            itemsPerPage={itemsPerPage}
+            currentPage={currentMusicPage}
+            setCurrentPage={setCurrentMusicPage}
+          />
         )}
       </div>
 
-      <h2>Web Series</h2>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
-        {recommendations.webseries && recommendations.webseries.length > 0 ? (
-          recommendations.webseries.map((series, idx) => (
-            <div key={idx} style={{ width: "200px", padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }}>
-              {series.poster_url && (
-                <img 
-                  src={series.poster_url} 
-                  alt={series.title} 
-                  style={{ width: "100%", height: "auto", borderRadius: "5px" }} 
-                />
-              )}
-              <h3>{series.title}</h3>
-              <p>{series.year}</p>
-              <p style={{ fontSize: "0.8rem", height: "80px", overflow: "auto" }}>{series.description}</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "5px", marginTop: "10px" }}>
-                <a href={series.external_url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "#0077cc" }}>
-                  View Details
-                </a>
-                <a href={series.youtube_trailer_url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "#cc0000" }}>
-                  Watch Trailer
-                </a>
+      {/* MOVIES SECTION */}
+      <div className="category-container">
+        <h2>Movies ({recommendations.movies?.length || 0} films)</h2>
+        <div className="content-grid">
+          {currentMovieItems.length > 0 ? (
+            currentMovieItems.map((movie, idx) => (
+              <div key={idx} className="recommendation-card movie-card">
+                {movie.poster_url && (
+                  <img 
+                    src={movie.poster_url} 
+                    alt={movie.title} 
+                    className="card-image" 
+                  />
+                )}
+                <div className="card-content">
+                  <h3>{movie.title}</h3>
+                  <p>{movie.year} | Director: {movie.director}</p>
+                  <p>Rating: {movie.rating}/10</p>
+                  <p className="card-description">{movie.description}</p>
+                  <div className="card-links">
+                    <a href={movie.external_url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "#0077cc" }}>
+                      View Details
+                    </a>
+                    <a href={movie.youtube_trailer_url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "#cc0000" }}>
+                      Watch Trailer
+                    </a>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))
-        ) : (
-          <p>No web series recommendations available. Try again!</p>
+            ))
+          ) : (
+            <p>No movie recommendations available. Try again!</p>
+          )}
+        </div>
+        
+        {recommendations.movies?.length > itemsPerPage && (
+          <Pagination 
+            totalItems={recommendations.movies.length}
+            itemsPerPage={itemsPerPage}
+            currentPage={currentMoviesPage}
+            setCurrentPage={setCurrentMoviesPage}
+          />
         )}
       </div>
 
-      <h2>Stories</h2>
-      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-        {recommendations.stories.map((story, idx) => (
-          <div key={idx} style={{ padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }}>
-            <h3>{story.title}</h3>
-            <p>By: {story.author}</p>
-            <p>{story.description}</p>
-          </div>
-        ))}
+      {/* WEB SERIES SECTION */}
+      <div className="category-container">
+        <h2>Web Series ({recommendations.webseries?.length || 0} shows)</h2>
+        <div className="content-grid">
+          {currentWebSeriesItems.length > 0 ? (
+            currentWebSeriesItems.map((series, idx) => (
+              <div key={idx} className="recommendation-card series-card">
+                {series.poster_url && (
+                  <img 
+                    src={series.poster_url} 
+                    alt={series.title} 
+                    className="card-image" 
+                  />
+                )}
+                <div className="card-content">
+                  <h3>{series.title}</h3>
+                  <p>{series.year} | {series.seasons} Season{series.seasons !== 1 ? 's' : ''}</p>
+                  <p>Rating: {series.rating}/10</p>
+                  <p className="card-description">{series.description}</p>
+                  <div className="card-links">
+                    <a href={series.external_url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "#0077cc" }}>
+                      View Details
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p>No web series recommendations available. Try again!</p>
+          )}
+        </div>
+        
+        {recommendations.webseries?.length > itemsPerPage && (
+          <Pagination 
+            totalItems={recommendations.webseries.length}
+            itemsPerPage={itemsPerPage}
+            currentPage={currentWebSeriesPage}
+            setCurrentPage={setCurrentWebSeriesPage}
+          />
+        )}
+      </div>
+
+      {/* STORIES SECTION */}
+      <div className="category-container">
+        <h2>Stories & Books ({recommendations.stories?.length || 0} titles)</h2>
+        <div className="content-grid">
+          {currentStoryItems.length > 0 ? (
+            currentStoryItems.map((story, idx) => (
+              <div key={idx} className="recommendation-card story-card">
+                {story.cover_url && (
+                  <img 
+                    src={story.cover_url} 
+                    alt={story.title} 
+                    className="card-image" 
+                  />
+                )}
+                <div className="card-content">
+                  <h3>{story.title}</h3>
+                  <p>By {story.author} ({story.year})</p>
+                  <p>{story.pages} pages | Rating: {story.rating}/10</p>
+                  <p className="card-description">{story.description}</p>
+                  <div className="card-links">
+                    <a href={story.external_url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "#0077cc" }}>
+                      Read More
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p>No story recommendations available. Try again!</p>
+          )}
+        </div>
+        
+        {recommendations.stories?.length > itemsPerPage && (
+          <Pagination 
+            totalItems={recommendations.stories.length}
+            itemsPerPage={itemsPerPage}
+            currentPage={currentStoriesPage}
+            setCurrentPage={setCurrentStoriesPage}
+          />
+        )}
       </div>
     </div>
   );
