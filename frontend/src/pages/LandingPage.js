@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -37,35 +37,121 @@ function getEmojiCount() {
 }
 function getInitialEmojis() {
   const { emojiCount, minDist, minSize, maxSize, minLoopWidth } = getEmojiConfig();
-  // Ensure enough emojis to fill at least minLoopWidth
-  let count = emojiCount;
+  
+  // Slightly reduce emoji count to prevent overcrowding
+  let count = Math.ceil(emojiCount * 1.2); // Reduced from 1.35
   if (window.innerWidth < minLoopWidth) {
-    count = Math.ceil((minLoopWidth / window.innerWidth) * emojiCount);
+    count = Math.ceil((minLoopWidth / window.innerWidth) * emojiCount * 1.2);
   }
+  
+  // Create a grid system with more spacing
+  const gridCols = 5;  // Reduced to 5 for even more spacing
+  const gridRows = 5;  // Reduced to 5 for even more spacing
   const placed = [];
-  let tries = 0;
-  while (placed.length < count && tries < count * 100) {
-    tries++;
-    const emoji = emojiPattern[Math.floor(Math.random() * emojiPattern.length)];
-    const size = minSize + Math.random() * (maxSize - minSize);
-    const top = 4 + Math.random() * 90;
-    const left = 3 + Math.random() * 94;
-    let ok = true;
-    for (const p of placed) {
+  
+  // Helper function to check if a new emoji would overlap with existing ones
+  const wouldOverlap = (newEmoji) => {
+    for (const existing of placed) {
+      // Convert percentages to approximate pixels for distance calculation
       const pxPerPercentW = window.innerWidth / 100;
-      const pxPerPercentH = window.innerHeight * 0.4 / 100;
-      const dx = (left - p.left) * pxPerPercentW;
-      const dy = (top - p.top) * pxPerPercentH;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < (size/2 + p.size/2 + 6)) {
-        ok = false;
-        break;
+      const pxPerPercentH = window.innerHeight * 0.4 / 100; // Assuming hero section is about 40% of window height
+      
+      // Calculate distance between emojis in pixels
+      const dx = (newEmoji.left - existing.left) * pxPerPercentW;
+      const dy = (newEmoji.top - existing.top) * pxPerPercentH;
+      const distance = Math.sqrt(dx*dx + dy*dy);
+      
+      // Calculate minimum required distance based on emoji sizes plus padding
+      const minRequiredDist = (newEmoji.size/2 + existing.size/2 + 15); // Added 15px padding
+      
+      // If too close, return true (overlap detected)
+      if (distance < minRequiredDist) {
+        return true;
       }
     }
-    if (ok) {
-      placed.push({ top, left, size, emoji });
+    return false; // No overlap
+  };
+  
+  // Place emojis on grid with overlap checking
+  for (let row = 0; row < gridRows; row++) {
+    for (let col = 0; col < gridCols; col++) {
+      // Skip some cells randomly (15% chance)
+      if (Math.random() < 0.15) continue;
+      
+      // Try multiple positions within each cell
+      let maxAttempts = 5;
+      let placed_in_cell = false;
+      
+      while (maxAttempts > 0 && !placed_in_cell) {
+        const emoji = emojiPattern[Math.floor(Math.random() * emojiPattern.length)];
+        const size = minSize + Math.random() * (maxSize - minSize);
+        
+        // Calculate position within grid cell with controlled jitter
+        const cellWidth = 100 / gridCols;
+        const cellHeight = 100 / gridRows;
+        
+        // Moderate jitter that stays within cell boundaries
+        const jitterX = (Math.random() - 0.5) * cellWidth * 0.7;
+        const jitterY = (Math.random() - 0.5) * cellHeight * 0.7;
+        
+        const left = (col * cellWidth) + (cellWidth / 2) + jitterX;
+        const top = (row * cellHeight) + (cellHeight / 2) + jitterY;
+        
+        // Size with less variation to better control spacing
+        const adjustedSize = size * (0.85 + (Math.random() * 0.3));
+        
+        const newEmoji = { 
+          top: Math.max(2, Math.min(98, top)), 
+          left: Math.max(2, Math.min(98, left)), 
+          size: adjustedSize, 
+          emoji 
+        };
+        
+        // Only place if it doesn't overlap with existing emojis
+        if (!wouldOverlap(newEmoji)) {
+          placed.push(newEmoji);
+          placed_in_cell = true;
+        }
+        
+        maxAttempts--;
+      }
     }
   }
+  
+  // Add a few more emojis with strict spacing checks
+  const additionalCount = Math.ceil(count * 0.15);
+  let attempts = 0;
+  let added = 0;
+  
+  while (added < additionalCount && attempts < additionalCount * 10) {
+    attempts++;
+    
+    const emoji = emojiPattern[Math.floor(Math.random() * emojiPattern.length)];
+    const size = minSize * 0.9 + Math.random() * (maxSize - minSize) * 0.8; // Smaller size for fill emojis
+    
+    // Improved distribution with section-based placement
+    const section = added % 9; // Divide into 9 sections
+    const sectionWidth = 100 / 3;
+    const sectionHeight = 100 / 3;
+    const sectionX = section % 3;
+    const sectionY = Math.floor(section / 3);
+    
+    // Random position within section plus a little jitter
+    const jitterX = (Math.random() - 0.5) * sectionWidth * 0.4;
+    const jitterY = (Math.random() - 0.5) * sectionHeight * 0.4;
+    
+    const top = (sectionY * sectionHeight) + (sectionHeight / 2) + jitterY;
+    const left = (sectionX * sectionWidth) + (sectionWidth / 2) + jitterX;
+    
+    const newEmoji = { top, left, size, emoji };
+    
+    // Only add if it doesn't overlap
+    if (!wouldOverlap(newEmoji)) {
+      placed.push(newEmoji);
+      added++;
+    }
+  }
+  
   return placed;
 }
 // Responsive emoji regeneration handled in component
@@ -78,6 +164,15 @@ const LandingPage = () => {
   const [heroWidth, setHeroWidth] = useState(0);
   const [emojis, setEmojis] = useState(() => getInitialEmojis());
   const bgLayerRef = useRef(null);
+  
+  // Filter emojis to ensure they render properly
+  const filteredEmojis = useMemo(() => {
+    return emojis.filter(emoji => 
+      emoji.emoji && 
+      emoji.emoji.length <= 2 && // Most standard emojis are 1-2 characters
+      !emoji.emoji.includes('️') // Remove variation selectors that might cause issues
+    );
+  }, [emojis]);
 
   // Responsive: Re-generate emojis on window resize
   useEffect(() => {
@@ -104,22 +199,101 @@ const LandingPage = () => {
   useEffect(() => {
     let rafId;
     let offset = 0;
+    const duplicateCount = 2; // Create duplicates for seamless looping
+    
+    // Create a second set of emojis for seamless scrolling
+    const setupDuplicateEmojis = () => {
+      if (bgLayerRef.current) {
+        // Clear existing children first
+        while (bgLayerRef.current.firstChild) {
+          bgLayerRef.current.removeChild(bgLayerRef.current.firstChild);
+        }
+        
+        // Create the main container with duplicates for infinite scrolling
+        const container = document.createElement('div');
+        container.style.display = 'flex';
+        container.style.width = `${duplicateCount * 100}%`;
+        container.style.height = '100%';
+        container.style.position = 'absolute';
+        
+        // Create duplicates of the emoji set
+        for (let i = 0; i < duplicateCount; i++) {
+          const emojiSet = document.createElement('div');
+          emojiSet.style.width = '100%';
+          emojiSet.style.height = '100%';
+          emojiSet.style.position = 'relative';
+          
+          // Add all emojis to this set
+          filteredEmojis.forEach((emoji, index) => {
+            const span = document.createElement('span');
+            span.className = 'emoji';
+            span.textContent = emoji.emoji;
+            span.setAttribute('role', 'img');
+            span.setAttribute('aria-hidden', 'true');
+            
+            // Apply styles
+            Object.assign(span.style, {
+              position: 'absolute',
+              top: `${emoji.top}%`,
+              left: `${emoji.left}%`,
+              fontSize: `${emoji.size}px`,
+              opacity: '0.6', // Reduced opacity for individual emojis
+              filter: 'blur(0.75px)', // Matched blur with container
+              transition: 'transform 0.3s ease-out',
+              transform: 'translate(-50%, -50%)',
+              willChange: 'transform',
+              pointerEvents: 'none',
+              userSelect: 'none',
+              zIndex: '0',
+              lineHeight: '1'
+            });
+            
+            emojiSet.appendChild(span);
+          });
+          
+          container.appendChild(emojiSet);
+        }
+        
+        bgLayerRef.current.appendChild(container);
+      }
+    };
+    
+    // Initial setup
+    setupDuplicateEmojis();
+    
+    // Animation function
     function animateBg() {
       const pxSpeed = Math.max(2.5, (heroWidth || 1200) / 600);
       const width = heroWidth || 1200;
       offset += pxSpeed;
+      
+      // Reset when we've scrolled one full width
       if (offset >= width) {
         offset = 0;
-        setEmojis(getInitialEmojis());
       }
-      if (bgLayerRef.current) {
-        bgLayerRef.current.style.transform = `translateX(-${offset}px)`;
+      
+      if (bgLayerRef.current && bgLayerRef.current.firstChild) {
+        bgLayerRef.current.firstChild.style.transform = `translateX(-${offset}px)`;
       }
+      
       rafId = requestAnimationFrame(animateBg);
     }
+    
+    // Start animation
     animateBg();
-    return () => cancelAnimationFrame(rafId);
-  }, [heroWidth]);
+    
+    // Regenerate emoji sets on resize or every 10 seconds for variety
+    const regenerateInterval = setInterval(() => {
+      setEmojis(getInitialEmojis());
+      setupDuplicateEmojis();
+    }, 10000);
+    
+    // Cleanup
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearInterval(regenerateInterval);
+    };
+  }, [heroWidth, filteredEmojis]);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -556,74 +730,25 @@ const LandingPage = () => {
           height: '100%',
           zIndex: 0,
           pointerEvents: 'none',
-          opacity: 0.36,
-          filter: 'blur(0.5px)',
-          display: 'flex',
-          flexWrap: 'wrap',
+          opacity: 0.28, // Reduced opacity for subtler effect
+          filter: 'blur(0.75px)', // Slightly increased blur for softer appearance
+          overflow: 'hidden'
         }}>
-          {/* Emoji grid: 10 cols x 7 rows, spaced evenly, each cell gets a random emoji and a bit of jitter */}
+          {/* The DOM-based approach will render emojis here via the useEffect */}
           <Box
             ref={bgLayerRef}
             sx={{
               position: 'absolute',
               top: 0,
               left: 0,
-              width: (() => {
-                const { minLoopWidth } = getEmojiConfig();
-                const w = heroWidth || window.innerWidth;
-                return `${Math.max(w, minLoopWidth) * 2}px`;
-              })(),
+              width: '100%',
               height: '100%',
               display: 'flex',
-              flexDirection: 'row',
+              flexWrap: 'nowrap',  // Changed to nowrap for horizontal scrolling
               pointerEvents: 'none',
-              // No transition for ultra-smooth JS-driven animation
+              overflow: 'hidden' // Ensure nothing spills out
             }}
-          >
-            {/* Each emoji set fills 100% of the container for perfect overlap */}
-            <Box sx={{ position: 'relative', width: heroWidth ? `${heroWidth}px` : '100%', height: '100%' }}>
-              {emojis.map((e, idx) => (
-                <span
-                  key={`emoji-bg-A-${idx}`}
-                  style={{
-                    position: 'absolute',
-                    top: `${e.top}%`,
-                    left: `${e.left}%`,
-                    fontSize: `${e.size}px`,
-                    userSelect: 'none',
-                    opacity: 0.82,
-                    filter: 'blur(0.2px)',
-                    pointerEvents: 'none',
-                    transition: 'none',
-                    willChange: 'transform',
-                  }}
-                >
-                  {e.emoji}
-                </span>
-              ))}
-            </Box>
-            <Box sx={{ position: 'relative', width: heroWidth ? `${heroWidth}px` : '100%', height: '100%' }}>
-              {emojis.map((e, idx) => (
-                <span
-                  key={`emoji-bg-B-${idx}`}
-                  style={{
-                    position: 'absolute',
-                    top: `${e.top}%`,
-                    left: `${e.left}%`,
-                    fontSize: `${e.size}px`,
-                    userSelect: 'none',
-                    opacity: 0.82,
-                    filter: 'blur(0.2px)',
-                    pointerEvents: 'none',
-                    transition: 'none',
-                    willChange: 'transform',
-                  }}
-                >
-                  {e.emoji}
-                </span>
-              ))}
-            </Box>
-          </Box>
+          />
         </Box>
         <Container maxWidth="md" sx={{ position: 'relative', zIndex: 1 }}>
           <Typography variant="h3" sx={{
