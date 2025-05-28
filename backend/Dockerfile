@@ -4,23 +4,31 @@ FROM python:3.10-slim
 # Set the working directory
 WORKDIR /app
 
-# Install system dependencies for MongoDB and any other required packages
-RUN apt-get update && apt-get install -y \
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
     libpq-dev \
-    gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the requirements.txt file from the root directory one level up
-COPY ../requirements.txt ./requirements.txt
-
-# Install the dependencies
+# Install Python dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the backend application code
+# Copy project
 COPY . .
 
-# Expose Django port
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
+# Expose the port the app runs on
 EXPOSE 8000
 
-# Run migrations and start the Django server
-CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+# Make the start script executable
+RUN chmod +x /app/start.sh
+
+# Command to run the application
+CMD ["/app/start.sh"]
