@@ -15,18 +15,68 @@ import "../App.css";
 import "../fonts/fonts.css";
 import { emojiPattern } from '../assets/emoji-bg';
 
-// Dispersed, non-overlapping emoji placement
+// Dispersed, non-overlapping emoji placement with better responsive settings
 function getEmojiConfig() {
   const width = window.innerWidth;
+  const height = window.innerHeight;
+  const aspectRatio = width / height;
+  const isLandscape = aspectRatio > 1;
+  
+  // Calculate sizes based on viewport dimensions
+  const getResponsiveSize = (base) => {
+    // Scale base size proportionally to screen dimensions
+    const scaleFactor = Math.min(width, height) / 1000;
+    return Math.max(base * scaleFactor, base * 0.6); // Ensure minimum size
+  };
+  
   if (width <= 480) {
-    // Mobile
-    return { emojiCount: 24, minDist: 58, minSize: 22, maxSize: 32, minLoopWidth: 900 };
-  } else if (width <= 900) {
-    // Tablet
-    return { emojiCount: 36, minDist: 48, minSize: 28, maxSize: 44, minLoopWidth: 1100 };
+    // Mobile (portrait)
+    return { 
+      emojiCount: isLandscape ? 20 : 15, 
+      minDist: 40, 
+      minSize: getResponsiveSize(20),
+      maxSize: getResponsiveSize(28),
+      minLoopWidth: 600,
+      gridCols: isLandscape ? 5 : 4,
+      gridRows: isLandscape ? 4 : 5,
+      padding: 18  // Increased padding for mobile
+    };
+  } else if (width <= 768) {
+    // Small tablets
+    return { 
+      emojiCount: isLandscape ? 25 : 20, 
+      minDist: 45, 
+      minSize: getResponsiveSize(24),
+      maxSize: getResponsiveSize(36),
+      minLoopWidth: 800,
+      gridCols: isLandscape ? 6 : 5,
+      gridRows: isLandscape ? 4 : 5,
+      padding: 20
+    };
+  } else if (width <= 1024) {
+    // Large tablets & small laptops
+    return { 
+      emojiCount: isLandscape ? 35 : 30, 
+      minDist: 48, 
+      minSize: getResponsiveSize(28),
+      maxSize: getResponsiveSize(42),
+      minLoopWidth: 1000,
+      gridCols: isLandscape ? 6 : 5,
+      gridRows: isLandscape ? 5 : 6,
+      padding: 22
+    };
   } else {
     // Desktop
-    return { emojiCount: 48, minDist: 40, minSize: 32, maxSize: 52, minLoopWidth: 1400 };
+    return { 
+      emojiCount: 40, 
+      minDist: 45, 
+      minSize: getResponsiveSize(30),
+      maxSize: getResponsiveSize(48),
+      minLoopWidth: 1200,
+      gridCols: 6,
+      gridRows: 6,
+      padding: 25
+    };
   }
 }
 function getMinDist() {
@@ -36,17 +86,26 @@ function getEmojiCount() {
   return getEmojiConfig().emojiCount;
 }
 function getInitialEmojis() {
-  const { emojiCount, minDist, minSize, maxSize, minLoopWidth } = getEmojiConfig();
+  // Get responsive configuration based on current device dimensions
+  const { emojiCount, minDist, minSize, maxSize, minLoopWidth, gridCols, gridRows, padding } = getEmojiConfig();
   
-  // Slightly reduce emoji count to prevent overcrowding
-  let count = Math.ceil(emojiCount * 1.2); // Reduced from 1.35
-  if (window.innerWidth < minLoopWidth) {
-    count = Math.ceil((minLoopWidth / window.innerWidth) * emojiCount * 1.2);
+  // Adjust emoji count slightly based on device
+  const aspectRatio = window.innerWidth / window.innerHeight;
+  const isLandscape = aspectRatio > 1;
+  
+  // Calculate an appropriate multiplier based on device dimensions
+  let countMultiplier = 1.2; // Base multiplier
+  if (window.innerWidth <= 480) {
+    countMultiplier = isLandscape ? 1.1 : 1.0; // Fewer emojis on small screens, especially portrait
+  } else if (window.innerWidth <= 768) {
+    countMultiplier = isLandscape ? 1.15 : 1.1;
   }
   
-  // Create a grid system with more spacing
-  const gridCols = 5;  // Reduced to 5 for even more spacing
-  const gridRows = 5;  // Reduced to 5 for even more spacing
+  let count = Math.ceil(emojiCount * countMultiplier);
+  if (window.innerWidth < minLoopWidth) {
+    count = Math.ceil((minLoopWidth / window.innerWidth) * emojiCount * countMultiplier);
+  }
+  
   const placed = [];
   
   // Helper function to check if a new emoji would overlap with existing ones
@@ -54,7 +113,7 @@ function getInitialEmojis() {
     for (const existing of placed) {
       // Convert percentages to approximate pixels for distance calculation
       const pxPerPercentW = window.innerWidth / 100;
-      const pxPerPercentH = window.innerHeight * 0.4 / 100; // Assuming hero section is about 40% of window height
+      const pxPerPercentH = window.innerHeight * (window.innerWidth <= 480 ? 0.3 : 0.4) / 100; // Smaller height ratio for mobile
       
       // Calculate distance between emojis in pixels
       const dx = (newEmoji.left - existing.left) * pxPerPercentW;
@@ -62,7 +121,8 @@ function getInitialEmojis() {
       const distance = Math.sqrt(dx*dx + dy*dy);
       
       // Calculate minimum required distance based on emoji sizes plus padding
-      const minRequiredDist = (newEmoji.size/2 + existing.size/2 + 15); // Added 15px padding
+      // Use the padding from configuration that adapts to screen size
+      const minRequiredDist = (newEmoji.size/2 + existing.size/2 + padding);
       
       // If too close, return true (overlap detected)
       if (distance < minRequiredDist) {
@@ -72,14 +132,23 @@ function getInitialEmojis() {
     return false; // No overlap
   };
   
-  // Place emojis on grid with overlap checking
+  // Place emojis on grid with responsive overlap checking
   for (let row = 0; row < gridRows; row++) {
     for (let col = 0; col < gridCols; col++) {
-      // Skip some cells randomly (15% chance)
-      if (Math.random() < 0.15) continue;
+      // Skip rate adjusts based on screen size
+      let skipRate = 0.15; // Default skip rate
+      if (window.innerWidth <= 480) {
+        skipRate = 0.25; // Skip more cells on mobile for less density
+      } else if (window.innerWidth <= 768) {
+        skipRate = 0.2;  // Skip slightly more on tablets
+      }
+      
+      // Skip some cells randomly
+      if (Math.random() < skipRate) continue;
       
       // Try multiple positions within each cell
-      let maxAttempts = 5;
+      // Fewer attempts on mobile to improve performance
+      let maxAttempts = window.innerWidth <= 480 ? 3 : 5;
       let placed_in_cell = false;
       
       while (maxAttempts > 0 && !placed_in_cell) {
@@ -90,15 +159,19 @@ function getInitialEmojis() {
         const cellWidth = 100 / gridCols;
         const cellHeight = 100 / gridRows;
         
-        // Moderate jitter that stays within cell boundaries
-        const jitterX = (Math.random() - 0.5) * cellWidth * 0.7;
-        const jitterY = (Math.random() - 0.5) * cellHeight * 0.7;
+        // Adjust jitter based on screen size (less jitter on small screens)
+        const jitterFactor = window.innerWidth <= 480 ? 0.5 : 
+                           window.innerWidth <= 768 ? 0.6 : 0.7;
+        
+        const jitterX = (Math.random() - 0.5) * cellWidth * jitterFactor;
+        const jitterY = (Math.random() - 0.5) * cellHeight * jitterFactor;
         
         const left = (col * cellWidth) + (cellWidth / 2) + jitterX;
         const top = (row * cellHeight) + (cellHeight / 2) + jitterY;
         
-        // Size with less variation to better control spacing
-        const adjustedSize = size * (0.85 + (Math.random() * 0.3));
+        // Size with appropriate variation
+        const sizeVariation = window.innerWidth <= 480 ? 0.2 : 0.3; // Less variation on small screens
+        const adjustedSize = size * (0.85 + (Math.random() * sizeVariation));
         
         const newEmoji = { 
           top: Math.max(2, Math.min(98, top)), 
@@ -119,26 +192,40 @@ function getInitialEmojis() {
   }
   
   // Add a few more emojis with strict spacing checks
-  const additionalCount = Math.ceil(count * 0.15);
+  // Reduce additional emojis on mobile devices for better performance
+  const additionalRatio = window.innerWidth <= 480 ? 0.1 : 
+                         window.innerWidth <= 768 ? 0.12 : 0.15;
+  
+  const additionalCount = Math.ceil(count * additionalRatio);
   let attempts = 0;
   let added = 0;
   
-  while (added < additionalCount && attempts < additionalCount * 10) {
+  // Limit maximum attempts on mobile for performance
+  const maxAdditionalAttempts = window.innerWidth <= 480 ? additionalCount * 5 : additionalCount * 10;
+  
+  while (added < additionalCount && attempts < maxAdditionalAttempts) {
     attempts++;
     
     const emoji = emojiPattern[Math.floor(Math.random() * emojiPattern.length)];
     const size = minSize * 0.9 + Math.random() * (maxSize - minSize) * 0.8; // Smaller size for fill emojis
     
-    // Improved distribution with section-based placement
-    const section = added % 9; // Divide into 9 sections
-    const sectionWidth = 100 / 3;
-    const sectionHeight = 100 / 3;
-    const sectionX = section % 3;
-    const sectionY = Math.floor(section / 3);
+    // Responsive section-based placement
+    // Fewer sections on small screens
+    const sectionCount = window.innerWidth <= 480 ? 4 : 9;
+    const section = added % sectionCount;
     
-    // Random position within section plus a little jitter
-    const jitterX = (Math.random() - 0.5) * sectionWidth * 0.4;
-    const jitterY = (Math.random() - 0.5) * sectionHeight * 0.4;
+    // Grid dimensions based on section count
+    const gridDim = Math.sqrt(sectionCount);
+    const sectionWidth = 100 / gridDim;
+    const sectionHeight = 100 / gridDim;
+    
+    const sectionX = section % gridDim;
+    const sectionY = Math.floor(section / gridDim);
+    
+    // Adjust jitter based on screen size
+    const jitterFactor = window.innerWidth <= 480 ? 0.3 : 0.4;
+    const jitterX = (Math.random() - 0.5) * sectionWidth * jitterFactor;
+    const jitterY = (Math.random() - 0.5) * sectionHeight * jitterFactor;
     
     const top = (sectionY * sectionHeight) + (sectionHeight / 2) + jitterY;
     const left = (sectionX * sectionWidth) + (sectionWidth / 2) + jitterX;
@@ -195,13 +282,32 @@ const LandingPage = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Animate background using direct DOM manipulation for smoother performance
+  // Animate background using direct DOM manipulation with responsive performance adjustments
   useEffect(() => {
     let rafId;
     let offset = 0;
-    const duplicateCount = 2; // Create duplicates for seamless looping
+    let lastTimestamp = 0;
+    let isLowPowerDevice = false;
     
-    // Create a second set of emojis for seamless scrolling
+    // Detect low-power devices based on performance
+    try {
+      // A simple performance check that might indicate a low-power device
+      const start = performance.now();
+      let counter = 0;
+      for (let i = 0; i < 100000; i++) {
+        counter += i;
+      }
+      const end = performance.now();
+      isLowPowerDevice = (end - start) > 50; // More than 50ms suggests a lower-powered device
+    } catch (e) {
+      // If performance API is not available, default to screen size
+      isLowPowerDevice = window.innerWidth <= 768;
+    }
+    
+    // Adjust duplicates based on device capability
+    const duplicateCount = isLowPowerDevice ? 2 : 3; // Fewer duplicates on low-power devices
+    
+    // Create responsive emojis for seamless scrolling
     const setupDuplicateEmojis = () => {
       if (bgLayerRef.current) {
         // Clear existing children first
@@ -216,32 +322,54 @@ const LandingPage = () => {
         container.style.height = '100%';
         container.style.position = 'absolute';
         
-        // Create duplicates of the emoji set
-        for (let i = 0; i < duplicateCount; i++) {
-          const emojiSet = document.createElement('div');
-          emojiSet.style.width = '100%';
-          emojiSet.style.height = '100%';
-          emojiSet.style.position = 'relative';
+        // Optimize rendering for mobile by throttling emoji creation
+        const emojiChunkSize = window.innerWidth <= 480 ? 10 : 30; // Process in smaller chunks on mobile
+        const totalEmojis = filteredEmojis.length;
+        let processedEmojis = 0;
+        
+        // Create function to process emoji chunks efficiently
+        const processEmojiChunk = () => {
+          if (processedEmojis >= totalEmojis * duplicateCount) return;
           
-          // Add all emojis to this set
-          filteredEmojis.forEach((emoji, index) => {
+          const setIndex = Math.floor(processedEmojis / totalEmojis);
+          
+          // Create the emoji set container if it doesn't exist
+          if (!container.children[setIndex]) {
+            const emojiSet = document.createElement('div');
+            emojiSet.style.width = '100%';
+            emojiSet.style.height = '100%';
+            emojiSet.style.position = 'relative';
+            container.appendChild(emojiSet);
+          }
+          
+          const emojiSet = container.children[setIndex];
+          const chunkEnd = Math.min(processedEmojis + emojiChunkSize, (setIndex + 1) * totalEmojis);
+          
+          // Process a chunk of emojis
+          for (let i = processedEmojis; i < chunkEnd; i++) {
+            const emojiIndex = i % totalEmojis;
+            const emoji = filteredEmojis[emojiIndex];
+            
             const span = document.createElement('span');
             span.className = 'emoji';
             span.textContent = emoji.emoji;
             span.setAttribute('role', 'img');
             span.setAttribute('aria-hidden', 'true');
             
-            // Apply styles
+            // Responsive styling based on device
+            const deviceBasedOpacity = window.innerWidth <= 480 ? '0.5' : '0.6';
+            const deviceBasedBlur = window.innerWidth <= 480 ? '0.8px' : '0.75px';
+            
+            // Apply styles with device-specific adjustments
             Object.assign(span.style, {
               position: 'absolute',
               top: `${emoji.top}%`,
               left: `${emoji.left}%`,
               fontSize: `${emoji.size}px`,
-              opacity: '0.6', // Reduced opacity for individual emojis
-              filter: 'blur(0.75px)', // Matched blur with container
-              transition: 'transform 0.3s ease-out',
+              opacity: deviceBasedOpacity,
+              filter: `blur(${deviceBasedBlur})`,
               transform: 'translate(-50%, -50%)',
-              willChange: 'transform',
+              willChange: isLowPowerDevice ? 'auto' : 'transform', // Disable willChange on low-power devices
               pointerEvents: 'none',
               userSelect: 'none',
               zIndex: '0',
@@ -249,11 +377,23 @@ const LandingPage = () => {
             });
             
             emojiSet.appendChild(span);
-          });
+          }
           
-          container.appendChild(emojiSet);
-        }
+          processedEmojis = chunkEnd;
+          
+          // Continue processing next chunk if not finished
+          if (processedEmojis < totalEmojis * duplicateCount) {
+            // Use setTimeout for mobile to avoid blocking the main thread
+            if (window.innerWidth <= 768) {
+              setTimeout(processEmojiChunk, 0);
+            } else {
+              processEmojiChunk();
+            }
+          }
+        };
         
+        // Start processing emoji chunks
+        processEmojiChunk();
         bgLayerRef.current.appendChild(container);
       }
     };
@@ -261,9 +401,24 @@ const LandingPage = () => {
     // Initial setup
     setupDuplicateEmojis();
     
-    // Animation function
-    function animateBg() {
-      const pxSpeed = Math.max(2.5, (heroWidth || 1200) / 600);
+    // Responsive animation function with performance adjustments
+    function animateBg(timestamp) {
+      // Throttle animation on low-power devices
+      if (isLowPowerDevice && timestamp - lastTimestamp < 16) { // ~60fps
+        rafId = requestAnimationFrame(animateBg);
+        return;
+      }
+      lastTimestamp = timestamp;
+      
+      // Calculate speed based on device capabilities and screen size
+      let speedMultiplier = 1.0;
+      if (window.innerWidth <= 480) {
+        speedMultiplier = 0.7; // Slower on mobile for better performance and visibility
+      } else if (window.innerWidth <= 768) {
+        speedMultiplier = 0.85; // Slightly slower on tablets
+      }
+      
+      const pxSpeed = Math.max(1.8, (heroWidth || 1200) / 600) * speedMultiplier;
       const width = heroWidth || 1200;
       offset += pxSpeed;
       
@@ -280,18 +435,36 @@ const LandingPage = () => {
     }
     
     // Start animation
-    animateBg();
+    rafId = requestAnimationFrame(animateBg);
     
-    // Regenerate emoji sets on resize or every 10 seconds for variety
+    // Regenerate emoji sets with device-appropriate intervals
+    // Less frequent regeneration on mobile to save battery
+    const regenerationInterval = window.innerWidth <= 480 ? 15000 : 
+                                window.innerWidth <= 768 ? 12000 : 10000;
+    
     const regenerateInterval = setInterval(() => {
       setEmojis(getInitialEmojis());
       setupDuplicateEmojis();
-    }, 10000);
+    }, regenerationInterval);
+    
+    // Setup resize listener with debounce for efficiency
+    let resizeTimer;
+    const handleResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        setEmojis(getInitialEmojis());
+        setupDuplicateEmojis();
+      }, 250); // Debounce resize events
+    };
+    
+    window.addEventListener('resize', handleResize);
     
     // Cleanup
     return () => {
       cancelAnimationFrame(rafId);
       clearInterval(regenerateInterval);
+      clearTimeout(resizeTimer);
+      window.removeEventListener('resize', handleResize);
     };
   }, [heroWidth, filteredEmojis]);
 
