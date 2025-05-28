@@ -1157,50 +1157,77 @@ import mimetypes
 def test_tmdb_api(request):
     """Test endpoint to verify TMDB API is working correctly."""
     import os
-    api_key = os.getenv('TMDB_API_KEY')
+    import json
+    import urllib3
+    from urllib.parse import urlencode
+    
+    # Disable SSL warnings
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    
+    # Try to get API key from both environment variables and settings
+    api_key = os.getenv('TMDB_API_KEY', 'cfea14bd15c392a8d6b4cb651971c5d8')
     
     if not api_key:
         return Response({"error": "TMDB_API_KEY not found in environment variables"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     try:
-        # Test popular movies endpoint
-        url = f"https://api.themoviedb.org/3/movie/popular"
-        response = requests.get(
-            url,
-            params={"api_key": api_key, "language": "en-US", "page": 1}
+        # Initialize HTTP client
+        http = urllib3.PoolManager(
+            cert_reqs='CERT_NONE',
+            assert_hostname=False,
+            timeout=urllib3.Timeout(connect=10.0, read=10.0)
         )
         
-        if response.status_code != 200:
+        # Build URL with query parameters
+        params = {
+            'api_key': api_key,
+            'language': 'en-US',
+            'page': 1
+        }
+        url = f"https://api.themoviedb.org/3/movie/popular?{urlencode(params)}"
+        
+        # Make the request
+        response = http.request('GET', url)
+        
+        if response.status == 200:
+            try:
+                data = json.loads(response.data.decode('utf-8'))
+                results = data.get("results", [])
+                
+                # Return first 5 movies with basic info
+                movies = []
+                for movie in results[:5]:
+                    poster_path = movie.get("poster_path")
+                    movies.append({
+                        "id": movie.get("id"),
+                        "title": movie.get("title"),
+                        "poster_url": f"https://image.tmdb.org/t/p/w500{poster_path}" if poster_path else None,
+                        "release_date": movie.get("release_date")
+                    })
+                
+                return Response({
+                    "success": True,
+                    "api_key_works": True,
+                    "movies_found": len(results),
+                    "sample_movies": movies
+                })
+                
+            except json.JSONDecodeError as e:
+                return Response(
+                    {"error": f"Failed to parse API response: {str(e)}"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+        else:
             return Response(
-                {"error": f"TMDB API request failed with status {response.status_code}", "details": response.text},
+                {"error": f"TMDB API request failed with status {response.status}",
+                 "response": response.data.decode('utf-8') if response.data else ''},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-        
-        data = response.json()
-        results = data.get("results", [])
-        
-        # Return first 5 movies with basic info
-        movies = []
-        for movie in results[:5]:
-            poster_path = movie.get("poster_path")
-            movies.append({
-                "id": movie.get("id"),
-                "title": movie.get("title"),
-                "poster_url": f"https://image.tmdb.org/t/p/w500{poster_path}" if poster_path else None,
-                "release_date": movie.get("release_date")
-            })
-        
-        return Response({
-            "success": True,
-            "api_key_works": True,
-            "movies_found": len(results),
-            "sample_movies": movies
-        })
-        
+            
     except Exception as e:
         import traceback
         return Response(
-            {"error": str(e), "traceback": traceback.format_exc()},
+            {"error": f"Unexpected error: {str(e)}", "traceback": traceback.format_exc()},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 

@@ -33,7 +33,6 @@ debugpy==1.8.5
 decorator==4.4.2
 defusedxml==0.7.1
 dill==0.3.8
-dj-database-url==2.1.0
 dj-rest-auth==6.0.0
 Django==5.1.1
 django-allauth==65.0.1

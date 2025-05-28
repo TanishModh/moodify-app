@@ -8,7 +8,8 @@ def main():
     """Run administrative tasks."""
     # Add the project root (Moodify-Emotion-Music-App) to the Python path
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.append(project_root)
+    if project_root not in sys.path:
+        sys.path.append(project_root)
 
     # Add the 'ai_ml' directory to the Python path
     sys.path.append(os.path.join(project_root, 'ai_ml'))
@@ -24,6 +25,7 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
+    
     execute_from_command_line(sys.argv)
 
 
