@@ -30,52 +30,52 @@ function getEmojiConfig() {
   };
   
   if (width <= 480) {
-    // Mobile (portrait)
+    // Mobile (portrait) - significantly increased sizes
     return { 
       emojiCount: isLandscape ? 20 : 15, 
-      minDist: 45, 
-      minSize: getResponsiveSize(30), // Increased from 20
-      maxSize: getResponsiveSize(42), // Increased from 28
+      minDist: 48, 
+      minSize: getResponsiveSize(38), // Further increased for mobile
+      maxSize: getResponsiveSize(52), // Further increased for mobile
       minLoopWidth: 600,
-      gridCols: isLandscape ? 5 : 4,
-      gridRows: isLandscape ? 4 : 5,
-      padding: 20  // Increased padding for better spacing with larger emojis
+      gridCols: isLandscape ? 4 : 3, // Reduced grid density for larger emojis
+      gridRows: isLandscape ? 3 : 4, // Reduced grid density for larger emojis
+      padding: 22  // Increased padding for better spacing with larger emojis
     };
   } else if (width <= 768) {
-    // Small tablets
+    // Small tablets - moderately increased
     return { 
       emojiCount: isLandscape ? 25 : 20, 
       minDist: 50, 
-      minSize: getResponsiveSize(36), // Increased from 24
-      maxSize: getResponsiveSize(52), // Increased from 36
+      minSize: getResponsiveSize(34), // Moderately increased
+      maxSize: getResponsiveSize(46), // Moderately increased
       minLoopWidth: 800,
-      gridCols: isLandscape ? 6 : 5,
+      gridCols: isLandscape ? 5 : 4,
       gridRows: isLandscape ? 4 : 5,
-      padding: 24
+      padding: 22
     };
   } else if (width <= 1024) {
-    // Large tablets & small laptops
+    // Large tablets & small laptops - slightly increased
     return { 
       emojiCount: isLandscape ? 35 : 30, 
-      minDist: 55, 
-      minSize: getResponsiveSize(42), // Increased from 28
-      maxSize: getResponsiveSize(60), // Increased from 42
+      minDist: 48, 
+      minSize: getResponsiveSize(28), // Back to original
+      maxSize: getResponsiveSize(42), // Back to original
       minLoopWidth: 1000,
       gridCols: isLandscape ? 6 : 5,
       gridRows: isLandscape ? 5 : 6,
-      padding: 28
+      padding: 22
     };
   } else {
-    // Desktop
+    // Desktop - reverted to original sizes
     return { 
       emojiCount: 40, 
-      minDist: 58, 
-      minSize: getResponsiveSize(48), // Increased from 30
-      maxSize: getResponsiveSize(68), // Increased from 48
+      minDist: 45, 
+      minSize: getResponsiveSize(30), // Reverted to original
+      maxSize: getResponsiveSize(48), // Reverted to original
       minLoopWidth: 1200,
       gridCols: 6,
       gridRows: 6,
-      padding: 30
+      padding: 25
     };
   }
 }
