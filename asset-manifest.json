@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/moodifyme-entertainment-platform/static/css/main.a7b90745.css",
-    "main.js": "/moodifyme-entertainment-platform/static/js/main.f8db2947.js",
+    "main.js": "/moodifyme-entertainment-platform/static/js/main.7946d1a7.js",
     "static/js/845.3052be3a.chunk.js": "/moodifyme-entertainment-platform/static/js/845.3052be3a.chunk.js",
     "static/media/OIP5.png": "/moodifyme-entertainment-platform/static/media/OIP5.f2e0436f6dcd14704c47.png",
     "static/media/OIP7.webp": "/moodifyme-entertainment-platform/static/media/OIP7.969bc848a8b0e081ea9b.webp",
@@ -26,11 +26,11 @@
     "static/media/OIP19.webp": "/moodifyme-entertainment-platform/static/media/OIP19.76f5e5b9bfdb46d57a05.webp",
     "index.html": "/moodifyme-entertainment-platform/index.html",
     "main.a7b90745.css.map": "/moodifyme-entertainment-platform/static/css/main.a7b90745.css.map",
-    "main.f8db2947.js.map": "/moodifyme-entertainment-platform/static/js/main.f8db2947.js.map",
+    "main.7946d1a7.js.map": "/moodifyme-entertainment-platform/static/js/main.7946d1a7.js.map",
     "845.3052be3a.chunk.js.map": "/moodifyme-entertainment-platform/static/js/845.3052be3a.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.a7b90745.css",
-    "static/js/main.f8db2947.js"
+    "static/js/main.7946d1a7.js"
   ]
 }
