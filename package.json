@@ -1,0 +1,50 @@
+{
+  "name": "moodify-app",
+  "displayName": "MoodifyMe App",
+  "author": "Son Nguyen",
+  "license": "MIT",
+  "description": "MoodifyMe Emotion-Based Music Recommendation App",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hoangsonww/MoodifyMe-Emotion-Music-App.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hoangsonww/MoodifyMe-Emotion-Music-App/issues"
+  },
+  "version": "1.1.0",
+  "private": false,
+  "scripts": {
+    "start": "cd frontend && npm start",
+    "build": "cd frontend && npm run build",
+    "test": "cd frontend && npm start",
+    "eject": "cd frontend && npm run eject",
+    "frontend": "cd frontend && npm start",
+    "backend": "cd backend && python manage.py runserver",
+    "dev": "concurrently \"cd backend && python manage.py runserver 0.0.0.0:5000\" \"cd frontend && npm start\"",
+    "format": "prettier --write \"frontend/**/*.{js,jsx,json,css,scss,md,html}\""
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "prettier": "^3.3.3"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

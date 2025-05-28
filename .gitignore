@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# Node modules
+/frontend/node_modules/
+/node_modules
+*.rar
+frontend/node_modules.rar
+
+# Ignoring large AI/ML model files
+/ai_ml/models/text_emotion_model/checkpoint-965/
+/ai_ml/models/text_emotion_model/checkpoint-1930/
+/ai_ml/models/text_emotion_model/checkpoint-2895/
+/ai_ml/models/text_emotion_model/checkpoint-3860/
+/ai_ml/models/text_emotion_model/model.safetensors
+*.h5
+*.pkl
+*.model
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Large JSON files
+api_response.json
+api_response_detailed.json
+recommendations.json
+response.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp files
+*.tmp
+.tmp*
