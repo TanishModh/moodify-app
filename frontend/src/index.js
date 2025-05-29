@@ -1,4 +1,4 @@
-import './nodePolyfills';
+import './setupPolyfills';
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";

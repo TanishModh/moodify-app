@@ -3,4 +3,4 @@
 window.process = window.process || {};
 window.process.env = window.process.env || {};
 window.fs = {};
-window.Buffer = window.Buffer || require('buffer').Buffer;
+// Don't try to use the Buffer module here
