@@ -12,7 +12,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "https://moodifyme-backend.onrender.com/api/$1"
+      "dest": "https://moodifyme-backend.vercel.app/api/$1"
     },
     {
       "src": "/(.*)",
