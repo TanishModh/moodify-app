@@ -3,6 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -15,16 +16,31 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json'
+
+      - name: Clear npm cache
+        working-directory: ./frontend
+        run: npm cache clean --force
+        
+      - name: Debug npm environment
+        working-directory: ./frontend
+        run: npm config list
 
       - name: Install dependencies
         working-directory: ./frontend
-        run: npm ci
+        run: npm install --no-fund --no-audit --prefer-offline
+        
+      - name: Install buffer package
+        working-directory: ./frontend
+        run: npm install buffer --save
 
       - name: Build
         working-directory: ./frontend
         run: CI=false npm run build
         env:
           CI: false
+          NODE_OPTIONS: --max_old_space_size=4096
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
