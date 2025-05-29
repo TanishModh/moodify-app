@@ -4,6 +4,7 @@ import { Box, Button, Typography, Paper, Modal, Tab, Tabs, CircularProgress } fr
 import { useNavigate } from "react-router-dom";
 import { useDarkMode } from "../context/DarkModeContext";
 import Webcam from "react-webcam";
+import "../faceApiPolyfill";
 import * as faceapi from 'face-api.js';
 import { saveMood } from "../services/mood";
 
